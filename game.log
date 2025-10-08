@@ -1,0 +1,46 @@
+2025-10-08 16:26:14,293 - ERROR - Fatal error: 'int' object is not callable
+2025-10-08 16:28:35,126 - ERROR - Fatal error: 'int' object is not callable
+2025-10-08 16:31:02,165 - ERROR - Fatal error: 'int' object is not callable
+2025-10-08 16:35:01,375 - INFO -  TEXT ADVENTURE RPG - 10 FLOOR EDITION
+2025-10-08 16:35:01,375 - INFO -  Version 5.0.0
+2025-10-08 16:35:01,375 - INFO - 
+1. New Game | 2. Load Game
+2025-10-08 16:35:14,621 - INFO - 
+=== Choose Class ===
+2025-10-08 16:35:14,621 - INFO - 1. Warrior - High HP, strength-based
+2025-10-08 16:35:14,621 - INFO - 2. Mage - High mana, intelligence-based
+2025-10-08 16:35:14,622 - INFO - 3. Rogue - Balanced, agility-based
+2025-10-08 16:35:31,333 - INFO - 
+=== Choose Weapon ===
+2025-10-08 16:35:31,333 - INFO - 1. Iron Sword - 18 dmg
+2025-10-08 16:35:31,333 - INFO - 2. Steel Axe - 20 dmg
+2025-10-08 16:35:31,333 - INFO - 3. Bronze Hammer - 22 dmg
+2025-10-08 16:35:36,429 - INFO - You equipped: Bronze Hammer
+2025-10-08 16:35:36,429 - INFO - 
+*** Generating 10-floor dungeon...
+2025-10-08 16:35:36,430 - ERROR - Creation error: Logger._log() got an unexpected keyword argument 'end'
+2025-10-08 16:35:36,430 - INFO - 
+*** Generating 10-floor dungeon...
+2025-10-08 16:35:36,430 - ERROR - Fatal error: Logger._log() got an unexpected keyword argument 'end'
+2025-10-08 16:35:36,430 - INFO - 
+
+Fatal error: Logger._log() got an unexpected keyword argument 'end'
+2025-10-08 16:35:36,430 - INFO - Please report this bug!
+2025-10-08 17:01:04,546 [INFO] _create_character:1353 - New character: J (warrior) with Bronze Hammer
+2025-10-08 17:01:04,546 [INFO] _generate_dungeon:1368 - Starting dungeon generation...
+2025-10-08 17:01:04,548 [INFO] _generate_dungeon:1434 - Dungeon generated: 10 floors, 118 total rooms
+2025-10-08 17:25:21,365 [INFO] _create_character:1353 - New character: J (warrior) with Bronze Hammer
+2025-10-08 17:25:21,365 [INFO] _generate_dungeon:1368 - Starting dungeon generation...
+2025-10-08 17:25:21,367 [INFO] _generate_dungeon:1434 - Dungeon generated: 10 floors, 119 total rooms
+2025-10-08 17:37:16,230 [INFO] _create_character:1596 - New character: J (warrior) with Bronze Hammer
+2025-10-08 17:37:16,230 [INFO] _generate_dungeon:1611 - Starting dungeon generation...
+2025-10-08 17:37:16,232 [INFO] _generate_dungeon:1672 - Dungeon generated: 10 floors, 118 total rooms
+2025-10-08 17:42:24,787 [INFO] _create_character:1596 - New character: J (warrior) with Bronze Hammer
+2025-10-08 17:42:24,787 [INFO] _generate_dungeon:1611 - Starting dungeon generation...
+2025-10-08 17:42:24,789 [INFO] _generate_dungeon:1672 - Dungeon generated: 10 floors, 116 total rooms
+2025-10-08 17:46:46,077 [INFO] fight_enemy:1205 - Combat started: J (Lvl 1, HP 120) vs skeleton (HP 30)
+2025-10-08 17:46:46,077 [INFO] fight_enemy:1219 - Victory: J defeated skeleton in 2 turns. Gained 30 XP
+2025-10-08 17:46:46,078 [INFO] gain_experience:807 - Player gained 30 XP. Total: 30/100
+2025-10-08 17:46:46,078 [INFO] fight_enemy:1205 - Combat started: J (Lvl 1, HP 113) vs sewer rat (HP 15)
+2025-10-08 17:46:46,078 [INFO] fight_enemy:1219 - Victory: J defeated sewer rat in 1 turns. Gained 15 XP
+2025-10-08 17:46:46,078 [INFO] gain_experience:807 - Player gained 15 XP. Total: 45/100
