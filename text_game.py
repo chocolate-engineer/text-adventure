@@ -1,35 +1,364 @@
 """
 ================================================================================
-TEXT ADVENTURE RPG GAME
+TEXT ADVENTURE RPG GAME - COMPLETE 10 FLOOR EDITION
 ================================================================================
-Version: 2.1.0
-Author: AI Assistant
-Python: 3.8+
-FEATURES:
-• Three character classes with 3-tier progression
-• Procedurally generated dungeons (unique each playthrough)
-• Six weapon rarity tiers with damage scaling
-• Ultra-rare Golden Gun (0.02% drop, instant kill, 6 uses)
-• Three boss encounters with strategic combat
-• Level-based inventory management
-• Hidden chest system unlocked by boss defeat
-• Complete save/load functionality with version checking
-• Interactive dungeon map
-• Turn-based combat system
-• Wearable items (e.g., armor piece) that boost stats without inventory cost
-• Class-specific weapon spawns
-• Increased rare item spawn rates on class upgrades
-• Improved crash handling with logging
-• New 'consume' command for healing/experience items
-CLASSES:
-GameConstants - Configuration and game balance values
-Player - Character state and progression
-Room - Dungeon locations
-RoomTemplates - Centralized room definitions
-WeaponSystem - Weapon generation and rarity
-CombatSystem - All combat mechanics
-CommandHandler - Command processing
-Game - Main controller and game loop
+Version: 6.0.0
+Author: DEKU
+Python: 3.13+
+
+================================================================================
+COMPLETE FEATURE LIST
+================================================================================
+
+MULTI-FLOOR DUNGEON SYSTEM:
+• Ten unique floors with procedurally generated layouts (expanded from 3)
+• Each floor contains 10-15 randomly connected rooms (expanded from 8-10)
+• Floors connected via ancient stairways (use 'up'/'down' commands)
+• One unique boss per floor with escalating difficulty
+• Floor progression: Dungeon → Crypt → Elemental → Dark Magic → Cosmic
+• Each playthrough has completely different room layouts
+
+CHARACTER CLASSES & PROGRESSION:
+• Three playable classes: Warrior, Mage, Rogue
+• Each class has unique stats, health, mana, and weapon types
+• Three-tier class progression system (upgrades at levels 5, 10, 15)
+  - Tier 1: Warrior/Mage/Rogue
+  - Tier 2: Berserker/Sorcerer/Assassin
+  - Tier 3: Paladin/Archmage/Shadow Master
+• Class upgrades grant: +5 all stats, +30 health, +25 mana, +5% rare drops
+• Different inventory capacities and growth rates per class
+
+WEAPON SYSTEM:
+• Three starting weapons per class (game randomly shows 3 to choose from)
+  - Warrior weapons: 18-22 base damage (melee type)
+  - Mage weapons: 13-16 base damage (magic type)
+  - Rogue weapons: 14-18 base damage (stealth type)
+• Six rarity tiers with damage multipliers:
+  - Common (1.0x), Uncommon (1.3x), Rare (1.6x)
+  - Epic (2.0x), Legendary (2.5x), Mythic (3.0x)
+• Ultra-rare Golden Gun (0.02% drop chance):
+  - Instant kill on any enemy
+  - 6 uses before it crumbles to dust
+  - Divine rarity (999x multiplier)
+• Weapons scale with player level and rarity boosts
+• Class-specific weapon spawns (warriors get melee, mages get magic, etc.)
+
+COMBAT & LEVELING:
+• Turn-based combat system with strategic choices
+• Player actions: Attack, Magic (costs mana), Defend, Use Potion
+• Enemy count balanced for proper level progression per floor
+• Each floor has 15-25 enemies before boss encounter (scaled up)
+• Experience required increases per level (base 100, 1.4x multiplier)
+• Boss fights feature special attacks and health-based mechanics
+• Bosses reward legendary weapons, stat bonuses, and full heal
+
+ENHANCED ENEMY SYSTEM (NEW):
+• 20+ unique enemy types (expanded from 7)
+• Enemies organized by floor themes:
+  - Floors 1-2: Dungeon/Prison (Rats, Goblins, Skeletons, Guards)
+  - Floors 3-4: Crypt/Necromancy (Wraiths, Ghouls, Dark Mages)
+  - Floors 5-6: Elemental (Fire, Ice, Lightning, Stone)
+  - Floors 7-8: Dark Magic (Demons, Cultists, Void Spawn)
+  - Floors 9-10: Cosmic/Ancient (Guardians, Horrors, Titans)
+• NO DUPLICATE enemies per room (unique spawning system)
+• Each enemy has descriptive text that appears in combat
+
+ATMOSPHERIC DESCRIPTIONS (NEW):
+• Every room has two-part descriptions:
+  - Main description of the physical space
+  - Atmospheric text that sets the mood
+• Enhanced enemy introductions with flavor text
+• Thematic consistency per floor
+
+TEN BOSS FIGHTS (EXPANDED):
+• Floor 1: Arena Champion (gladiator theme)
+• Floor 2: Necromancer Lord (death magic)
+• Floor 3: Crypt Overlord (undead king)
+• Floor 4: Shadow King (darkness incarnate)
+• Floor 5: Flame Lord (fire elemental)
+• Floor 6: Frost Titan (ice giant)
+• Floor 7: Demon Prince (abyssal power)
+• Floor 8: Void Archon (reality warper)
+• Floor 9: Primordial Beast (ancient titan)
+• Floor 10: Reality Breaker (cosmic horror)
+• Each boss has unique legendary weapons for all 3 classes
+
+PUZZLE & EXPLORATION SYSTEM (ORIGINAL FEATURES):
+• Interactive special items with 'use' command:
+  - Torch: Place in Hidden Alcove sconce to unlock secret vault
+  - Rusty Key: Opens Locked Vault chest for treasure cache
+  - Ancient Medallion: Offer at Sacred Shrine for permanent stat boosts
+  - Old Map: View dungeon layout
+  - Bone Key: Quest item for crypt areas
+• Secret room system with legendary loot
+• Special room types: Hidden Alcove, Locked Vault, Sacred Shrine
+• Context-sensitive interactions (items work in specific rooms)
+
+ITEM MANAGEMENT - SEPARATE COMMANDS:
+• 'heal' - Use healing items (health potions restore HP, magic scrolls restore mana)
+• 'exp' or 'experience' - Use experience items (gems give instant XP)
+• 'equip' or 'wear' - Equip wearable stat-boosting items
+• 'use <item>' - Use special interactive items (torch, keys, medallion)
+• Items LOCKED until all enemies in room are defeated
+• Cannot pick up loot while enemies present (strategic gameplay)
+• Inventory capacity increases with level and class tier
+
+ENHANCED DROP RATES:
+• 40% chance for weapon cache drops from defeated enemies
+• 35% base item drop chance (scales with weapon rarity)
+• Multiple weapon caches per room (2-3 in armories/warrior halls)
+• Approximately 10-15 weapon opportunities per floor
+• Golden Gun can drop from any weapon cache (0.02% chance)
+• 60% gold coin drop rate from enemies
+
+CONTEXT-AWARE HELP SYSTEM (NEW):
+• Help command shows only relevant actions
+• Combat commands appear only when enemies present
+• Item commands adjust based on inventory contents
+• Shop command only shows when you have gold coins
+• Special item usage hints when you have interactive items
+• No menu clutter - clean, situational interface
+
+FUZZY COMMAND MATCHING:
+• Typo-tolerant command system using similarity matching
+• "inventroy" → suggests "inventory"
+• "atack goblin" → suggests "attack"
+• Shortcuts available: 'inv', 'n/s/e/w', 'get', 'drop', etc.
+• Direction commands work standalone: 'north', 'south', 'east', 'west'
+• Cutoff threshold: 60% similarity for matches
+
+GOLD COIN ECONOMY:
+• Enemies drop 2-10 gold coins (60% drop rate)
+• Merchant shop available throughout dungeon
+• Purchase healing items, stat boosters, experience gems
+• Prices scale from 5g (health potion) to 40g (soul crystal)
+• Shop inventory adjusts by class (mages can buy magic scrolls)
+
+SAVE/LOAD SYSTEM:
+• Complete game state persistence to JSON file
+• Saves: player stats, inventory, floor layouts, room states
+• Version checking prevents corrupted saves from old versions
+• Auto-saves progress including visited rooms and defeated enemies
+• Golden Gun uses tracked and restored properly
+• Secret room unlock states preserved
+
+INTERACTIVE MAP:
+• View entire dungeon with 'map' command
+• Shows all ten floors separately
+• Tracks visited rooms with >>> current location marker
+• Displays available exits for each discovered room
+• Progress counter: visited/total rooms per floor
+• Undiscovered room hints
+
+================================================================================
+ROOM TYPES (30+ Templates, Thematically Organized)
+================================================================================
+FLOORS 1-2: DUNGEON/PRISON THEME
+• Damp Prison Cell - Rusted bars and decay
+• Guard Barracks - Abandoned military quarters
+• Torture Chamber - Implements of pain
+• Long Hallway - Common corridor
+
+FLOORS 3-4: CRYPT/NECROMANCY THEME
+• Ancient Crypt - Stone sarcophagi
+• Necromancer's Study - Forbidden tomes
+• Burial Chamber - Rows of burial niches
+• Tomb passages
+
+FLOORS 5-6: ELEMENTAL THEME
+• Inferno Chamber - Lava pools and heat
+• Frozen Cavern - Ice and cold
+• Storm Hall - Lightning and electricity
+• Elemental nexus points
+
+FLOORS 7-8: DARK MAGIC THEME
+• Ritual Chamber - Blasphemous symbols
+• Shadow Realm Gate - Portal to darkness
+• Corrupted Sanctum - Desecrated holy sites
+• Cultist hideouts
+
+FLOORS 9-10: COSMIC/ANCIENT THEME
+• Primordial Vault - Prehistoric architecture
+• Cosmic Observatory - Reality-bending spaces
+• Hall of Eternity - Time anomalies
+• Ancient monuments
+
+SPECIAL ROOMS (ALL FLOORS):
+• Treasure Room - Guarded wealth
+• Hidden Alcove - Secret room trigger (torch puzzle)
+• Locked Vault - Key puzzle room
+• Sacred Shrine - Medallion offering puzzle
+• Ancient Armory - Weapon caches
+• Boss Chambers - Ten unique arenas
+
+================================================================================
+COMPLETE ENEMY ROSTER (20+ TYPES)
+================================================================================
+FLOORS 1-2 ENEMIES:
+• Sewer Rat: 15 HP, 5 damage, 15 XP - Disease-ridden vermin
+• Goblin: 25 HP, 8 damage, 25 XP - Small green creatures
+• Skeleton: 30 HP, 10 damage, 30 XP - Animated bones
+• Prison Guard: 40 HP, 12 damage, 35 XP - Corrupted guards
+
+FLOORS 3-4 ENEMIES:
+• Armored Skeleton: 45 HP, 14 damage, 45 XP - Warrior undead
+• Shadow Wraith: 50 HP, 18 damage, 55 XP - Spectral beings
+• Corrupted Mage: 40 HP, 20 damage, 60 XP - Fallen spellcasters
+• Ghoul: 55 HP, 16 damage, 50 XP - Flesh-eating undead
+
+FLOORS 5-6 ENEMIES:
+• Fire Elemental: 60 HP, 22 damage, 70 XP - Living flame
+• Ice Elemental: 58 HP, 20 damage, 68 XP - Crystalline cold
+• Lightning Wisp: 50 HP, 25 damage, 75 XP - Crackling energy
+• Stone Golem: 80 HP, 18 damage, 65 XP - Animated stone
+
+FLOORS 7-8 ENEMIES:
+• Lesser Demon: 70 HP, 26 damage, 85 XP - Abyssal horrors
+• Dark Cultist: 65 HP, 24 damage, 80 XP - Dark fanatics
+• Shadow Beast: 75 HP, 28 damage, 90 XP - Monstrous predators
+• Void Spawn: 80 HP, 30 damage, 95 XP - Reality aberrations
+
+FLOORS 9-10 ENEMIES:
+• Ancient Guardian: 90 HP, 32 damage, 110 XP - Eternal sentinels
+• Cosmic Horror: 85 HP, 35 damage, 120 XP - Incomprehensible beings
+• Titan Spawn: 100 HP, 30 damage, 105 XP - Primordial offspring
+• Celestial Knight: 95 HP, 34 damage, 115 XP - Fallen heavenly warriors
+
+SPECIAL ENEMY:
+• Treasure Guardian: 60 HP, 20 damage, 65 XP - Magical construct
+
+================================================================================
+TEN BOSS ENCOUNTERS (DETAILED)
+================================================================================
+Floor 1 - Arena Champion:
+• Health: 120 + (level × 8)
+• Special: CHAMPION'S FURY
+• Rewards: Gladius of Victory / Champion's Scepter / Twin Blades
+• Minimum Level: 2
+
+Floor 2 - Necromancer Lord:
+• Health: 140 + (level × 9)
+• Special: DEATH CURSE
+• Rewards: Soul Reaper / Death Staff / Shadow Fang
+• Minimum Level: 4
+
+Floor 3 - Crypt Overlord:
+• Health: 160 + (level × 10)
+• Special: SOUL DRAIN
+• Rewards: Bone Crusher / Crypt Scepter / Grave Shiv
+• Minimum Level: 6
+
+Floor 4 - Shadow King:
+• Health: 180 + (level × 11)
+• Special: SHADOW STRIKE
+• Rewards: Shadowbane / Dark Orb / Night Piercer
+• Minimum Level: 8
+
+Floor 5 - Flame Lord:
+• Health: 200 + (level × 12)
+• Special: INFERNO
+• Rewards: Flamebringer / Inferno Staff / Cinder Bow
+• Minimum Level: 10
+
+Floor 6 - Frost Titan:
+• Health: 220 + (level × 13)
+• Special: GLACIAL STORM
+• Rewards: Frostbane Greatsword / Staff of Eternal Winter / Icicle Piercer
+• Minimum Level: 12
+
+Floor 7 - Demon Prince:
+• Health: 240 + (level × 14)
+• Special: HELLFIRE
+• Rewards: Demon's Edge / Abyssal Staff / Soul Piercer
+• Minimum Level: 14
+
+Floor 8 - Void Archon:
+• Health: 260 + (level × 15)
+• Special: VOID RIFT
+• Rewards: Voidreaver / Reality Staff / Oblivion Blade
+• Minimum Level: 16
+
+Floor 9 - Primordial Beast:
+• Health: 280 + (level × 16)
+• Special: ANCIENT WRATH
+• Rewards: Titan Slayer / Primordial Staff / Beast Fang
+• Minimum Level: 18
+
+Floor 10 - Reality Breaker:
+• Health: 300 + (level × 18)
+• Special: COSMIC ANNIHILATION
+• Rewards: Worldender / Cosmos Staff / Reality Ripper
+• Minimum Level: 20
+
+================================================================================
+EXPERIENCE REQUIREMENTS (PROGRESSIVE):
+================================================================================
+• Level 1→2: 100 XP
+• Level 2→3: 140 XP (1.4x multiplier)
+• Level 3→4: 196 XP
+• Level 4→5: 274 XP
+• Level 5→6: 384 XP
+• Level 6→7: 538 XP
+• Level 7→8: 753 XP
+• Each floor provides ~1200-1800 XP (ensures 2-3 levels per floor)
+
+================================================================================
+COMMANDS REFERENCE (CONTEXT-AWARE)
+================================================================================
+ALWAYS AVAILABLE:
+• help - Show relevant commands for current situation
+• look - Examine current room
+• go <direction> - Move (north/south/east/west/up/down)
+• inventory/inv - Show items
+• stats/status - Show character sheet
+• map - View dungeon layout
+• save/load - Save or load game
+• quit/exit - Exit game
+
+COMBAT (when enemies present):
+• fight/attack <enemy> - Engage in combat
+
+ITEMS (context-dependent):
+• take <item> - Pick up item (after combat)
+• takeall - Pick up all items
+• heal - Use healing items
+• exp/experience - Use experience items
+• equip/wear - Equip wearable items
+• use <item> - Use special interactive items (torch, keys, etc.)
+• switch [weapon] - Change equipped weapon
+• discard/drop <item> - Remove item
+
+SHOP (when you have gold):
+• shop/buy - Open merchant interface
+
+PROGRESSION (when available):
+• upgrade - Advance class tier
+
+================================================================================
+TECHNICAL CLASSES & ARCHITECTURE
+================================================================================
+GameConstants - All configuration values, enemy data, boss data, item definitions
+Player - Character state, progression, inventory, stats management
+Room - Dungeon location with items, enemies, exits, description, atmosphere
+RoomTemplates - Centralized themed room definitions for procedural generation
+WeaponSystem - Weapon generation, rarity calculation, Golden Gun mechanics
+CombatSystem - Turn-based combat, damage calculation, boss fights with all 10 bosses
+CommandHandler - Command processing with fuzzy matching
+Game - Main controller, world generation, game loop, save/load, puzzle systems
+
+================================================================================
+BALANCE NOTES
+================================================================================
+• Starting weapons balanced against early enemies (goblins: 25 HP)
+• ~15-25 enemies per floor ensures 2-3 level gains minimum
+• Boss minimum levels: 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+• Weapon rarity chances increase with level and class tier
+• Magic costs 15 mana, deals 10-25 + intelligence damage
+• Defending reduces boss damage by 50%
+• Agility reduces incoming damage by random(1, agility/3)
+• Boss health scales: base + (player_level × scaling_factor)
+• Experience multiplier reduced to 1.4x (from 1.5x) for better pacing
+
 ================================================================================
 """
 import random
@@ -37,8 +366,9 @@ import json
 import os
 import logging
 from typing import Dict, List, Optional, Set, Tuple, Any
+from difflib import get_close_matches
 
-# Setup logging for crash handling
+# Configure logging to track errors
 logging.basicConfig(
     filename='game.log',
     level=logging.ERROR,
@@ -49,11 +379,19 @@ logging.basicConfig(
 # CONFIGURATION & CONSTANTS
 #################################################################################
 class GameConstants:
-    """Centralized game configuration and balance values. All tunable parameters are defined here for easy adjustment."""
-    # ==================== VERSION INFO ====================
-    VERSION = "2.1.0"
+    """
+    Central configuration class containing all game constants and balance values.
+    Modify these values to adjust game difficulty and behavior.
+    """
+    VERSION = "5.0.0"
     SAVE_FILE = "savegame.json"
-    # ==================== CHARACTER CLASSES ====================
+    
+    # Floor configuration - expanded to 10 floors
+    NUM_FLOORS = 10
+    MIN_ROOMS_PER_FLOOR = 10  # Increased from 8
+    MAX_ROOMS_PER_FLOOR = 15  # Increased from 10
+    
+    # Class definitions with base stats and growth rates
     CLASSES = {
         'warrior': {
             'base_health': 120,
@@ -80,28 +418,37 @@ class GameConstants:
             'weapon_types': ['stealth']
         }
     }
-    # ==================== CLASS PROGRESSION ====================
+    
+    # Class progression titles
     CLASS_NAMES = {
         1: {'warrior': 'Warrior', 'mage': 'Mage', 'rogue': 'Rogue'},
         2: {'warrior': 'Berserker', 'mage': 'Sorcerer', 'rogue': 'Assassin'},
         3: {'warrior': 'Paladin', 'mage': 'Archmage', 'rogue': 'Shadow Master'}
     }
-    RARITY_BOOST_PER_TIER = 0.05  # 5% increase per class tier upgrade
-    # ==================== WEAPON RARITY SYSTEM ====================
+    
+    # Class upgrade levels - now supports progression to level 15+
+    CLASS_UPGRADE_LEVELS = [5, 10, 15]
+    RARITY_BOOST_PER_TIER = 0.05  # 5% better drop rates per tier
+    
+    # Weapon rarity system
     WEAPON_RARITIES = {
-        'common': {'multiplier': 1.0, 'color': '⚪'},
-        'uncommon': {'multiplier': 1.3, 'color': '🟢'},
-        'rare': {'multiplier': 1.6, 'color': '🔵'},
-        'epic': {'multiplier': 2.0, 'color': '🟣'},
-        'legendary': {'multiplier': 2.5, 'color': '🟡'},
-        'mythic': {'multiplier': 3.0, 'color': '🔴'},
-        'divine': {'multiplier': 999.0, 'color': '🌟'}  # Golden Gun only
+        'common': {'multiplier': 1.0, 'color': 'WHITE'},
+        'uncommon': {'multiplier': 1.3, 'color': 'GREEN'},
+        'rare': {'multiplier': 1.6, 'color': 'BLUE'},
+        'epic': {'multiplier': 2.0, 'color': 'PURPLE'},
+        'legendary': {'multiplier': 2.5, 'color': 'GOLD'},
+        'mythic': {'multiplier': 3.0, 'color': 'RED'},
+        'divine': {'multiplier': 999.0, 'color': 'STAR'}  # Golden Gun only
     }
+    
+    # Weapon type names by class
     WEAPON_TYPES = {
-        'melee': ['Sword', 'Axe', 'Hammer', 'Spear', 'Blade'],
-        'magic': ['Staff', 'Wand', 'Orb', 'Tome', 'Crystal'],
-        'stealth': ['Dagger', 'Bow', 'Claws', 'Shiv', 'Needle']
+        'melee': ['Sword', 'Axe', 'Hammer', 'Spear', 'Blade', 'Greatsword', 'Mace'],
+        'magic': ['Staff', 'Wand', 'Orb', 'Tome', 'Crystal', 'Scepter'],
+        'stealth': ['Dagger', 'Bow', 'Claws', 'Shiv', 'Needle', 'Rapier']
     }
+    
+    # Material names by rarity level
     WEAPON_MATERIALS = {
         'common': ['Iron', 'Steel', 'Bronze', 'Copper', 'Stone'],
         'uncommon': ['Silver', 'Enchanted', 'Sharp', 'Sturdy', 'Fine'],
@@ -110,123 +457,388 @@ class GameConstants:
         'legendary': ['Godforged', 'Divine', 'Eternal', 'Primordial', 'Void'],
         'mythic': ['Cosmos', 'Reality', 'Infinity', 'Quantum', 'Supreme']
     }
+    
+    # Golden Gun - ultra rare instant kill weapon
     GOLDEN_GUN_NAMES = [
         "Excalibur's Vengeance", "Dragonslayer Supreme", "Godkiller Mk.VII",
         "The Infinity Decimator", "Cosmos Ender", "Reality Ripper"
     ]
     GOLDEN_GUN_DROP_RATE = 0.0002  # 0.02% chance
-    # ==================== ENEMIES ====================
+    
+    # Complete enemy roster - 20+ unique enemies organized by floor theme
     ENEMIES = {
-        'goblin': {'health': 25, 'damage': 8, 'exp': 25},
-        'treasure guardian': {'health': 45, 'damage': 15, 'exp': 50},
-        'armored skeleton': {'health': 35, 'damage': 12, 'exp': 40},
-        'shadow wraith': {'health': 40, 'damage': 18, 'exp': 55},
-        'corrupted mage': {'health': 30, 'damage': 20, 'exp': 60}
-    }
-    # ==================== BOSSES ====================
-    BOSSES = {
-        'Dark Lord': {
-            'base_health': 150, 'health_scaling': 10, 'damage': 25, 'exp_reward': 200,
-            'special_attack': 'DARK ENERGY', 'special_bonus': 15, 'stat_bonus': 3, 'min_level': 3
+        # Floors 1-2: Dungeon/Prison Theme
+        'sewer rat': {
+            'health': 15, 'damage': 5, 'exp': 15, 
+            'desc': 'A disease-ridden rat with glowing red eyes'
         },
-        'Arena Champion': {
-            'base_health': 120, 'health_scaling': 8, 'damage': 22, 'exp_reward': 150,
-            'special_attack': "CHAMPION'S FURY", 'special_bonus': 12, 'stat_bonus': 2, 'min_level': 4
+        'goblin': {
+            'health': 25, 'damage': 8, 'exp': 25, 
+            'desc': 'A small, green-skinned creature wielding a crude club'
         },
-        'Frost Titan': {
-            'base_health': 180, 'health_scaling': 12, 'damage': 28, 'exp_reward': 250,
-            'special_attack': 'GLACIAL STORM', 'special_bonus': 18, 'stat_bonus': 3, 'min_level': 5
+        'skeleton': {
+            'health': 30, 'damage': 10, 'exp': 30, 
+            'desc': 'Animated bones held together by dark magic'
+        },
+        'prison guard': {
+            'health': 40, 'damage': 12, 'exp': 35, 
+            'desc': 'A corrupted guard in tattered armor'
+        },
+        
+        # Floors 3-4: Crypt/Necromancy Theme
+        'armored skeleton': {
+            'health': 45, 'damage': 14, 'exp': 45, 
+            'desc': 'A skeleton warrior clad in ancient armor'
+        },
+        'shadow wraith': {
+            'health': 50, 'damage': 18, 'exp': 55, 
+            'desc': 'A spectral being that feeds on fear'
+        },
+        'corrupted mage': {
+            'health': 40, 'damage': 20, 'exp': 60, 
+            'desc': 'A once-noble mage consumed by forbidden magic'
+        },
+        'ghoul': {
+            'health': 55, 'damage': 16, 'exp': 50, 
+            'desc': 'A flesh-eating undead creature'
+        },
+        
+        # Floors 5-6: Elemental Theme
+        'fire elemental': {
+            'health': 60, 'damage': 22, 'exp': 70, 
+            'desc': 'A being of pure flame and rage'
+        },
+        'ice elemental': {
+            'health': 58, 'damage': 20, 'exp': 68, 
+            'desc': 'A crystalline creature radiating freezing cold'
+        },
+        'lightning wisp': {
+            'health': 50, 'damage': 25, 'exp': 75, 
+            'desc': 'Crackling energy given form'
+        },
+        'stone golem': {
+            'health': 80, 'damage': 18, 'exp': 65, 
+            'desc': 'A massive construct of animated stone'
+        },
+        
+        # Floors 7-8: Dark Magic Theme
+        'lesser demon': {
+            'health': 70, 'damage': 26, 'exp': 85, 
+            'desc': 'A horned creature from the abyss'
+        },
+        'dark cultist': {
+            'health': 65, 'damage': 24, 'exp': 80, 
+            'desc': 'A fanatic devoted to dark powers'
+        },
+        'shadow beast': {
+            'health': 75, 'damage': 28, 'exp': 90, 
+            'desc': 'A monstrous predator born of darkness'
+        },
+        'void spawn': {
+            'health': 80, 'damage': 30, 'exp': 95, 
+            'desc': 'An aberration from beyond reality'
+        },
+        
+        # Floors 9-10: Ancient/Cosmic Theme
+        'ancient guardian': {
+            'health': 90, 'damage': 32, 'exp': 110, 
+            'desc': 'An eternal sentinel of forgotten secrets'
+        },
+        'cosmic horror': {
+            'health': 85, 'damage': 35, 'exp': 120, 
+            'desc': 'An incomprehensible being from the void'
+        },
+        'titan spawn': {
+            'health': 100, 'damage': 30, 'exp': 105, 
+            'desc': 'Offspring of the primordial titans'
+        },
+        'celestial knight': {
+            'health': 95, 'damage': 34, 'exp': 115, 
+            'desc': 'A fallen warrior of the heavens'
+        },
+        
+        # Special enemies (can appear on any floor)
+        'treasure guardian': {
+            'health': 60, 'damage': 20, 'exp': 65, 
+            'desc': 'A magical construct protecting valuable treasure'
         }
     }
-    # ==================== ITEMS ====================
+    
+    # Floor themes for enemy spawning - ensures thematically appropriate encounters
+    FLOOR_THEMES = {
+        1: ['sewer rat', 'goblin', 'skeleton', 'prison guard'],
+        2: ['goblin', 'skeleton', 'prison guard', 'armored skeleton'],
+        3: ['armored skeleton', 'shadow wraith', 'corrupted mage', 'ghoul'],
+        4: ['shadow wraith', 'corrupted mage', 'ghoul', 'armored skeleton'],
+        5: ['fire elemental', 'ice elemental', 'lightning wisp', 'stone golem'],
+        6: ['fire elemental', 'ice elemental', 'stone golem', 'lightning wisp'],
+        7: ['lesser demon', 'dark cultist', 'shadow beast', 'void spawn'],
+        8: ['lesser demon', 'dark cultist', 'shadow beast', 'void spawn'],
+        9: ['ancient guardian', 'cosmic horror', 'titan spawn', 'celestial knight'],
+        10: ['ancient guardian', 'cosmic horror', 'titan spawn', 'celestial knight']
+    }
+    
+    # Ten boss encounters - one per floor with progressive difficulty
+    BOSSES = {
+        'Arena Champion': {
+            'floor': 1,
+            'base_health': 120, 
+            'health_scaling': 8, 
+            'damage': 22, 
+            'exp_reward': 150,
+            'special_attack': "CHAMPION'S FURY", 
+            'special_bonus': 12, 
+            'stat_bonus': 2, 
+            'min_level': 2
+        },
+        'Necromancer Lord': {
+            'floor': 2,
+            'base_health': 140, 
+            'health_scaling': 9, 
+            'damage': 24, 
+            'exp_reward': 180,
+            'special_attack': 'DEATH CURSE', 
+            'special_bonus': 14, 
+            'stat_bonus': 2, 
+            'min_level': 4
+        },
+        'Crypt Overlord': {
+            'floor': 3,
+            'base_health': 160, 
+            'health_scaling': 10, 
+            'damage': 26, 
+            'exp_reward': 210,
+            'special_attack': 'SOUL DRAIN', 
+            'special_bonus': 16, 
+            'stat_bonus': 3, 
+            'min_level': 6
+        },
+        'Shadow King': {
+            'floor': 4,
+            'base_health': 180, 
+            'health_scaling': 11, 
+            'damage': 28, 
+            'exp_reward': 240,
+            'special_attack': 'SHADOW STRIKE', 
+            'special_bonus': 18, 
+            'stat_bonus': 3, 
+            'min_level': 8
+        },
+        'Flame Lord': {
+            'floor': 5,
+            'base_health': 200, 
+            'health_scaling': 12, 
+            'damage': 30, 
+            'exp_reward': 270,
+            'special_attack': 'INFERNO', 
+            'special_bonus': 20, 
+            'stat_bonus': 4, 
+            'min_level': 10
+        },
+        'Frost Titan': {
+            'floor': 6,
+            'base_health': 220, 
+            'health_scaling': 13, 
+            'damage': 32, 
+            'exp_reward': 300,
+            'special_attack': 'GLACIAL STORM', 
+            'special_bonus': 22, 
+            'stat_bonus': 4, 
+            'min_level': 12
+        },
+        'Demon Prince': {
+            'floor': 7,
+            'base_health': 240, 
+            'health_scaling': 14, 
+            'damage': 34, 
+            'exp_reward': 330,
+            'special_attack': 'HELLFIRE', 
+            'special_bonus': 24, 
+            'stat_bonus': 5, 
+            'min_level': 14
+        },
+        'Void Archon': {
+            'floor': 8,
+            'base_health': 260, 
+            'health_scaling': 15, 
+            'damage': 36, 
+            'exp_reward': 360,
+            'special_attack': 'VOID RIFT', 
+            'special_bonus': 26, 
+            'stat_bonus': 5, 
+            'min_level': 16
+        },
+        'Primordial Beast': {
+            'floor': 9,
+            'base_health': 280, 
+            'health_scaling': 16, 
+            'damage': 38, 
+            'exp_reward': 390,
+            'special_attack': 'ANCIENT WRATH', 
+            'special_bonus': 28, 
+            'stat_bonus': 6, 
+            'min_level': 18
+        },
+        'Reality Breaker': {
+            'floor': 10,
+            'base_health': 300, 
+            'health_scaling': 18, 
+            'damage': 40, 
+            'exp_reward': 450,
+            'special_attack': 'COSMIC ANNIHILATION', 
+            'special_bonus': 30, 
+            'stat_bonus': 7, 
+            'min_level': 20
+        }
+    }
+    
+    # Healing items - restore health or mana
     HEALING_ITEMS = {
         'health potion': {'heal': 30, 'type': 'health'},
         'ultimate health potion': {'heal': 'full', 'type': 'health'},
         'magic scroll': {'heal': 25, 'type': 'mana'},
-        'ice crystal': {'heal': 50, 'type': 'mana'}
+        'ice crystal': {'heal': 50, 'type': 'mana'},
+        'energy drink': {'heal': 20, 'type': 'health'},
+        'vitality tonic': {'heal': 35, 'type': 'health'},
+        'elixir of life': {'heal': 50, 'type': 'health'}
     }
+    
+    # Experience items - instant XP gain
     IMMEDIATE_EFFECT_ITEMS = {
         'experience gem': {'type': 'exp', 'amount': 50},
         'victory scroll': {'type': 'exp', 'amount': 75},
         'wisdom gem': {'type': 'exp', 'amount': 100},
-        'frozen artifact': {'type': 'exp', 'amount': 100}
+        'frozen artifact': {'type': 'exp', 'amount': 100},
+        'soul crystal': {'type': 'exp', 'amount': 150}
     }
+    
+    # Wearable items - permanent stat boosts
     WEARABLE_ITEMS = {
         'armor piece': {'stat': 'strength', 'bonus': 5},
         'cursed amulet': {'stat': 'intelligence', 'bonus': 3},
         "nature's blessing": {'stat': 'agility', 'bonus': 4},
-        'healing herb': {'stat': 'agility', 'bonus': 2},  # Assuming some are wearable
-        'mana flower': {'stat': 'intelligence', 'bonus': 4}
+        'healing herb': {'stat': 'agility', 'bonus': 2},
+        'mana flower': {'stat': 'intelligence', 'bonus': 4},
+        'power ring': {'stat': 'strength', 'bonus': 4},
+        'warrior charm': {'stat': 'strength', 'bonus': 3},
+        'swift boots': {'stat': 'agility', 'bonus': 5},
+        'leather bracer': {'stat': 'agility', 'bonus': 3},
+        'arcane pendant': {'stat': 'intelligence', 'bonus': 6},
+        'titan gauntlet': {'stat': 'strength', 'bonus': 7},
+        'shadow cloak': {'stat': 'agility', 'bonus': 6}
     }
+    
+    # Quest items - used for puzzles and special interactions
     QUEST_ITEMS = [
-        'rusty key', 'old map', 'legendary artifact', 'bone key', 'rope'
+        'rusty key', 'old map', 'legendary artifact', 'bone key', 'ancient medallion', 
+        'crystal shard', 'demon seal', 'void essence', 'primordial rune'
     ]
-    # ==================== DROP RATES ====================
-    WEAPON_DROP_CHANCE = 0.3  # 30% from enemies
-    ITEM_DROP_BASE_CHANCE = 0.3  # 30% base drop rate
-    # ==================== PROGRESSION ====================
+    
+    # Actionable items - items that can be "used" with special effects
+    ACTIONABLE_ITEMS = {
+        'rusty key': 'key',      # Opens Locked Vault
+        'bone key': 'key',       # Quest item
+        'torch': 'light',        # Opens Hidden Alcove secret room
+        'old map': 'map',        # Shows dungeon map
+        'ancient medallion': 'offering'  # Sacred Shrine offering
+    }
+    
+    # Gold coin shop prices
+    SHOP_ITEMS = {
+        'health potion': 5,
+        'magic scroll': 8,
+        'energy drink': 6,
+        'experience gem': 15,
+        'armor piece': 20,
+        'power ring': 25,
+        'swift boots': 25,
+        'elixir of life': 30,
+        'soul crystal': 40
+    }
+    
+    # Drop rate configuration
+    WEAPON_DROP_CHANCE = 0.4  # 40% chance for weapon cache from enemies
+    ITEM_DROP_BASE_CHANCE = 0.35  # 35% base chance for item drops
+    GOLD_DROP_CHANCE = 0.6  # 60% chance for gold coins
+    GOLD_DROP_MIN = 2
+    GOLD_DROP_MAX = 10
+    
+    # Progression configuration
     BASE_EXPERIENCE_NEEDED = 100
-    EXPERIENCE_MULTIPLIER = 1.5
+    EXPERIENCE_MULTIPLIER = 1.4  # Reduced from 1.5 for better pacing
     MANA_PER_LEVEL = 10
     INVENTORY_SLOTS_PER_2_LEVELS = 1
     INVENTORY_SLOTS_PER_TIER = 2
-    # ==================== COMBAT ====================
-    BOSS_DEFEND_REDUCTION = 2  # Divide damage by this when defending
-    BOSS_SPECIAL_TURN_FREQUENCY = 3  # Special attack every 3rd turn
-    BOSS_SPECIAL_HEALTH_THRESHOLD = 0.5  # Special attacks below 50% health
-    MIN_ENEMY_DAMAGE = 1
-    MIN_BOSS_DAMAGE = 5
+    
+    # Combat configuration
+    BOSS_DEFEND_REDUCTION = 2  # Defending halves boss damage
+    BOSS_SPECIAL_TURN_FREQUENCY = 3  # Boss uses special every 3 turns
+    BOSS_SPECIAL_HEALTH_THRESHOLD = 0.5  # Boss uses special below 50% HP
+    MIN_ENEMY_DAMAGE = 1  # Minimum damage from regular enemies
+    MIN_BOSS_DAMAGE = 5  # Minimum damage from bosses
     MAGIC_MANA_COST = 15
-    MAGIC_DAMAGE_RANGE = (10, 25)
+    MAGIC_DAMAGE_RANGE = (10, 25)  # Random damage range for magic
 
 #################################################################################
 # PLAYER CLASS
 #################################################################################
 class Player:
-    """Manages player character state, progression, and inventory."""
+    """
+    Represents the player character with all stats, inventory, and progression.
+    Handles leveling, class upgrades, inventory management, and equipment.
+    """
     def __init__(self, name: str, character_class: str = "warrior"):
-        # ===== BASIC INFO =====
         self.name = name
         self.character_class = character_class
-        self.class_tier = 1
-        # ===== PROGRESSION =====
+        self.class_tier = 1  # Starts at tier 1, can upgrade to 2 and 3
         self.level = 1
         self.experience = 0
         self.experience_to_next = GameConstants.BASE_EXPERIENCE_NEEDED
         self.stats = self._get_base_stats()
-        self.rarity_boost = 0.0
-        # ===== RESOURCES =====
+        self.rarity_boost = 0.0  # Increases with class tier for better loot
+        
+        # Health and mana
         self.health = self._get_base_health()
         self.max_health = self.health
         self.mana = self._get_base_mana()
         self.max_mana = self.mana
-        # ===== EQUIPMENT & INVENTORY =====
+        
+        # Inventory system
         self.inventory: List[str] = []
-        self.inventory_weapons: List[Dict] = []
-        self.weapon: Optional[Dict] = None
-        self.wearables: List[Dict] = []
+        self.inventory_weapons: List[Dict] = []  # Stored weapons
+        self.weapon: Optional[Dict] = None  # Currently equipped weapon
+        self.wearables: List[Dict] = []  # Equipped wearable items
         self.max_inventory = self._calculate_max_inventory()
-        # ===== GAME STATE =====
+        
+        # Location tracking
+        self.current_floor = 1
         self.current_room = "start"
         self.visited_rooms: Set[str] = set()
+        
+        # Progression tracking
         self.boss_defeated = False
-        self.first_boss_defeated = False
-        self.has_rusty_key = False
+        self.bosses_defeated: List[str] = []
+        
+        # Economy and special states
+        self.gold_coins = 0
+        self.secret_room_unlocked = False  # Track if secret vault is unlocked
 
-    # ========== STAT CALCULATIONS ==========
     def _get_base_health(self) -> int:
+        """Calculate base health based on class and tier"""
         config = GameConstants.CLASSES[self.character_class]
         base = config['base_health']
         tier_bonus = (self.class_tier - 1) * 30
         return base + tier_bonus
 
     def _get_base_mana(self) -> int:
+        """Calculate base mana based on class and tier"""
         config = GameConstants.CLASSES[self.character_class]
         base = config['base_mana']
         tier_bonus = (self.class_tier - 1) * 25
         return base + tier_bonus
 
     def _get_base_stats(self) -> Dict[str, int]:
+        """Calculate base stats based on class and tier"""
         config = GameConstants.CLASSES[self.character_class]
         stats = config['base_stats'].copy()
         tier_bonus = (self.class_tier - 1) * 5
@@ -235,50 +847,65 @@ class Player:
         return stats
 
     def _calculate_max_inventory(self) -> int:
+        """Calculate maximum inventory slots based on level and tier"""
         config = GameConstants.CLASSES[self.character_class]
         base = config['inventory_slots']
-        level_bonus = (self.level - 1) // 2
+        level_bonus = (self.level - 1) // 2  # +1 slot every 2 levels
         tier_bonus = (self.class_tier - 1) * GameConstants.INVENTORY_SLOTS_PER_TIER
         return base + level_bonus + tier_bonus
 
     def _get_health_per_level(self) -> int:
+        """Get health gain per level for this class"""
         config = GameConstants.CLASSES[self.character_class]
         return config['health_per_level']
 
-    # ========== CLASS PROGRESSION ==========
     def get_class_title(self) -> str:
+        """Get the current class title (e.g., 'Berserker' for tier 2 warrior)"""
         return GameConstants.CLASS_NAMES[self.class_tier][self.character_class]
 
     def can_upgrade_class(self) -> bool:
-        return self.level >= 5 and self.class_tier < 3
+        """Check if player can upgrade their class tier"""
+        if self.class_tier >= 3:
+            return False
+        next_upgrade_level = GameConstants.CLASS_UPGRADE_LEVELS[self.class_tier - 1]
+        return self.level >= next_upgrade_level
 
     def get_next_class_title(self) -> str:
+        """Get the name of the next class tier"""
         if self.class_tier >= 3:
             return "Max Level Reached"
         return GameConstants.CLASS_NAMES[self.class_tier + 1][self.character_class]
 
     def upgrade_class(self) -> bool:
+        """
+        Upgrade player's class tier (e.g., Warrior -> Berserker)
+        Grants significant bonuses to stats, health, mana, and loot quality
+        """
         if not self.can_upgrade_class():
             return False
-        old_title = self.get_class_title()
+        
         self.class_tier += 1
         self.rarity_boost += GameConstants.RARITY_BOOST_PER_TIER
         new_title = self.get_class_title()
-        # Recalculate all stats
+        
+        # Record old values for display
         old_max_health = self.max_health
         old_max_mana = self.max_mana
+        
+        # Recalculate base values with new tier
         self.max_health = self._get_base_health() + (self.level - 1) * self._get_health_per_level()
         self.max_mana = self._get_base_mana() + (self.level - 1) * GameConstants.MANA_PER_LEVEL
         self.stats = self._get_base_stats()
         self._apply_accumulated_level_bonuses()
-        # Full heal
+        
+        # Full heal on upgrade
         self.health = self.max_health
         self.mana = self.max_mana
-        # Display results
+        
         health_gained = self.max_health - old_max_health
         mana_gained = self.max_mana - old_max_mana
-        print(f"\n🌟 CLASS UPGRADE! You are now a {new_title}!")
-        print(f"Previous class: {old_title}")
+        
+        print(f"\n*** CLASS UPGRADE! You are now a {new_title}!")
         print(f"All stats increased by 5!")
         print(f"Health increased by {health_gained} (now {self.max_health})")
         print(f"Mana increased by {mana_gained} (now {self.max_mana})")
@@ -286,36 +913,49 @@ class Player:
         print("You have been fully healed!")
         return True
 
-    # ========== EXPERIENCE & LEVELING ==========
     def gain_experience(self, amount: int) -> None:
+        """
+        Add experience and handle level ups
+        Multiple level ups can occur from single experience gain
+        """
         self.experience += amount
         print(f"You gained {amount} experience!")
+        
+        # Handle multiple level ups
         while self.experience >= self.experience_to_next:
             self._level_up()
 
     def _level_up(self) -> None:
+        """
+        Handle leveling up the player
+        Increases stats, health, mana, and inventory capacity
+        """
         self.experience -= self.experience_to_next
         self.level += 1
         self.experience_to_next = int(self.experience_to_next * GameConstants.EXPERIENCE_MULTIPLIER)
-        # Update inventory capacity
+        
         old_max_inventory = self.max_inventory
         self.max_inventory = self._calculate_max_inventory()
-        # Stat increases
+        
         health_gain = self._get_health_per_level()
         self._apply_single_level_bonuses()
+        
         self.max_health += health_gain
         self.max_mana += GameConstants.MANA_PER_LEVEL
+        
+        # Full heal on level up
         self.health = self.max_health
         self.mana = self.max_mana
-        # Display results
-        print(f"\n🎉 LEVEL UP! You are now level {self.level}!")
+        
+        print(f"\n*** LEVEL UP! You are now level {self.level}!")
         print(f"Health increased by {health_gain} (now {self.max_health})")
         print(f"Mana increased by {GameConstants.MANA_PER_LEVEL} (now {self.max_mana})")
         if self.max_inventory > old_max_inventory:
-            print(f"Inventory capacity increased! ({old_max_inventory} → {self.max_inventory} slots)")
+            print(f"Inventory capacity increased! ({old_max_inventory} -> {self.max_inventory} slots)")
         print("You have been fully healed!")
 
     def _apply_single_level_bonuses(self) -> None:
+        """Apply stat bonuses for a single level up"""
         if self.character_class == 'warrior':
             self.stats['strength'] += 3
             self.stats['agility'] += 1
@@ -330,6 +970,7 @@ class Player:
             self.stats['intelligence'] += 1
 
     def _apply_accumulated_level_bonuses(self) -> None:
+        """Apply all accumulated level bonuses (used during class upgrade)"""
         level_bonus = self.level - 1
         if self.character_class == 'warrior':
             self.stats['strength'] += level_bonus * 3
@@ -344,10 +985,10 @@ class Player:
             self.stats['strength'] += level_bonus
             self.stats['intelligence'] += level_bonus
 
-    # ========== INVENTORY MANAGEMENT ==========
     def add_item(self, item: str) -> bool:
+        """Add item to inventory if space available"""
         if len(self.inventory) >= self.max_inventory:
-            print(f"❌ Your inventory is full! ({self.max_inventory} slots)")
+            print(f"X Your inventory is full! ({self.max_inventory} slots)")
             print("Use 'discard <item>' to make space.")
             return False
         self.inventory.append(item)
@@ -355,8 +996,9 @@ class Player:
         return True
 
     def add_weapon_to_inventory(self, weapon: Dict) -> bool:
+        """Store a weapon in inventory for later use"""
         if len(self.inventory) >= self.max_inventory:
-            print(f"❌ Your inventory is full! ({self.max_inventory} slots)")
+            print(f"X Your inventory is full! ({self.max_inventory} slots)")
             print("Cannot store weapon.")
             return False
         self.inventory_weapons.append(weapon)
@@ -365,73 +1007,65 @@ class Player:
         return True
 
     def remove_item(self, item: str) -> bool:
+        """Remove item from inventory"""
         if item not in self.inventory:
             return False
+        
+        # Handle weapon removal
         if item.startswith("WEAPON:"):
             weapon_name = item[8:]
             for i, weapon in enumerate(self.inventory_weapons):
                 if weapon['name'] == weapon_name:
                     self.inventory_weapons.pop(i)
                     break
+        
         self.inventory.remove(item)
         return True
 
     def can_add_item(self) -> bool:
+        """Check if there's space in inventory"""
         return len(self.inventory) < self.max_inventory
 
     def get_inventory_count(self) -> int:
+        """Get current number of items in inventory"""
         return len(self.inventory)
 
     def discard_item(self, item_name: str) -> bool:
+        """Discard an item from inventory"""
         for item in self.inventory:
-            if item.lower() == item_name.lower():
-                self.remove_item(item)
-                print(f"You discarded: {item}")
-                return True
-            if item_name.lower() in item.lower():
+            if item.lower() == item_name.lower() or item_name.lower() in item.lower():
                 self.remove_item(item)
                 print(f"You discarded: {item}")
                 return True
         print(f"You don't have '{item_name}' in your inventory.")
         return False
 
-    # ========== ITEM USAGE ==========
-    def consume_item(self) -> None:
-        healing = [item for item in self.inventory if item in GameConstants.HEALING_ITEMS]
-        exp_items = [item for item in self.inventory if item in GameConstants.IMMEDIATE_EFFECT_ITEMS]
-        if not healing and not exp_items:
-            print("You have no consumable items!")
-            return
-        print("\nChoose type:")
-        print("1. Healing item")
-        print("2. Experience item")
-        try:
-            choice = input("Enter 1 or 2: ").strip()
-            if choice == '1':
-                self.use_healing_item()
-            elif choice == '2':
-                self.use_exp_item()
-            else:
-                print("Invalid choice!")
-        except KeyboardInterrupt:
-            print("\nAction interrupted.")
-
     def use_healing_item(self, item_name: Optional[str] = None) -> bool:
+        """
+        Use a healing item from inventory
+        Can target specific item or show menu to choose
+        """
         healing_items = GameConstants.HEALING_ITEMS
+        
         if item_name:
+            # Try to use specific item
             if item_name in self.inventory and item_name in healing_items:
                 return self._apply_healing_effect(item_name, healing_items[item_name])
             print(f"You don't have '{item_name}' or it's not a healing item.")
             return False
+        
+        # Show menu of available healing items
         available = [item for item in self.inventory if item in healing_items]
         if not available:
             print("You don't have any healing items!")
             return False
+        
         print("Available healing items:")
         for i, item in enumerate(available, 1):
             effect = healing_items[item]
             heal_text = "full heal" if effect['heal'] == 'full' else f"+{effect['heal']}"
             print(f"{i}. {item} ({heal_text} {effect['type']})")
+        
         try:
             choice = int(input("Choose item to use (number): ")) - 1
             if 0 <= choice < len(available):
@@ -439,33 +1073,39 @@ class Player:
                 return self._apply_healing_effect(chosen, healing_items[chosen])
             print("Invalid choice.")
             return False
-        except ValueError:
-            print("Please enter a number.")
-            return False
-        except KeyboardInterrupt:
-            print("\nAction interrupted.")
+        except (ValueError, KeyboardInterrupt):
+            print("Action cancelled.")
             return False
 
     def _apply_healing_effect(self, item_name: str, effect: Dict) -> bool:
+        """Apply the healing effect of an item"""
         self.inventory.remove(item_name)
+        
         if effect['type'] == 'health':
             if effect['heal'] == 'full':
                 heal_amount = self.max_health - self.health
                 self.health = self.max_health
-                print(f"💚 You are fully healed! (+{heal_amount} health)")
+                print(f"+ You are fully healed! (+{heal_amount} health)")
             else:
                 heal_amount = min(effect['heal'], self.max_health - self.health)
                 self.health += heal_amount
-                print(f"💚 You heal for {heal_amount} health!")
+                print(f"+ You heal for {heal_amount} health!")
         elif effect['type'] == 'mana':
             mana_amount = min(effect['heal'], self.max_mana - self.mana)
             self.mana += mana_amount
-            print(f"💙 Your mana is restored! (+{mana_amount} mana)")
+            print(f"+ Your mana is restored! (+{mana_amount} mana)")
+        
         return True
 
     def use_exp_item(self, item_name: Optional[str] = None) -> bool:
+        """
+        Use an experience item from inventory
+        Can target specific item or show menu to choose
+        """
         exp_items = GameConstants.IMMEDIATE_EFFECT_ITEMS
+        
         if item_name:
+            # Try to use specific item
             if item_name in self.inventory and item_name in exp_items:
                 effect = exp_items[item_name]
                 self.gain_experience(effect['amount'])
@@ -473,14 +1113,18 @@ class Player:
                 return True
             print(f"You don't have '{item_name}' or it's not an experience item.")
             return False
+        
+        # Show menu of available experience items
         available = [item for item in self.inventory if item in exp_items]
         if not available:
             print("You don't have any experience items!")
             return False
+        
         print("Available experience items:")
         for i, item in enumerate(available, 1):
             effect = exp_items[item]
             print(f"{i}. {item} (+{effect['amount']} exp)")
+        
         try:
             choice = int(input("Choose item to use (number): ")) - 1
             if 0 <= choice < len(available):
@@ -491,46 +1135,57 @@ class Player:
                 return True
             print("Invalid choice.")
             return False
-        except ValueError:
-            print("Please enter a number.")
-            return False
-        except KeyboardInterrupt:
-            print("\nAction interrupted.")
+        except (ValueError, KeyboardInterrupt):
+            print("Action cancelled.")
             return False
 
-    # ========== WEARABLES ==========
     def equip_wearable(self, item: str) -> None:
+        """Equip a wearable item for permanent stat boost"""
         if item in GameConstants.WEARABLE_ITEMS:
             effect = GameConstants.WEARABLE_ITEMS[item]
             self.stats[effect['stat']] += effect['bonus']
-            self.wearables.append({'item': item, 'stat': effect['stat'], 'bonus': effect['bonus']})
-            print(f"🌟 Equipped {item}! +{effect['bonus']} to {effect['stat']}.")
+            self.wearables.append({
+                'item': item, 
+                'stat': effect['stat'], 
+                'bonus': effect['bonus']
+            })
+            print(f"*** Equipped {item}! +{effect['bonus']} to {effect['stat']}.")
         else:
             print(f"{item} is not wearable.")
 
-    # ========== WEAPON MANAGEMENT ==========
     def equip_weapon(self, weapon: Dict) -> None:
+        """Equip a weapon"""
         self.weapon = weapon
         print(f"You equipped: {weapon['name']}")
 
     def switch_weapon(self, weapon_identifier: Optional[str] = None) -> bool:
+        """
+        Switch to a different weapon from inventory
+        Can specify weapon name or show menu to choose
+        """
         if not self.inventory_weapons:
             print("You don't have any spare weapons!")
             return False
+        
         target_weapon = None
+        
         if weapon_identifier:
+            # Try to find weapon by name
             for weapon in self.inventory_weapons:
-                if weapon_identifier.lower() in weapon['name'].lower() or weapon_identifier.lower() in weapon.get('base_name', '').lower():
+                if weapon_identifier.lower() in weapon['name'].lower() or \
+                   weapon_identifier.lower() in weapon.get('base_name', '').lower():
                     target_weapon = weapon
                     break
+            
             if not target_weapon:
                 print(f"You don't have a weapon matching '{weapon_identifier}'.")
                 return False
         else:
+            # Show menu of available weapons
             print("Available weapons:")
             for i, weapon in enumerate(self.inventory_weapons, 1):
-                rarity_data = GameConstants.WEAPON_RARITIES[weapon.get('rarity', 'common')]
-                print(f"{i}. {weapon['name']} ({weapon['damage']} damage) {rarity_data['color']}")
+                print(f"{i}. {weapon['name']} ({weapon['damage']} damage)")
+            
             try:
                 choice = int(input("Choose weapon to equip (number): ")) - 1
                 if 0 <= choice < len(self.inventory_weapons):
@@ -538,17 +1193,16 @@ class Player:
                 else:
                     print("Invalid choice.")
                     return False
-            except ValueError:
-                print("Please enter a number.")
+            except (ValueError, KeyboardInterrupt):
+                print("Action cancelled.")
                 return False
-            except KeyboardInterrupt:
-                print("\nAction interrupted.")
-                return False
-        # Perform switch
+        
+        # Store current weapon and equip new one
         if self.weapon:
             self.inventory_weapons.append(self.weapon)
             self.inventory.append(f"WEAPON: {self.weapon['name']}")
             print(f"You unequip your {self.weapon['name']}")
+        
         self.inventory_weapons.remove(target_weapon)
         self.inventory.remove(f"WEAPON: {target_weapon['name']}")
         self.weapon = target_weapon
@@ -556,42 +1210,44 @@ class Player:
         print(f"Damage: {target_weapon['damage']} | Rarity: {target_weapon.get('rarity', 'common').title()}")
         return True
 
-    # ========== DISPLAY ==========
     def show_stats(self) -> None:
+        """Display full character sheet"""
         weapon_name = self.weapon['name'] if self.weapon else "None"
         weapon_damage = f" ({self.weapon['damage']} damage)" if self.weapon else ""
-        weapon_rarity = ""
-        if self.weapon and 'rarity' in self.weapon:
-            rarity_data = GameConstants.WEAPON_RARITIES[self.weapon['rarity']]
-            weapon_rarity = f" {rarity_data['color']} {self.weapon['rarity'].title()}"
         class_title = self.get_class_title()
+        
         print(f"\n=== {self.name} the {class_title} ===")
         print(f"Class Tier: {self.class_tier}/3")
         print(f"Level: {self.level}")
         print(f"Experience: {self.experience}/{self.experience_to_next}")
         print(f"Health: {self.health}/{self.max_health}")
         print(f"Mana: {self.mana}/{self.max_mana}")
-        print(f"Weapon: {weapon_name}{weapon_damage}{weapon_rarity}")
+        print(f"Gold Coins: {self.gold_coins}")
+        print(f"Weapon: {weapon_name}{weapon_damage}")
         print(f"Strength: {self.stats['strength']}")
         print(f"Intelligence: {self.stats['intelligence']}")
         print(f"Agility: {self.stats['agility']}")
         print(f"Inventory: {self.get_inventory_count()}/{self.max_inventory} slots")
+        print(f"Current Floor: {self.current_floor}/{GameConstants.NUM_FLOORS}")
         print(f"Current Room: {self.current_room}")
-        print(f"Boss Defeated: {'Yes' if self.boss_defeated else 'No'}")
+        print(f"Bosses Defeated: {len(self.bosses_defeated)}/{GameConstants.NUM_FLOORS}")
+        
         if self.wearables:
             print("\nWearables:")
             for w in self.wearables:
                 print(f" - {w['item']}: +{w['bonus']} {w['stat']}")
+        
         if self.can_upgrade_class():
-            print(f"\n🌟 CLASS UPGRADE AVAILABLE! You can advance to {self.get_next_class_title()}!")
+            print(f"\n*** CLASS UPGRADE AVAILABLE! You can advance to {self.get_next_class_title()}!")
             print("Use 'upgrade' command to upgrade your class.")
 
     def show_status_summary(self) -> None:
+        """Display quick status summary"""
         weapon_name = self.weapon['name'] if self.weapon else "None"
-        print(f"\n[Status] Health: {self.health}/{self.max_health} | Mana: {self.mana}/{self.max_mana} | Weapon: {weapon_name}")
+        print(f"\n[Floor {self.current_floor}] Health: {self.health}/{self.max_health} | Mana: {self.mana}/{self.max_mana} | Weapon: {weapon_name}")
 
-    # ========== SERIALIZATION ==========
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize player state for saving"""
         return {
             'name': self.name,
             'character_class': self.character_class,
@@ -609,16 +1265,19 @@ class Player:
             'weapon': self.weapon,
             'wearables': self.wearables,
             'max_inventory': self.max_inventory,
+            'current_floor': self.current_floor,
             'current_room': self.current_room,
             'visited_rooms': list(self.visited_rooms),
             'boss_defeated': self.boss_defeated,
-            'first_boss_defeated': self.first_boss_defeated,
-            'has_rusty_key': self.has_rusty_key,
-            'rarity_boost': self.rarity_boost
+            'bosses_defeated': self.bosses_defeated,
+            'rarity_boost': self.rarity_boost,
+            'gold_coins': self.gold_coins,
+            'secret_room_unlocked': self.secret_room_unlocked
         }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Player':
+        """Deserialize player state from save file"""
         player = cls(data['name'], data['character_class'])
         player.class_tier = data.get('class_tier', 1)
         player.level = data['level']
@@ -634,177 +1293,458 @@ class Player:
         player.weapon = data['weapon']
         player.wearables = data.get('wearables', [])
         player.max_inventory = data.get('max_inventory', player._calculate_max_inventory())
+        player.current_floor = data.get('current_floor', 1)
         player.current_room = data['current_room']
         player.visited_rooms = set(data.get('visited_rooms', []))
         player.boss_defeated = data.get('boss_defeated', False)
-        player.first_boss_defeated = data.get('first_boss_defeated', False)
-        player.has_rusty_key = data.get('has_rusty_key', False)
+        player.bosses_defeated = data.get('bosses_defeated', [])
         player.rarity_boost = data.get('rarity_boost', 0.0)
+        player.gold_coins = data.get('gold_coins', 0)
+        player.secret_room_unlocked = data.get('secret_room_unlocked', False)
+        
         # Re-apply wearable bonuses
         for wearable in player.wearables:
             player.stats[wearable['stat']] += wearable['bonus']
+        
         return player
 
 #################################################################################
 # ROOM CLASS
 #################################################################################
 class Room:
-    """Represents a dungeon location with description, items, exits, and enemies."""
-    def __init__(self, name: str, description: str, items: Optional[List[str]] = None,
-                 exits: Optional[Dict[str, str]] = None, enemies: Optional[List[str]] = None,
-                 hidden_items: Optional[Dict[str, List[str]]] = None):
+    """
+    Represents a single room in the dungeon
+    Contains items, enemies, exits, and descriptions
+    """
+    def __init__(self, name: str, description: str, floor: int, 
+                 items: Optional[List[str]] = None,
+                 exits: Optional[Dict[str, str]] = None, 
+                 enemies: Optional[List[str]] = None,
+                 atmosphere: Optional[str] = None):
         self.name = name
         self.description = description
+        self.floor = floor
         self.items = items or []
         self.exits = exits or {}
         self.enemies = enemies or []
-        self.hidden_items = hidden_items or {}
         self.visited = False
+        self.atmosphere = atmosphere or ""
 
     def describe(self) -> None:
+        """
+        Display room description with enhanced atmospheric text
+        Shows enemies with their descriptions on first visit
+        """
         if not self.visited:
             print(f"\n{self.description}")
+            if self.atmosphere:
+                print(f"{self.atmosphere}")
             self.visited = True
         else:
             print(f"\nYou are in {self.name}")
+        
+        # Display enemies with descriptions
         if self.enemies:
-            print(f"⚔️ Enemies here: {', '.join(self.enemies)}")
+            print(f"\n*** ENEMIES PRESENT:")
+            for enemy in self.enemies:
+                enemy_info = GameConstants.ENEMIES.get(enemy.lower())
+                if enemy_info:
+                    print(f"  - {enemy}: {enemy_info['desc']}")
+                else:
+                    print(f"  - {enemy}")
+        
         if self.items:
-            print(f"Items here: {', '.join(self.items)}")
+            print(f"\nItems here: {', '.join(self.items)}")
         if self.exits:
             print(f"Exits: {', '.join(self.exits.keys())}")
-
-    def reveal_hidden_items(self, condition: str) -> List[str]:
-        if condition in self.hidden_items:
-            new_items = self.hidden_items[condition]
-            self.items.extend(new_items)
-            del self.hidden_items[condition]
-            return new_items
-        return []
 
 #################################################################################
 # ROOM TEMPLATES
 #################################################################################
 class RoomTemplates:
-    """Centralized room template definitions to avoid duplication."""
+    """
+    Centralized room template definitions
+    Provides themed rooms based on floor progression
+    """
+    
     @staticmethod
-    def get_all_templates() -> Dict[str, Dict[str, Any]]:
-        return {
-            'start': {
-                'name': "Starting Room",
-                'description': "You find yourself in a dimly lit room. This appears to be the beginning of your adventure.",
-                'items': ['rusty key', 'old map'],
-                'enemies': [],
-                'type': 'start'
-            },
-            'hallway': {
+    def get_themed_room_templates(floor: int) -> List[Dict[str, Any]]:
+        """
+        Returns room templates themed for specific floor
+        Each floor has unique atmosphere and enemy types
+        """
+        templates = []
+        
+        # Floors 1-2: Dungeon/Prison Theme
+        if floor <= 2:
+            templates.extend([
+                {
+                    'name': "Damp Prison Cell",
+                    'description': "Rusted bars line the walls of this forgotten cell. Water drips from cracked stone.",
+                    'atmosphere': "The air is thick with the stench of decay and despair.",
+                    'items': ['rusty key', 'health potion'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Guard Barracks",
+                    'description': "Overturned bunks and scattered weapons suggest a hasty retreat.",
+                    'atmosphere': "Bloodstains on the floor tell a grim tale.",
+                    'items': ['weapon cache', 'armor piece'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Torture Chamber",
+                    'description': "Chains hang from the ceiling. Ancient implements of pain line the walls.",
+                    'atmosphere': "Echoes of past suffering seem to whisper in the darkness.",
+                    'items': ['cursed amulet', 'bone key'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Sewage Tunnel",
+                    'description': "Putrid water flows through channels in the floor.",
+                    'atmosphere': "The stench is overwhelming. Rats scurry in the shadows.",
+                    'items': ['energy drink', 'torch'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                }
+            ])
+        
+        # Floors 3-4: Crypt/Necromancy Theme
+        elif floor <= 4:
+            templates.extend([
+                {
+                    'name': "Ancient Crypt",
+                    'description': "Stone sarcophagi line the walls, their lids cracked and displaced.",
+                    'atmosphere': "An unnatural chill fills the air as the dead stir restlessly.",
+                    'items': ['soul crystal', 'weapon cache'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Necromancer's Study",
+                    'description': "Forbidden tomes and ritual circles cover every surface.",
+                    'atmosphere': "Dark energy crackles around ancient spell books.",
+                    'items': ['magic scroll', 'arcane pendant'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Burial Chamber",
+                    'description': "Rows of burial niches stretch into the darkness.",
+                    'atmosphere': "The dead do not rest peacefully here.",
+                    'items': ['health potion', 'wisdom gem'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Ossuary",
+                    'description': "Bones are stacked floor to ceiling in intricate patterns.",
+                    'atmosphere': "The bones seem to shift and rearrange when you're not looking.",
+                    'items': ['bone key', 'cursed amulet'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                }
+            ])
+        
+        # Floors 5-6: Elemental Theme
+        elif floor <= 6:
+            templates.extend([
+                {
+                    'name': "Inferno Chamber",
+                    'description': "Waves of heat emanate from pools of bubbling lava.",
+                    'atmosphere': "The very air shimmers with intense heat.",
+                    'items': ['weapon cache', 'elixir of life'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Frozen Cavern",
+                    'description': "Icicles the size of spears hang from the ceiling.",
+                    'atmosphere': "Your breath freezes instantly in the frigid air.",
+                    'items': ['ice crystal', 'frozen artifact'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Storm Hall",
+                    'description': "Lightning arcs between metal pillars in this charged chamber.",
+                    'atmosphere': "Static electricity makes your hair stand on end.",
+                    'items': ['magic scroll', 'power ring'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Elemental Nexus",
+                    'description': "All four elements clash in chaotic harmony here.",
+                    'atmosphere': "Fire, ice, lightning, and stone war for dominance.",
+                    'items': ['weapon cache', 'titan gauntlet'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                }
+            ])
+        
+        # Floors 7-8: Dark Magic Theme
+        elif floor <= 8:
+            templates.extend([
+                {
+                    'name': "Ritual Chamber",
+                    'description': "Blasphemous symbols cover every inch of floor and wall.",
+                    'atmosphere': "Reality seems to warp and twist at the edges of your vision.",
+                    'items': ['demon seal', 'weapon cache'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Shadow Realm Gate",
+                    'description': "A portal to darkness pulses with malevolent energy.",
+                    'atmosphere': "Whispers from beyond beckon you closer.",
+                    'items': ['shadow cloak', 'soul crystal'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Corrupted Sanctum",
+                    'description': "What was once a holy place now serves darker powers.",
+                    'atmosphere': "Desecrated altars radiate profane energy.",
+                    'items': ['weapon cache', 'ultimate health potion'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Abyssal Pit",
+                    'description': "A bottomless chasm yawns before you, bridged by bone.",
+                    'atmosphere': "Screams echo up from unfathomable depths.",
+                    'items': ['demon seal', 'arcane pendant'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                }
+            ])
+        
+        # Floors 9-10: Ancient/Cosmic Theme
+        else:
+            templates.extend([
+                {
+                    'name': "Primordial Vault",
+                    'description': "Ancient stone predating civilization stretches endlessly upward.",
+                    'atmosphere': "The weight of eons presses down upon you.",
+                    'items': ['primordial rune', 'titan gauntlet'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Cosmic Observatory",
+                    'description': "Stars that shouldn't exist shine through impossible windows.",
+                    'atmosphere': "Your mind struggles to comprehend the geometry of this place.",
+                    'items': ['weapon cache', 'wisdom gem'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Hall of Eternity",
+                    'description': "Time flows strangely in this ageless corridor.",
+                    'atmosphere': "Past, present, and future seem to overlap here.",
+                    'items': ['soul crystal', 'legendary artifact'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                },
+                {
+                    'name': "Reality Fracture",
+                    'description': "The laws of physics break down in this impossible space.",
+                    'atmosphere': "You see things that cannot be and yet are.",
+                    'items': ['void essence', 'ultimate health potion'],
+                    'enemies': RoomTemplates._get_themed_enemies(floor, 2)
+                }
+            ])
+        
+        # Common rooms for all floors with special mechanics
+        templates.extend([
+            {
                 'name': "Long Hallway",
-                'description': "A long, narrow hallway stretches before you. Torches line the walls.",
-                'items': ['torch'],
-                'enemies': ['goblin'],
-                'type': 'normal'
+                'description': "A long corridor stretches before you, lit by flickering torches.",
+                'atmosphere': "Shadows dance menacingly on the walls.",
+                'items': ['torch', 'weapon cache'],
+                'enemies': RoomTemplates._get_themed_enemies(floor, 2)
             },
-            'storage': {
-                'name': "Storage Room",
-                'description': "A cluttered storage room filled with old boxes and forgotten items.",
-                'items': ['health potion', 'rope', 'magic scroll'],
-                'enemies': [],
-                'type': 'normal'
-            },
-            'armory': {
-                'name': "Ancient Armory",
-                'description': "An old armory filled with weapon racks. Some weapons still gleam in the torchlight.",
-                'items': ['weapon cache', 'armor piece'],
-                'enemies': ['armored skeleton'],
-                'type': 'normal',
-                'hidden_items': {'first_boss_defeated': ['ancient chest']}
-            },
-            'arena': {
-                'name': "Gladiator Arena",
-                'description': "A massive circular arena with sand-covered floors. The crowd's ghostly cheers echo.",
-                'items': ["champion's prize", 'victory scroll'],
-                'enemies': ['Arena Champion'],
-                'type': 'boss'
-            },
-            'treasure_room': {
+            {
                 'name': "Treasure Room",
-                'description': "A magnificent room with golden walls. A treasure chest sits in the center!",
-                'items': ['golden coin', 'magic sword', 'experience gem'],
-                'enemies': ['treasure guardian'],
-                'type': 'normal'
+                'description': "Glittering wealth fills this chamber, but it's well guarded.",
+                'atmosphere': "Gold and gems reflect torchlight in dazzling patterns.",
+                'items': ['golden coin', 'weapon cache', 'experience gem'],
+                'enemies': ['treasure guardian'] + RoomTemplates._get_themed_enemies(floor, 1)
             },
-            'frozen_cavern': {
+            {
+                'name': "Hidden Alcove",
+                'description': "A dark alcove with a single torch sconce on the wall.",
+                'atmosphere': "The sconce looks like it could hold a torch. Something feels hidden here.",
+                'items': ['torch'],
+                'enemies': RoomTemplates._get_themed_enemies(floor, 1),
+                'has_secret': True  # Marker for puzzle interaction
+            },
+            {
+                'name': "Sacred Shrine",
+                'description': "An ancient shrine with a stone altar in the center.",
+                'atmosphere': "The altar has a circular indentation. Strange energy emanates from it.",
+                'items': ['health potion', 'golden coin'],
+                'enemies': RoomTemplates._get_themed_enemies(floor, 1),
+                'has_altar': True  # Marker for medallion puzzle
+            },
+            {
+                'name': "Locked Vault",
+                'description': "A sealed vault with an ornate chest at its center.",
+                'atmosphere': "The chest has an old rusty keyhole. It hasn't been opened in centuries.",
+                'items': ['weapon cache', 'golden coin'],
+                'enemies': ['treasure guardian'] + RoomTemplates._get_themed_enemies(floor, 1),
+                'has_locked_chest': True  # Marker for key puzzle
+            }
+        ])
+        
+        return templates
+    
+    @staticmethod
+    def get_secret_room_template() -> Dict[str, Any]:
+        """
+        Returns the template for the secret treasure vault
+        Unlocked by using torch in Hidden Alcove
+        """
+        return {
+            'name': "Secret Treasure Vault",
+            'description': "A hidden vault glitters with treasures! Ancient magic protected this place.",
+            'atmosphere': "Countless riches await those clever enough to find this place.",
+            'items': [
+                'weapon cache', 'weapon cache', 'ultimate health potion', 
+                'experience gem', 'wisdom gem', 'legendary artifact'
+            ],
+            'enemies': []
+        }
+    
+    @staticmethod
+    def _get_themed_enemies(floor: int, count: int) -> List[str]:
+        """
+        Get unique themed enemies for a floor
+        Ensures no duplicate enemies in a single room
+        """
+        available = GameConstants.FLOOR_THEMES.get(floor, ['goblin'])
+        # Ensure we get unique enemies
+        selected = []
+        available_copy = available.copy()
+        random.shuffle(available_copy)
+        
+        for enemy in available_copy:
+            if enemy not in selected:
+                selected.append(enemy)
+                if len(selected) >= count:
+                    break
+        
+        return selected
+
+    @staticmethod
+    def get_boss_room(floor: int) -> Dict[str, Any]:
+        """
+        Returns boss room template for specified floor
+        Each floor has a unique boss with themed arena
+        """
+        boss_rooms = {
+            1: {
+                'name': "Gladiator Arena",
+                'description': "A massive circular arena with sand-covered floors.",
+                'atmosphere': "Ghostly cheers echo from unseen crowds. The Arena Champion awaits!",
+                'items': ["champion's prize", 'victory scroll'],
+                'enemies': ['Arena Champion']
+            },
+            2: {
+                'name': "Necromancer's Sanctum",
+                'description': "Dark energy swirls around an obsidian throne.",
+                'atmosphere': "Death itself seems to bow before the Necromancer Lord!",
+                'items': ['soul crystal', 'ultimate health potion'],
+                'enemies': ['Necromancer Lord']
+            },
+            3: {
+                'name': "Tomb of the Overlord",
+                'description': "A vast crypt dominated by a massive stone sarcophagus.",
+                'atmosphere': "Ancient power radiates from the awakening Crypt Overlord!",
+                'items': ['legendary artifact', 'weapon cache'],
+                'enemies': ['Crypt Overlord']
+            },
+            4: {
+                'name': "Shadow Throne Room",
+                'description': "Darkness coalesces into a throne of pure shadow.",
+                'atmosphere': "The Shadow King emerges from the void itself!",
+                'items': ['shadow cloak', 'wisdom gem'],
+                'enemies': ['Shadow King']
+            },
+            5: {
+                'name': "Infernal Throne",
+                'description': "Rivers of lava flow around a platform of volcanic rock.",
+                'atmosphere': "The Flame Lord rises in a pillar of fire!",
+                'items': ['weapon cache', 'elixir of life'],
+                'enemies': ['Flame Lord']
+            },
+            6: {
                 'name': "Frozen Cavern",
-                'description': "A bone-chilling cavern covered in ancient ice. Frozen breath escapes your lips.",
+                'description': "A bone-chilling cavern covered in ancient ice.",
+                'atmosphere': "The Frost Titan awakens from its eternal slumber!",
                 'items': ['ice crystal', 'frozen artifact'],
-                'enemies': ['Frost Titan'],
-                'type': 'boss'
+                'enemies': ['Frost Titan']
             },
-            'boss_chamber': {
-                'name': "Dark Boss Chamber",
-                'description': "A massive, ominous chamber. Ancient runes glow on the walls. The Dark Lord awaits!",
+            7: {
+                'name': "Abyssal Gate",
+                'description': "A massive portal to the demonic realm dominates this chamber.",
+                'atmosphere': "The Demon Prince steps through from the abyss!",
+                'items': ['demon seal', 'ultimate health potion'],
+                'enemies': ['Demon Prince']
+            },
+            8: {
+                'name': "Void Nexus",
+                'description': "Reality fractures and bends around this impossible space.",
+                'atmosphere': "The Void Archon manifests from nothingness!",
+                'items': ['void essence', 'soul crystal'],
+                'enemies': ['Void Archon']
+            },
+            9: {
+                'name': "Primordial Chamber",
+                'description': "Ancient stone predating time itself forms this vast arena.",
+                'atmosphere': "The Primordial Beast, older than the world, awakens!",
+                'items': ['primordial rune', 'titan gauntlet'],
+                'enemies': ['Primordial Beast']
+            },
+            10: {
+                'name': "Reality's Edge",
+                'description': "The fabric of existence itself unravels in this final chamber.",
+                'atmosphere': "The Reality Breaker threatens to unmake all creation!",
                 'items': ['legendary artifact', 'ultimate health potion'],
-                'enemies': ['Dark Lord'],
-                'type': 'boss'
-            },
-            'crypt': {
-                'name': "Ancient Crypt",
-                'description': "A damp, dark crypt filled with ancient tombs. The air is thick with decay.",
-                'items': ['cursed amulet', 'health potion', 'bone key'],
-                'enemies': ['shadow wraith', 'armored skeleton'],
-                'type': 'normal'
-            },
-            'library': {
-                'name': "Forgotten Library",
-                'description': "A vast library with towering bookshelves. Dust covers ancient tomes.",
-                'items': ['spell book', 'magic scroll', 'wisdom gem'],
-                'enemies': ['corrupted mage'],
-                'type': 'normal'
-            },
-            'garden': {
-                'name': "Overgrown Garden",
-                'description': "An enchanted garden overgrown with magical vines. Strange plants glow in darkness.",
-                'items': ['healing herb', 'mana flower', "nature's blessing"],
-                'enemies': ['shadow wraith'],
-                'type': 'normal'
+                'enemies': ['Reality Breaker']
             }
         }
+        return boss_rooms.get(floor, boss_rooms[1])
 
 #################################################################################
 # WEAPON SYSTEM
 #################################################################################
 class WeaponSystem:
-    """Manages weapon generation, rarity calculations, and the Golden Gun."""
+    """
+    Handles weapon generation, rarity calculation, and special weapons
+    """
+    
     @staticmethod
     def get_rarity_multiplier(rarity: str) -> float:
+        """Get damage multiplier for weapon rarity"""
         return GameConstants.WEAPON_RARITIES[rarity]['multiplier']
-
-    @staticmethod
-    def get_rarity_color(rarity: str) -> str:
-        return GameConstants.WEAPON_RARITIES[rarity]['color']
 
     @classmethod
     def generate_random_weapon(cls, player: 'Player', force_rarity: Optional[str] = None) -> Dict[str, Any]:
-        # Check for Golden Gun (0.02% chance)
+        """
+        Generate a random weapon appropriate for player's class and level
+        Can force a specific rarity for boss drops
+        Chance to generate ultra-rare Golden Gun
+        """
+        # Check for Golden Gun drop (unless rarity is forced)
         if not force_rarity and random.random() < GameConstants.GOLDEN_GUN_DROP_RATE:
             return cls._create_golden_gun()
-        # Determine rarity
+        
+        # Calculate rarity based on level and class tier
         rarity = force_rarity or cls._calculate_rarity_by_level(player.level, player.rarity_boost)
-        # Class-specific weapon type
+        
+        # Get allowed weapon types for player's class
         allowed_types = GameConstants.CLASSES[player.character_class]['weapon_types']
         weapon_type = random.choice(allowed_types)
-        # Generate weapon components
+        
+        # Generate weapon name
         material = random.choice(GameConstants.WEAPON_MATERIALS[rarity])
         weapon_name = random.choice(GameConstants.WEAPON_TYPES[weapon_type])
+        
         # Calculate damage
         base_damage = random.randint(8, 15) + (player.level * 2)
         rarity_multiplier = cls.get_rarity_multiplier(rarity)
         final_damage = int(base_damage * rarity_multiplier)
-        # Create weapon dict
+        
         full_name = f"{material} {weapon_name}"
-        rarity_symbol = cls.get_rarity_color(rarity)
+        
         return {
-            'name': f"{rarity_symbol} {full_name}",
+            'name': full_name,
             'damage': final_damage,
             'type': weapon_type,
             'rarity': rarity,
@@ -813,33 +1753,47 @@ class WeaponSystem:
 
     @classmethod
     def _calculate_rarity_by_level(cls, player_level: int, rarity_boost: float = 0.0) -> str:
+        """
+        Calculate weapon rarity based on player level and rarity boost
+        Higher level = better chance for rare weapons
+        """
         boost = int(rarity_boost * 100)
+        
+        # Rarity chances scale with level
         rarity_chances = {
-            'common': max(50 - (player_level * 3) - boost, 10),
-            'uncommon': min(25 + (player_level * 2), 35),
-            'rare': min(15 + player_level + (boost // 3), 25),
-            'epic': min(8 + (player_level // 2) + (boost // 3), 15),
-            'legendary': min(2 + (player_level // 3) + (boost // 3), 8),
-            'mythic': min(player_level // 5 + (boost // 3), 2)
+            'common': max(50 - (player_level * 2) - boost, 10),
+            'uncommon': min(25 + player_level, 35),
+            'rare': min(15 + (player_level // 2) + (boost // 3), 25),
+            'epic': min(8 + (player_level // 3) + (boost // 3), 15),
+            'legendary': min(2 + (player_level // 4) + (boost // 3), 8),
+            'mythic': min(player_level // 6 + (boost // 3), 2)
         }
-        # Normalize if sum != 100
+        
+        # Normalize to 100%
         total = sum(rarity_chances.values())
         if total != 100:
             adjustment = 100 - total
             rarity_chances['common'] += adjustment
+        
+        # Roll for rarity
         rand = random.randint(1, 100)
         cumulative = 0
         for rarity, chance in rarity_chances.items():
             cumulative += chance
             if rand <= cumulative:
                 return rarity
+        
         return 'common'
 
     @classmethod
     def _create_golden_gun(cls) -> Dict[str, Any]:
+        """
+        Create the ultra-rare Golden Gun
+        Instant kill weapon with 6 uses
+        """
         chosen_name = random.choice(GameConstants.GOLDEN_GUN_NAMES)
         return {
-            'name': f"🌟 {chosen_name}",
+            'name': f"*** {chosen_name}",
             'damage': 99999,
             'type': 'divine',
             'rarity': 'divine',
@@ -850,371 +1804,427 @@ class WeaponSystem:
         }
 
     @classmethod
-    def create_starting_weapons(cls) -> Dict[str, Dict[str, Any]]:
+    def create_starting_weapons(cls) -> Dict[str, List[Dict[str, Any]]]:
+        """Create starting weapon options for each class"""
         return {
-            'sword': {
-                'name': '⚪ Iron Sword',
-                'damage': 15,
-                'type': 'melee',
-                'rarity': 'common',
-                'base_name': 'Iron Sword'
-            },
-            'staff': {
-                'name': '⚪ Wooden Staff',
-                'damage': 10,
-                'type': 'magic',
-                'rarity': 'common',
-                'base_name': 'Wooden Staff'
-            },
-            'dagger': {
-                'name': '⚪ Steel Dagger',
-                'damage': 12,
-                'type': 'stealth',
-                'rarity': 'common',
-                'base_name': 'Steel Dagger'
-            }
+            'warrior': [
+                {'name': 'Iron Sword', 'damage': 18, 'type': 'melee', 'rarity': 'common', 'base_name': 'Iron Sword'},
+                {'name': 'Steel Axe', 'damage': 20, 'type': 'melee', 'rarity': 'common', 'base_name': 'Steel Axe'},
+                {'name': 'Bronze Hammer', 'damage': 22, 'type': 'melee', 'rarity': 'common', 'base_name': 'Bronze Hammer'}
+            ],
+            'mage': [
+                {'name': 'Wooden Staff', 'damage': 14, 'type': 'magic', 'rarity': 'common', 'base_name': 'Wooden Staff'},
+                {'name': 'Apprentice Wand', 'damage': 13, 'type': 'magic', 'rarity': 'common', 'base_name': 'Apprentice Wand'},
+                {'name': 'Crystal Orb', 'damage': 16, 'type': 'magic', 'rarity': 'common', 'base_name': 'Crystal Orb'}
+            ],
+            'rogue': [
+                {'name': 'Steel Dagger', 'damage': 16, 'type': 'stealth', 'rarity': 'common', 'base_name': 'Steel Dagger'},
+                {'name': 'Short Bow', 'damage': 17, 'type': 'stealth', 'rarity': 'common', 'base_name': 'Short Bow'},
+                {'name': 'Assassin Blade', 'damage': 18, 'type': 'stealth', 'rarity': 'common', 'base_name': 'Assassin Blade'}
+            ]
         }
 
 #################################################################################
-# COMBAT SYSTEM
+# COMBAT SYSTEM  
 #################################################################################
 class CombatSystem:
-    """Manages all combat mechanics including regular fights and boss encounters."""
+    """
+    Handles all combat logic including regular enemies and boss fights
+    """
+    
     def __init__(self, game: 'Game'):
         self.game = game
 
-    # ========== REGULAR COMBAT ==========
     def fight_regular_enemy(self, enemy_name: str, player: Player, room: Room) -> bool:
+        """
+        Handle combat with a regular enemy
+        Returns False if player dies, True if player wins or combat ends
+        """
         enemy_stats = GameConstants.ENEMIES.get(enemy_name.lower(), None)
         if not enemy_stats:
             print(f"Unknown enemy: {enemy_name}")
             return True
+        
         enemy_health = enemy_stats['health']
         enemy_damage = enemy_stats['damage']
-        print(f"\n⚔️ You engage the {enemy_name} in combat!")
+        
+        print(f"\n*** You engage the {enemy_name} in combat!")
+        print(f"Enemy: {enemy_stats['desc']}")
+        
         # Combat loop
         while enemy_health > 0 and player.health > 0:
             # Player attacks
             damage = self._calculate_player_damage(player)
             enemy_health -= damage
-            weapon_rarity = player.weapon.get('rarity', 'common') if player.weapon else 'common'
-            rarity_symbol = WeaponSystem.get_rarity_color(weapon_rarity)
             weapon_display = player.weapon.get('base_name', player.weapon['name']) if player.weapon else 'fists'
-            if player.weapon:
-                print(f"You strike with your {rarity_symbol} {weapon_display} for {damage} damage!")
-            else:
-                print(f"You punch with your bare fists for {damage} damage!")
+            print(f"You strike with your {weapon_display} for {damage} damage!")
+            
             if enemy_health <= 0:
-                print(f"💀 You defeated the {enemy_name}!")
+                print(f"*** You defeated the {enemy_name}!")
                 room.enemies.remove(enemy_name)
                 player.gain_experience(enemy_stats['exp'])
                 self._handle_enemy_drops(enemy_name, room, player)
                 return True
+            
             # Enemy attacks
             enemy_hit = self._calculate_enemy_damage(enemy_damage, player)
             player.health -= enemy_hit
             print(f"The {enemy_name} hits you for {enemy_hit} damage!")
+            
             if player.health <= 0:
-                print("💀 You have been defeated!")
+                print("*** You have been defeated!")
                 print("Game Over! Try loading a saved game or starting over.")
                 return False
+        
         return True
 
     def _calculate_player_damage(self, player: Player) -> int:
-        # Check for Golden Gun special case
+        """
+        Calculate damage dealt by player
+        Handles Golden Gun instant kill mechanic
+        """
+        # Check for Golden Gun
         if player.weapon and player.weapon.get('special') == 'instant_kill' and player.weapon.get('uses_remaining', 0) > 0:
             player.weapon['uses_remaining'] -= 1
             remaining = player.weapon['uses_remaining']
-            print(f"🌟 THE {player.weapon['base_name'].upper()} FIRES! 🌟")
-            print(f"⚡ INSTANT OBLITERATION! ⚡")
+            print(f"*** THE {player.weapon['base_name'].upper()} FIRES!")
+            print(f"*** INSTANT OBLITERATION!")
             print(f"Uses remaining: {remaining}/6")
+            
             if remaining <= 0:
-                print(f"💨 The {player.weapon['base_name']} crumbles to dust after its final shot...")
+                print(f"The {player.weapon['base_name']} crumbles to dust after its final shot...")
                 player.weapon = None
-                print("⚠️ You are now unarmed! Find a new weapon!")
-            return 99999  # Instant kill
-        # Check if player has no weapon
+                print("! You are now unarmed! Find a new weapon!")
+            
+            return 99999
+        
+        # No weapon = weak fist attack
         if not player.weapon:
-            return random.randint(1, 5)  # Bare fists
-        # Regular damage calculation
+            return random.randint(1, 5)
+        
+        # Calculate weapon damage with strength bonus
         base_damage = player.weapon['damage']
         strength_bonus = random.randint(1, player.stats['strength'] // 3)
         weapon_rarity = player.weapon.get('rarity', 'common')
         rarity_multiplier = WeaponSystem.get_rarity_multiplier(weapon_rarity)
+        
         return int((base_damage + strength_bonus) * rarity_multiplier)
 
     def _calculate_enemy_damage(self, base_damage: int, player: Player) -> int:
+        """
+        Calculate damage dealt by enemy
+        Agility reduces incoming damage
+        """
         agility_defense = random.randint(1, player.stats['agility'] // 3)
         final_damage = base_damage - agility_defense
         return max(GameConstants.MIN_ENEMY_DAMAGE, final_damage)
 
     def _handle_enemy_drops(self, enemy_name: str, room: Room, player: Player) -> None:
+        """
+        Handle item drops when enemy is defeated
+        Drop rates scale with weapon rarity
+        """
         weapon_rarity = player.weapon.get('rarity', 'common') if player.weapon else 'common'
         rarity_multiplier = WeaponSystem.get_rarity_multiplier(weapon_rarity)
         drop_chance = GameConstants.ITEM_DROP_BASE_CHANCE + (rarity_multiplier * 0.1)
+        
+        # Gold coin drops
+        if random.random() < GameConstants.GOLD_DROP_CHANCE:
+            coins = random.randint(GameConstants.GOLD_DROP_MIN, GameConstants.GOLD_DROP_MAX)
+            player.gold_coins += coins
+            print(f"The {enemy_name} dropped {coins} gold coins!")
+        
+        # Item drops
         if random.random() < drop_chance:
             if random.random() < GameConstants.WEAPON_DROP_CHANCE:
-                print(f"💎 The {enemy_name} dropped a weapon cache!")
+                print(f"+ The {enemy_name} dropped a weapon cache!")
                 room.items.append("weapon cache")
             else:
-                drops = ["health potion", "golden coin", "magic scroll"]
+                # Class-specific item drops
+                if player.character_class == 'mage':
+                    drops = ["health potion", "magic scroll", "ice crystal"]
+                else:  # warrior or rogue
+                    drops = ["health potion", "energy drink", "vitality tonic", "power ring", "swift boots"]
                 dropped_item = random.choice(drops)
                 room.items.append(dropped_item)
                 print(f"The {enemy_name} dropped: {dropped_item}")
 
-    # ========== BOSS FIGHTS ==========
     def fight_boss(self, boss_name: str, player: Player, room: Room) -> bool:
-        boss_methods = {
-            'Dark Lord': self._fight_dark_lord,
-            'Arena Champion': self._fight_arena_champion,
-            'Frost Titan': self._fight_frost_titan
-        }
-        if boss_name in boss_methods:
-            return boss_methods[boss_name](player, room)
-        print(f"Unknown boss: {boss_name}")
-        return True
-
-    def _fight_dark_lord(self, player: Player, room: Room) -> bool:
+        """
+        Handle boss fight encounter
+        Returns False if player dies, True if player wins
+        """
         print("\n" + "="*60)
-        print("💀 THE DARK LORD EMERGES FROM THE SHADOWS! 💀")
-        print("This is the ultimate challenge!")
+        print(f"*** BOSS FIGHT: {boss_name.upper()}!")
         print("="*60)
-        boss_config = GameConstants.BOSSES['Dark Lord']
+        
+        boss_config = GameConstants.BOSSES[boss_name]
+        
+        # Check level recommendation
         if player.level < boss_config['min_level']:
-            if not self._confirm_boss_fight('Dark Lord', 'underpowered'):
+            print(f"! WARNING: Recommended level {boss_config['min_level']}+!")
+            try:
+                choice = input("Fight anyway? (y/n): ").strip().lower()
+                if choice not in ['y', 'yes']:
+                    return True
+            except KeyboardInterrupt:
                 return True
-        success = self._execute_boss_fight('Dark Lord', boss_config, player)
+        
+        success = self._execute_boss_fight(boss_name, boss_config, player)
+        
         if success:
-            player.boss_defeated = True
-            room.enemies.remove('Dark Lord')
-            self._award_boss_rewards(player, 'Dark Lord', boss_config)
-            print(f"\n🏆 Congratulations, {player.name} the {player.get_class_title()}!")
-            print("You are now a legendary hero!")
+            room.enemies.remove(boss_name)
+            player.bosses_defeated.append(boss_name)
+            self._award_boss_rewards(player, boss_name, boss_config)
+        
         return success
-
-    def _fight_arena_champion(self, player: Player, room: Room) -> bool:
-        print("\n" + "="*60)
-        print("🏛️ THE ARENA CHAMPION STEPS FORWARD! 🏛️")
-        print("A legendary gladiator who has never known defeat!")
-        print("="*60)
-        boss_config = GameConstants.BOSSES['Arena Champion']
-        if player.level < boss_config['min_level']:
-            if not self._confirm_boss_fight('Arena Champion', 'strong'):
-                return True
-        success = self._execute_boss_fight('Arena Champion', boss_config, player)
-        if success:
-            room.enemies.remove('Arena Champion')
-            self._award_boss_rewards(player, 'Arena Champion', boss_config)
-            print("You are the new arena champion!")
-            # Unlock hidden chest
-            if not player.first_boss_defeated:
-                player.first_boss_defeated = True
-                print("\n🔓 A mysterious force stirs in the world...")
-                print("Something has been unlocked...")
-                self.game.reveal_hidden_chest()
-        return success
-
-    def _fight_frost_titan(self, player: Player, room: Room) -> bool:
-        print("\n" + "="*60)
-        print("❄️ THE FROST TITAN AWAKENS FROM ETERNAL SLUMBER! ❄️")
-        print("Ancient ice magic radiates from its massive form!")
-        print("="*60)
-        boss_config = GameConstants.BOSSES['Frost Titan']
-        if player.level < boss_config['min_level']:
-            if not self._confirm_boss_fight('Frost Titan', 'overwhelming'):
-                return True
-        success = self._execute_boss_fight('Frost Titan', boss_config, player)
-        if success:
-            room.enemies.remove('Frost Titan')
-            self._award_boss_rewards(player, 'Frost Titan', boss_config)
-            # Special Frost Titan bonus reward
-            mythic_weapon = WeaponSystem.generate_random_weapon(player, "mythic")
-            room.items.append("weapon cache")
-            print(f"\n❄️ The Titan's icy power crystallizes into: {mythic_weapon['name']}!") 
-            print("Check the room for additional legendary loot!")
-            print("The ancient ice magic is yours to command!")
-        return success
-
-    def _confirm_boss_fight(self, boss_name: str, difficulty: str) -> bool:
-        warnings = {
-            'underpowered': "⚠️ WARNING: You seem underpowered for this fight!",
-            'strong': f"⚠️ WARNING: The {boss_name} looks incredibly strong!",
-            'overwhelming': f"⚠️ WARNING: The {boss_name}'s aura is overwhelming!"
-        }
-        print(warnings[difficulty])
-        print(f"Consider leveling up more before facing the {boss_name}.")
-        try:
-            choice = input("Do you want to fight anyway? (y/n): ").strip().lower()
-            return choice in ['y', 'yes']
-        except KeyboardInterrupt:
-            print("\nAction interrupted.")
-            return False
 
     def _execute_boss_fight(self, boss_name: str, boss_config: Dict, player: Player) -> bool:
+        """
+        Execute the boss fight combat loop
+        Bosses have special attacks and health-based mechanics
+        """
+        # Calculate boss health with scaling
         boss_health = boss_config['base_health'] + (player.level * boss_config['health_scaling'])
         boss_max_health = boss_health
         boss_damage = boss_config['damage']
-        print(f"\n🔥 The {boss_name} has {boss_health} health!")
-        print("The battle begins!")
+        
+        print(f"\n*** The {boss_name} has {boss_health} health!")
+        
         turn = 1
         while boss_health > 0 and player.health > 0:
             print(f"\n--- Turn {turn} ---")
             print(f"Your Health: {player.health}/{player.max_health}")
             print(f"{boss_name} Health: {boss_health}/{boss_max_health}")
-            # Player's turn
+            
+            # Player turn
             player_damage, defend_mode = self._player_turn(player)
             boss_health -= player_damage
+            
             if boss_health <= 0:
                 break
-            # Boss's turn
+            
+            # Boss turn
             boss_attack_damage = self._boss_turn(
                 boss_name, boss_config, boss_max_health, boss_health, turn, defend_mode, player
             )
             player.health -= boss_attack_damage
+            
             if player.health <= 0:
-                print(f"\n💀 You have been defeated by the {boss_name}!")
-                print("The battle is lost... Game Over!")
-                print("Try loading a saved game or starting over.")
+                print(f"\n*** Defeated by the {boss_name}!")
+                print("Game Over!")
                 return False
+            
             turn += 1
+        
         return True
 
     def _player_turn(self, player: Player) -> Tuple[int, bool]:
-        print("\nChoose your action:")
-        print("1. Attack with weapon")
-        print("2. Use magic (costs mana)")
-        print("3. Defend (reduce incoming damage)")
+        """
+        Handle player's turn in boss fight
+        Returns (damage_dealt, defend_mode)
+        """
+        print("\n1. Attack | 2. Magic | 3. Defend", end="")
         if any(item in GameConstants.HEALING_ITEMS for item in player.inventory):
-            print("4. Use health potion")
+            print(" | 4. Heal", end="")
+        print()
+        
         try:
-            action = input("Enter your choice (1-4): ").strip()
+            action = input("Choice: ").strip()
         except KeyboardInterrupt:
-            print("\nAction interrupted.")
             return 0, False
+        
         player_damage = 0
         defend_mode = False
+        
         if action == "1":
-            # Weapon attack
-            if not player.weapon:
-                print("⚠️ You have no weapon! Using bare fists...")
-                player_damage = random.randint(1, 5)
-            else:
-                player_damage = self._calculate_player_damage(player)
-            if player.weapon:  # Check again in case Golden Gun depleted
-                weapon_rarity = player.weapon.get('rarity', 'common')
-                rarity_symbol = WeaponSystem.get_rarity_color(weapon_rarity)
-                weapon_display = player.weapon.get('base_name', player.weapon['name'])
-                print(f"⚔️ You strike with your {rarity_symbol} {weapon_display} for {player_damage} damage!")
-            else:
-                print(f"⚔️ You strike with your bare fists for {player_damage} damage!")
+            player_damage = self._calculate_player_damage(player)
+            weapon_display = player.weapon.get('base_name', player.weapon['name']) if player.weapon else 'fists'
+            print(f"*** Attack for {player_damage} damage!")
         elif action == "2":
-            # Magic attack
             if player.mana >= GameConstants.MAGIC_MANA_COST:
                 player.mana -= GameConstants.MAGIC_MANA_COST
                 magic_damage = player.stats['intelligence'] + random.randint(*GameConstants.MAGIC_DAMAGE_RANGE)
                 player_damage = magic_damage
-                print(f"🔮 You cast a powerful spell for {player_damage} damage!")
+                print(f"*** Magic for {player_damage} damage!")
             else:
-                print("❌ Not enough mana! You resort to a basic attack.")
+                print("Not enough mana!")
                 player_damage = player.weapon['damage'] if player.weapon else random.randint(1, 5)
         elif action == "3":
-            # Defend
             defend_mode = True
-            print("🛡️ You raise your guard and prepare to defend!")
-        elif action == "4" and any(item in GameConstants.HEALING_ITEMS for item in player.inventory):
-            # Heal
+            print("*** Defending!")
+        elif action == "4":
             player.use_healing_item()
-        else:
-            print("Invalid action! You hesitate and lose your turn.")
+        
         return player_damage, defend_mode
 
     def _boss_turn(self, boss_name: str, boss_config: Dict, boss_max_health: int, boss_health: int,
                     turn: int, defend_mode: bool, player: Player) -> int:
+        """
+        Handle boss's turn in combat
+        Bosses use special attacks when below health threshold
+        """
         boss_damage = boss_config['damage']
-        special_attack = boss_config['special_attack']
-        special_bonus = boss_config['special_bonus']
-        # Determine if boss uses special attack
+        
+        # Check if boss should use special attack
         use_special = (boss_health < boss_max_health * GameConstants.BOSS_SPECIAL_HEALTH_THRESHOLD and
                        turn % GameConstants.BOSS_SPECIAL_TURN_FREQUENCY == 0)
+        
         if use_special:
-            # Special attack
-            special_damage = boss_damage + special_bonus
+            special_damage = boss_damage + boss_config['special_bonus']
             if defend_mode:
                 special_damage //= GameConstants.BOSS_DEFEND_REDUCTION
-            print(f"🔥 The {boss_name} unleashes {special_attack}! You block some damage and take {special_damage} damage!")
+            print(f"*** {boss_config['special_attack']}! {special_damage} damage!")
             return special_damage
         else:
-            # Normal attack
             normal_damage = boss_damage + random.randint(1, 10)
             agility_defense = random.randint(1, player.stats['agility'] // 2)
             final_damage = normal_damage - agility_defense
             if defend_mode:
                 final_damage //= GameConstants.BOSS_DEFEND_REDUCTION
-                print(f"⚔️ The {boss_name} attacks! You defend and take only {final_damage} damage!")
-            else:
-                final_damage = max(GameConstants.MIN_BOSS_DAMAGE, final_damage)
-                print(f"⚔️ The {boss_name} strikes you for {final_damage} damage!")
+            final_damage = max(GameConstants.MIN_BOSS_DAMAGE, final_damage)
+            print(f"*** Boss attacks for {final_damage} damage!")
             return final_damage
 
     def _award_boss_rewards(self, player: Player, boss_name: str, boss_config: Dict) -> None:
+        """
+        Award rewards for defeating a boss
+        Includes legendary weapon, experience, stats, and full heal
+        """
         print("\n" + "="*60)
-        print("🎉 VICTORY! 🎉")
+        print("*** VICTORY!")
         print("="*60)
-        # Experience reward
+        
         player.gain_experience(boss_config['exp_reward'])
-        # Boss weapon reward based on player class
-        boss_weapons = {
-            'Dark Lord': {
-                'warrior': {'name': '🟡 Excalibur', 'damage': 35, 'type': 'melee', 'rarity': 'legendary', 'base_name': 'Excalibur'},
-                'mage': {'name': '🟡 Staff of Arcane Power', 'damage': 30, 'type': 'magic', 'rarity': 'legendary', 'base_name': 'Staff of Arcane Power'},
-                'rogue': {'name': '🟡 Shadow Fang', 'damage': 32, 'type': 'stealth', 'rarity': 'legendary', 'base_name': 'Shadow Fang'}
-            },
-            'Arena Champion': {
-                'warrior': {'name': '🟣 Gladius of Victory', 'damage': 32, 'type': 'melee', 'rarity': 'epic', 'base_name': 'Gladius of Victory'},
-                'mage': {'name': '🟣 Champion\'s Scepter', 'damage': 28, 'type': 'magic', 'rarity': 'epic', 'base_name': 'Champion\'s Scepter'},
-                'rogue': {'name': '🟣 Twin Blades of Honor', 'damage': 30, 'type': 'stealth', 'rarity': 'epic', 'base_name': 'Twin Blades of Honor'}
-            },
-            'Frost Titan': {
-                'warrior': {'name': '🔴 Frostbane Greatsword', 'damage': 38, 'type': 'melee', 'rarity': 'mythic', 'base_name': 'Frostbane Greatsword'},
-                'mage': {'name': '🔴 Staff of Eternal Winter', 'damage': 35, 'type': 'magic', 'rarity': 'mythic', 'base_name': 'Staff of Eternal Winter'},
-                'rogue': {'name': '🔴 Icicle Piercer', 'damage': 36, 'type': 'stealth', 'rarity': 'mythic', 'base_name': 'Icicle Piercer'}
-            }
-        }
-        boss_weapon = boss_weapons[boss_name][player.character_class]
-        print(f"\n🗡️ You receive: {boss_weapon['name']}!")
+        
+        # Award boss-specific legendary weapon
+        boss_weapon = self._get_boss_weapon(boss_name, player.character_class)
+        print(f"\n*** Legendary Reward: {boss_weapon['name']}!")
         print(f"Damage: {boss_weapon['damage']} | Rarity: {boss_weapon['rarity'].title()}")
-        print("This legendary weapon is now yours!")
         player.equip_weapon(boss_weapon)
-        # Full heal and stat bonuses
+        
+        # Full heal
         player.health = player.max_health
         player.mana = player.max_mana
+        
+        # Permanent stat boost
         stat_bonus = boss_config['stat_bonus']
         for stat in player.stats:
             player.stats[stat] += stat_bonus
-        print(f"\n🌟 You feel permanently stronger from this epic battle!")
-        print(f"All stats increased by {stat_bonus}!")
-        print("You have been fully healed!")
+        
+        print(f"\n*** All stats increased by {stat_bonus}!")
+        print("*** Fully healed!")
+
+    def _get_boss_weapon(self, boss_name: str, char_class: str) -> Dict:
+        """
+        Get the legendary weapon for defeating a specific boss
+        Each boss has unique weapons for each class
+        """
+        # Complete boss weapon definitions for all 10 bosses and 3 classes
+        weapons = {
+            'Arena Champion': {
+                'warrior': {'name': 'Gladius of Victory', 'damage': 32},
+                'mage': {'name': "Champion's Scepter", 'damage': 28},
+                'rogue': {'name': 'Twin Blades of Honor', 'damage': 30}
+            },
+            'Necromancer Lord': {
+                'warrior': {'name': 'Soul Reaper', 'damage': 35},
+                'mage': {'name': 'Death Staff', 'damage': 32},
+                'rogue': {'name': 'Shadow Fang', 'damage': 33}
+            },
+            'Crypt Overlord': {
+                'warrior': {'name': 'Bone Crusher', 'damage': 38},
+                'mage': {'name': 'Crypt Scepter', 'damage': 35},
+                'rogue': {'name': 'Grave Shiv', 'damage': 36}
+            },
+            'Shadow King': {
+                'warrior': {'name': 'Shadowbane', 'damage': 41},
+                'mage': {'name': 'Dark Orb', 'damage': 38},
+                'rogue': {'name': 'Night Piercer', 'damage': 39}
+            },
+            'Flame Lord': {
+                'warrior': {'name': 'Flamebringer', 'damage': 44},
+                'mage': {'name': 'Inferno Staff', 'damage': 41},
+                'rogue': {'name': 'Cinder Bow', 'damage': 42}
+            },
+            'Frost Titan': {
+                'warrior': {'name': 'Frostbane Greatsword', 'damage': 47},
+                'mage': {'name': 'Staff of Eternal Winter', 'damage': 44},
+                'rogue': {'name': 'Icicle Piercer', 'damage': 45}
+            },
+            'Demon Prince': {
+                'warrior': {'name': "Demon's Edge", 'damage': 50},
+                'mage': {'name': 'Abyssal Staff', 'damage': 47},
+                'rogue': {'name': 'Soul Piercer', 'damage': 48}
+            },
+            'Void Archon': {
+                'warrior': {'name': 'Voidreaver', 'damage': 53},
+                'mage': {'name': 'Reality Staff', 'damage': 50},
+                'rogue': {'name': 'Oblivion Blade', 'damage': 51}
+            },
+            'Primordial Beast': {
+                'warrior': {'name': 'Titan Slayer', 'damage': 56},
+                'mage': {'name': 'Primordial Staff', 'damage': 53},
+                'rogue': {'name': 'Beast Fang', 'damage': 54}
+            },
+            'Reality Breaker': {
+                'warrior': {'name': 'Worldender', 'damage': 60},
+                'mage': {'name': 'Cosmos Staff', 'damage': 57},
+                'rogue': {'name': 'Reality Ripper', 'damage': 58}
+            }
+        }
+        
+        weapon_data = weapons.get(boss_name, {}).get(char_class, {'name': 'Legendary Blade', 'damage': 35})
+        weapon_type = GameConstants.CLASSES[char_class]['weapon_types'][0]
+        
+        return {
+            'name': weapon_data['name'],
+            'damage': weapon_data['damage'],
+            'type': weapon_type,
+            'rarity': 'legendary',
+            'base_name': weapon_data['name']
+        }
 
 #################################################################################
 # COMMAND HANDLER
 #################################################################################
 class CommandHandler:
-    """Handles command processing for the game."""
+    """
+    Handles command parsing and execution with fuzzy matching
+    """
+    
     def __init__(self, game: 'Game'):
         self.game = game
         self.commands = {
             'help': self.game.show_help,
             'look': self.game.look_around,
             'go': self.game.move,
+            'north': lambda: self.game.move('north'),
+            'south': lambda: self.game.move('south'),
+            'east': lambda: self.game.move('east'),
+            'west': lambda: self.game.move('west'),
+            'up': lambda: self.game.move('up'),
+            'down': lambda: self.game.move('down'),
             'take': self.game.take_item,
+            'get': self.game.take_item,
             'takeall': self.game.take_all_items,
             'inventory': self.game.show_inventory,
+            'inv': self.game.show_inventory,
             'stats': self.game.show_stats,
+            'status': self.game.show_stats,
             'fight': self.game.fight_enemy,
+            'attack': self.game.fight_enemy,
             'upgrade': self.game.upgrade_class_command,
-            'consume': self.game.consume_item,
+            'heal': self.game.use_healing,
+            'experience': self.game.use_experience,
+            'exp': self.game.use_experience,
+            'equip': self.game.equip_wearable_command,
+            'wear': self.game.equip_wearable_command,
             'switch': self.game.switch_weapon,
             'discard': self.game.discard_item,
+            'drop': self.game.discard_item,
+            'use': self.game.use_item,
+            'shop': self.game.open_shop,
             'map': self.game.show_map,
             'save': self.game.save_game,
             'load': self.game.load_game,
@@ -1223,67 +2233,80 @@ class CommandHandler:
         }
 
     def process(self, user_input: str) -> None:
+        """
+        Process user command with fuzzy matching for typos
+        Suggests corrections for misspelled commands
+        """
         parts = user_input.split()
         command = parts[0].lower()
         args = parts[1:] if len(parts) > 1 else []
-        if command in self.commands:
-            try:
-                if args:
-                    self.commands[command](*args)
-                else:
-                    self.commands[command]()
-            except Exception as e:
-                logging.error(f"Command error in {command}: {str(e)}")
-                print(f"Error executing command: {e}")
-        else:
-            print("I don't understand that command. Type 'help' for available commands.")
+        
+        # Try fuzzy matching if command not found
+        if command not in self.commands:
+            matches = get_close_matches(command, self.commands.keys(), n=1, cutoff=0.6)
+            if matches:
+                print(f"Did you mean '{matches[0]}'?")
+                command = matches[0]
+            else:
+                print("Unknown command. Type 'help' for commands.")
+                return
+        
+        try:
+            if args:
+                self.commands[command](*args)
+            else:
+                self.commands[command]()
+        except Exception as e:
+            logging.error(f"Command error: {str(e)}")
+            print(f"Error: {e}")
 
 #################################################################################
 # GAME CLASS
-################################gf#################################################
+#################################################################################
 class Game:
-    """Main game controller managing world state, commands, and game flow."""
+    """
+    Main game controller
+    Handles world generation, game loop, and high-level game logic
+    """
+    
     def __init__(self):
         self.player: Optional[Player] = None
-        self.rooms: Optional[Dict[str, Room]] = None
-        self.room_layout: Optional[Dict[str, Dict[str, str]]] = None
+        self.floors: Optional[Dict[int, Dict[str, Room]]] = None
         self.running = True
         self.weapons = WeaponSystem.create_starting_weapons()
         self.combat = CombatSystem(self)
         self.save_file = GameConstants.SAVE_FILE
         self.command_handler = CommandHandler(self)
 
-    # ========== GAME FLOW CONTROL ==========
-    def start_game(self) gggggggggggggggggggggggggggggggggggggggggggggggggggggg-> None:
+    def start_game(self) -> None:
+        """Initialize and start the game"""
         print("=" * 50)
-        print(" TEXT ADVENTURE RPG")
+        print(" TEXT ADVENTURE RPG - 10 FLOOR EDITION")
         print(f" Version {GameConstants.VERSION}")
         print("=" * 50)
-        print("\nWould you like to:")
-        print("1. Start a new game")
-        print("2. Load a saved game")
+        print("\n1. New Game | 2. Load Game")
+        
         while True:
             try:
-                choice = input("\nEnter your choice (1-2): ").strip()
+                choice = input("Choice: ").strip()
                 if choice == '1':
                     self.create_new_character()
-                    breakdawdad
+                    break
                 elif choice == '2':
                     if self.load_game():
                         break
-                    print("No save file found. Starting new game...")
+                    print("No save found. Starting new game...")
                     self.create_new_character()
                     break
-                else:
-                    print("Invalid choice! Please enter 1 or 2.")
             except KeyboardInterrupt:
-                print("\nInput interrupted. Please choose an option.")
-
-        print("\nType 'help' for a list of commands.")
+                print("\nInterrupted.")
+        
+        print("\nType 'help' for commands.")
         self.look_around()
         self.game_loop()
 
     def game_loop(self) -> None:
+        """Main game loop - processes commands until game ends"""
         while self.running:
             try:
                 user_input = input("\n> ").strip().lower()
@@ -1293,11 +2316,1024 @@ class Game:
                 if self.player:
                     self.player.show_status_summary()
             except KeyboardInterrupt:
-                print("\n\nGame interrupted. Don't forget to save! Goodbye!")
+                print("\n\nInterrupted. Save before quitting!")
                 break
             except Exception as e:
                 logging.error(str(e))
-                print(f"An error occurred: {e}")
-                print("Please report this bug!")
+                print(f"Error: {e}")
 
-   
+    def create_new_character(self) -> None:
+        """Create a new player character"""
+        try:
+            name = input("Character name: ").strip()
+            if not name:
+                name = "Adventurer"
+            
+            character_class = self._choose_character_class()
+            self.player = Player(name, character_class)
+            
+            starting_weapon = self._choose_starting_weapon()
+            self.player.equip_weapon(starting_weapon)
+            
+            self.floors = self._create_multi_floor_dungeon()
+            
+            print(f"\nWelcome, {self.player.name} the {character_class.title()}!")
+            print(f"Weapon: {starting_weapon['base_name']}")
+            print(f"{GameConstants.NUM_FLOORS} floors await. Good luck!")
+        except Exception as e:
+            logging.error(f"Creation error: {str(e)}")
+            self.player = Player("Adventurer", "warrior")
+            self.floors = self._create_multi_floor_dungeon()
+
+    def _choose_character_class(self) -> str:
+        """Let player choose their class"""
+        print("\n=== Choose Class ===")
+        print("1. Warrior - High HP, strength-based")
+        print("2. Mage - High mana, intelligence-based")
+        print("3. Rogue - Balanced, agility-based")
+        
+        while True:
+            try:
+                choice = input("Choice (1-3): ").strip()
+                class_map = {'1': 'warrior', '2': 'mage', '3': 'rogue'}
+                if choice in class_map:
+                    return class_map[choice]
+                print("Invalid choice. Enter 1, 2, or 3.")
+            except KeyboardInterrupt:
+                print("\nDefaulting to Warrior...")
+                return 'warrior'
+
+    def _choose_starting_weapon(self) -> Dict[str, Any]:
+        """Let player choose starting weapon"""
+        print("\n=== Choose Weapon ===")
+        class_weapons = self.weapons[self.player.character_class]
+        
+        for i, weapon in enumerate(class_weapons, 1):
+            print(f"{i}. {weapon['name']} - {weapon['damage']} dmg")
+        
+        while True:
+            try:
+                choice = input("Choice (1-3): ").strip()
+                if choice in ['1', '2', '3']:
+                    return class_weapons[int(choice) - 1].copy()
+                print("Invalid choice. Enter 1, 2, or 3.")
+            except (ValueError, KeyboardInterrupt):
+                print("\nDefaulting to first weapon...")
+                return class_weapons[0].copy()
+
+    def _create_multi_floor_dungeon(self) -> Dict[int, Dict[str, Room]]:
+        """
+        Generate the complete 10-floor dungeon
+        Each floor has themed rooms and enemies
+        """
+        print("\n*** Generating 10-floor dungeon...")
+        floors = {}
+        
+        for floor_num in range(1, GameConstants.NUM_FLOORS + 1):
+            print(f"Floor {floor_num}...", end=" ")
+            num_rooms = random.randint(GameConstants.MIN_ROOMS_PER_FLOOR, GameConstants.MAX_ROOMS_PER_FLOOR)
+            floor_rooms = {}
+            
+            # Create start room
+            if floor_num == 1:
+                start_room_id = 'start'
+                floor_rooms[start_room_id] = Room(
+                    "Entrance Hall",
+                    "You stand at the entrance of a vast dungeon.",
+                    floor_num,
+                    items=['rusty key', 'health potion'],
+                    enemies=[],
+                    atmosphere="Adventure awaits in the depths below."
+                )
+            else:
+                start_room_id = f"floor{floor_num}_start"
+                floor_rooms[start_room_id] = Room(
+                    f"Floor {floor_num} Entrance",
+                    f"You arrive at floor {floor_num}. The atmosphere grows darker.",
+                    floor_num,
+                    items=['health potion'],
+                    enemies=[]
+                )
+            
+            # Add themed rooms
+            templates = RoomTemplates.get_themed_room_templates(floor_num)
+            selected = random.sample(templates, min(num_rooms - 2, len(templates)))
+            
+            for i, template in enumerate(selected):
+                room_id = f"floor{floor_num}_room{i+1}"
+                floor_rooms[room_id] = Room(
+                    template['name'],
+                    template['description'],
+                    floor_num,
+                    items=self._filter_items_by_class(template['items'].copy()),
+                    enemies=template.get('enemies', []).copy(),
+                    atmosphere=template.get('atmosphere', '')
+                )
+            
+            # Add boss room
+            boss_template = RoomTemplates.get_boss_room(floor_num)
+            boss_room_id = f"floor{floor_num}_boss"
+            floor_rooms[boss_room_id] = Room(
+                boss_template['name'],
+                boss_template['description'],
+                floor_num,
+                items=self._filter_items_by_class(boss_template['items'].copy()),
+                enemies=boss_template['enemies'].copy(),
+                atmosphere=boss_template.get('atmosphere', '')
+            )
+            
+            # Add stairs (except last floor)
+            if floor_num < GameConstants.NUM_FLOORS:
+                stairs_id = f"floor{floor_num}_stairs"
+                floor_rooms[stairs_id] = Room(
+                    "Ancient Stairway",
+                    "Stone stairs descend deeper.",
+                    floor_num,
+                    items=[],
+                    enemies=[]
+                )
+            
+            # Connect all rooms
+            self._connect_rooms_properly(floor_rooms, start_room_id)
+            
+            floors[floor_num] = floor_rooms
+            print(f"{len(floor_rooms)} rooms")
+        
+        # Connect stairs between floors
+        for floor_num in range(1, GameConstants.NUM_FLOORS):
+            stairs_id = f"floor{floor_num}_stairs"
+            next_start = f"floor{floor_num+1}_start"
+            
+            if stairs_id in floors[floor_num] and next_start in floors.get(floor_num + 1, {}):
+                floors[floor_num][stairs_id].exits['down'] = next_start
+                floors[floor_num + 1][next_start].exits['up'] = stairs_id
+        
+        print("*** Dungeon complete!")
+        return floors
+    
+    def _filter_items_by_class(self, items: List[str]) -> List[str]:
+        """
+        Replace mana items with class-appropriate alternatives for non-mages
+        Mages keep magic scrolls and ice crystals, others get health items
+        """
+        if self.player.character_class == 'mage':
+            return items
+        
+        # For warriors and rogues, replace mana items
+        mana_items = ['magic scroll', 'ice crystal', 'mana flower']
+        replacements = {
+            'magic scroll': random.choice(['energy drink', 'vitality tonic']),
+            'ice crystal': random.choice(['power ring', 'swift boots']),
+            'mana flower': random.choice(['leather bracer', 'armor piece'])
+        }
+        
+        return [replacements.get(item, item) for item in items]
+    
+    def _connect_rooms_properly(self, rooms: Dict[str, Room], start_id: str) -> None:
+        """
+        Connect all rooms in a floor ensuring all are reachable
+        Creates a connected graph with some loops for non-linear exploration
+        """
+        directions = ['north', 'south', 'east', 'west']
+        reverse = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east'}
+        
+        room_ids = list(rooms.keys())
+        connected = {start_id}
+        unconnected = set(room_ids) - connected
+        
+        # Connect all rooms to the graph
+        while unconnected:
+            current = random.choice(list(connected))
+            target = random.choice(list(unconnected))
+            
+            # Find available direction
+            available_dirs = [d for d in directions if d not in rooms[current].exits]
+            if not available_dirs:
+                continue
+            
+            direction = random.choice(available_dirs)
+            
+            # Create bidirectional connection
+            rooms[current].exits[direction] = target
+            rooms[target].exits[reverse[direction]] = current
+            
+            connected.add(target)
+            unconnected.remove(target)
+        
+        # Add extra connections for loops (about 33% more connections)
+        extra_connections = len(room_ids) // 3
+        for _ in range(extra_connections):
+            room1, room2 = random.sample(room_ids, 2)
+            
+            # Skip if already connected
+            if room2 in rooms[room1].exits.values():
+                continue
+            
+            # Find available directions
+            available_dirs = [d for d in directions if d not in rooms[room1].exits]
+            if available_dirs:
+                direction = random.choice(available_dirs)
+                
+                # Only connect if room2 also has space
+                if reverse[direction] not in rooms[room2].exits:
+                    rooms[room1].exits[direction] = room2
+                    rooms[room2].exits[reverse[direction]] = room1
+
+    def get_current_room(self) -> Room:
+        """Get the room the player is currently in"""
+        return self.floors[self.player.current_floor][self.player.current_room]
+
+    def show_help(self) -> None:
+        """
+        Display context-aware help showing only relevant commands
+        Adapts to current situation (combat, items, etc.)
+        """
+        room = self.get_current_room()
+        
+        print("\n" + "="*40)
+        print("COMMANDS")
+        print("="*40)
+        
+        # Always show basic commands
+        print("look - Examine room")
+        print("go <dir> - Move (north/south/east/west/up/down)")
+        print("  shortcuts: n, s, e, w, up, down")
+        
+        # Combat commands if enemies present
+        if room.enemies:
+            print("fight/attack <enemy> - Combat")
+        
+        # Item commands if items present or in inventory
+        if room.items or self.player.inventory:
+            print("take <item> - Pick up item")
+            if room.items and len(room.items) > 1:
+                print("takeall - Pick up all")
+        
+        # Inventory commands
+        print("inventory/inv - Show items")
+        print("stats/status - Show character")
+        
+        # Conditional commands based on inventory
+        if any(item in GameConstants.HEALING_ITEMS for item in self.player.inventory):
+            print("heal - Use healing item")
+        if any(item in GameConstants.IMMEDIATE_EFFECT_ITEMS for item in self.player.inventory):
+            print("exp - Use experience item")
+        if any(item in GameConstants.WEARABLE_ITEMS for item in self.player.inventory):
+            print("equip/wear - Equip item")
+        if any(item in GameConstants.ACTIONABLE_ITEMS for item in self.player.inventory):
+            print("use <item> - Use special items (torch, keys, etc.)")
+        if self.player.inventory_weapons:
+            print("switch [weapon] - Change weapon")
+        if self.player.inventory:
+            print("discard <item> - Drop item")
+        
+        # Gold/shop only if player has gold
+        if self.player.gold_coins > 0:
+            print("shop - Merchant (spend gold)")
+        
+        # Upgrade only if available
+        if self.player.can_upgrade_class():
+            print("upgrade - Advance class")
+        
+        # System commands
+        print("map - View dungeon")
+        print("save/load - Save/Load")
+        print("quit/exit - Quit game")
+        print("="*40)
+
+    def look_around(self) -> None:
+        """Examine current room and mark as visited"""
+        current_room = self.get_current_room()
+        current_room.describe()
+        self.player.visited_rooms.add(self.player.current_room)
+
+    def move(self, direction: str) -> None:
+        """
+        Move player in specified direction
+        Handles floor transitions and boss blocking
+        """
+        current_room = self.get_current_room()
+        
+        if direction not in current_room.exits:
+            print("Can't go that way!")
+            return
+        
+        next_room_id = current_room.exits[direction]
+        
+        # Check if trying to descend without defeating boss
+        if direction == 'down':
+            boss_for_floor = self._get_boss_for_floor(self.player.current_floor)
+            if boss_for_floor and boss_for_floor not in self.player.bosses_defeated:
+                print(f"! Blocked! Defeat {boss_for_floor} first!")
+                return
+        
+        # Handle floor transitions
+        if direction in ['down', 'up'] and 'floor' in next_room_id:
+            next_floor = int(next_room_id.split('_')[0].replace('floor', ''))
+            if next_floor != self.player.current_floor:
+                self.player.current_floor = next_floor
+                print(f"→ Floor {self.player.current_floor}")
+        
+        # Move to new room
+        self.player.current_room = next_room_id
+        self.player.visited_rooms.add(next_room_id)
+        print(f"You go {direction}.")
+        self.look_around()
+    
+    def _get_boss_for_floor(self, floor: int) -> Optional[str]:
+        """Get the boss name for specified floor"""
+        for boss_name, boss_config in GameConstants.BOSSES.items():
+            if boss_config['floor'] == floor:
+                return boss_name
+        return None
+
+    def show_map(self) -> None:
+        """Display dungeon map showing visited rooms"""
+        print("\n" + "="*40)
+        print("DUNGEON MAP")
+        print("="*40)
+        print(f"Floor {self.player.current_floor}/{GameConstants.NUM_FLOORS}")
+        
+        for floor_num in range(1, GameConstants.NUM_FLOORS + 1):
+            floor_rooms = self.floors[floor_num]
+            visited_on_floor = [r for r in self.player.visited_rooms if r in floor_rooms]
+            
+            print(f"\n--- Floor {floor_num} ---")
+            print(f"Discovered: {len(visited_on_floor)}/{len(floor_rooms)}")
+            
+            if visited_on_floor:
+                # Show first 5 rooms
+                for room_id in sorted(visited_on_floor)[:5]:
+                    room = floor_rooms[room_id]
+                    marker = ">>>" if (floor_num == self.player.current_floor and 
+                                      room_id == self.player.current_room) else "---"
+                    print(f" {marker} {room.name}")
+                
+                if len(visited_on_floor) > 5:
+                    print(f" ... and {len(visited_on_floor) - 5} more rooms")
+        
+        total_visited = len(self.player.visited_rooms)
+        total_rooms = sum(len(floor_rooms) for floor_rooms in self.floors.values())
+        print(f"\nTotal: {total_visited}/{total_rooms} rooms")
+        print("="*40)
+
+    def show_inventory(self) -> None:
+        """Display organized inventory"""
+        print(f"\n=== INVENTORY ({self.player.get_inventory_count()}/{self.player.max_inventory}) ===")
+        
+        if self.player.weapon:
+            print(f"Equipped: {self.player.weapon['name']} ({self.player.weapon['damage']} dmg)")
+        
+        if not self.player.inventory:
+            print("Empty")
+            return
+        
+        # Organize items by category
+        healing = [i for i in self.player.inventory if i in GameConstants.HEALING_ITEMS]
+        exp = [i for i in self.player.inventory if i in GameConstants.IMMEDIATE_EFFECT_ITEMS]
+        wearables = [i for i in self.player.inventory if i in GameConstants.WEARABLE_ITEMS]
+        actionable = [i for i in self.player.inventory if i in GameConstants.ACTIONABLE_ITEMS]
+        weapons = [i for i in self.player.inventory if i.startswith("WEAPON:")]
+        other = [i for i in self.player.inventory if i not in healing and i not in exp and 
+                i not in wearables and i not in actionable and not i.startswith("WEAPON:")]
+        
+        if healing:
+            print("\nHealing:")
+            for item in healing:
+                print(f"  - {item}")
+        
+        if exp:
+            print("\nExperience:")
+            for item in exp:
+                print(f"  - {item}")
+        
+        if wearables:
+            print("\nWearables:")
+            for item in wearables:
+                print(f"  - {item}")
+        
+        if actionable:
+            print("\nSpecial Items:")
+            for item in actionable:
+                print(f"  - {item}")
+        
+        if weapons:
+            print("\nWeapons:")
+            for w in weapons:
+                print(f"  - {w[8:]}")
+        
+        if other:
+            print("\nOther:")
+            for item in other:
+                print(f"  - {item}")
+
+    def show_stats(self) -> None:
+        """Display full character stats"""
+        self.player.show_stats()
+
+    def use_healing(self, *args) -> None:
+        """Use a healing item"""
+        item_name = ' '.join(args) if args else None
+        self.player.use_healing_item(item_name)
+
+    def use_experience(self, *args) -> None:
+        """Use an experience item"""
+        item_name = ' '.join(args) if args else None
+        self.player.use_exp_item(item_name)
+
+    def equip_wearable_command(self, *args) -> None:
+        """Equip a wearable item"""
+        if not args:
+            wearables = [i for i in self.player.inventory if i in GameConstants.WEARABLE_ITEMS]
+            if not wearables:
+                print("No wearable items!")
+                return
+            
+            print("Available wearables:")
+            for i, item in enumerate(wearables, 1):
+                effect = GameConstants.WEARABLE_ITEMS[item]
+                print(f"{i}. {item} (+{effect['bonus']} {effect['stat']})")
+            
+            try:
+                choice = int(input("Choose (1-{}): ".format(len(wearables)))) - 1
+                if 0 <= choice < len(wearables):
+                    item = wearables[choice]
+                    self.player.inventory.remove(item)
+                    self.player.equip_wearable(item)
+                else:
+                    print("Invalid choice.")
+            except (ValueError, KeyboardInterrupt):
+                print("Cancelled.")
+        else:
+            item_name = ' '.join(args)
+            if item_name in self.player.inventory:
+                self.player.inventory.remove(item_name)
+                self.player.equip_wearable(item_name)
+            else:
+                print(f"You don't have '{item_name}'.")
+
+    def switch_weapon(self, *args) -> None:
+        """Switch equipped weapon"""
+        weapon_identifier = ' '.join(args) if args else None
+        self.player.switch_weapon(weapon_identifier)
+
+    def discard_item(self, *args) -> None:
+        """Discard an item from inventory"""
+        if not args:
+            print("Discard what? Usage: discard <item name>")
+            return
+        item_name = ' '.join(args)
+        self.player.discard_item(item_name)
+
+    def take_item(self, *args) -> None:
+        """Pick up an item from the room"""
+        if not args:
+            print("Take what? Usage: take <item name>")
+            return
+        
+        current_room = self.get_current_room()
+        
+        # Check if enemies present - items locked during combat
+        if current_room.enemies:
+            print("! Defeat enemies first!")
+            print(f"Enemies: {', '.join(current_room.enemies)}")
+            return
+        
+        item = ' '.join(args)
+        
+        if item not in current_room.items:
+            print(f"No '{item}' here.")
+            if current_room.items:
+                print(f"Available: {', '.join(current_room.items)}")
+            return
+        
+        # Check inventory space (except for wearables which auto-equip)
+        if not self.player.can_add_item() and item not in GameConstants.WEARABLE_ITEMS:
+            print(f"Inventory full! ({self.player.max_inventory} slots)")
+            print("Use 'discard <item>' to make space.")
+            return
+        
+        current_room.items.remove(item)
+        
+        # Handle special item types
+        if item == "weapon cache":
+            self._handle_weapon_cache()
+        elif item == "champion's prize":
+            self._handle_champions_prize()
+        else:
+            self._handle_regular_item(item)
+
+    def take_all_items(self) -> None:
+        """Pick up all items in the room"""
+        current_room = self.get_current_room()
+        
+        if current_room.enemies:
+            print("! Defeat enemies first!")
+            return
+        
+        if not current_room.items:
+            print("No items here.")
+            return
+        
+        items_taken = 0
+        items_left = []
+        
+        for item in current_room.items[:]:
+            if item in GameConstants.WEARABLE_ITEMS or self.player.can_add_item():
+                current_room.items.remove(item)
+                if item == "weapon cache":
+                    self._handle_weapon_cache()
+                elif item == "champion's prize":
+                    self._handle_champions_prize()
+                else:
+                    self._handle_regular_item(item)
+                items_taken += 1
+            else:
+                items_left.append(item)
+        
+        if items_taken:
+            print(f"\n+ Picked up {items_taken} item(s)")
+        if items_left:
+            print(f"X Inventory full! Left behind: {', '.join(items_left)}")
+
+    def _handle_weapon_cache(self) -> None:
+        """Handle opening a weapon cache"""
+        new_weapon = WeaponSystem.generate_random_weapon(self.player)
+        
+        print(f"+ Weapon: {new_weapon['name']}")
+        print(f"  {new_weapon['damage']} dmg | {new_weapon['rarity'].title()}")
+        
+        # Check if it's the Golden Gun
+        if new_weapon.get('special') == 'instant_kill':
+            print("\n*** LEGENDARY GOLDEN GUN FOUND! ***")
+            print("*** 6 INSTANT KILLS! ***")
+        
+        # Offer to equip if better than current
+        if not self.player.weapon or new_weapon['damage'] > self.player.weapon['damage']:
+            try:
+                choice = input("Equip? (y/n): ").strip().lower()
+                if choice in ['y', 'yes']:
+                    if self.player.weapon:
+                        print(f"Replaced {self.player.weapon['name']}")
+                    self.player.equip_weapon(new_weapon)
+                else:
+                    self.player.add_weapon_to_inventory(new_weapon)
+            except KeyboardInterrupt:
+                self.player.add_weapon_to_inventory(new_weapon)
+        else:
+            try:
+                choice = input("Weaker weapon. Take anyway? (y/n): ").strip().lower()
+                if choice in ['y', 'yes']:
+                    self.player.add_weapon_to_inventory(new_weapon)
+                else:
+                    print("Left weapon behind.")
+            except KeyboardInterrupt:
+                print("Left weapon behind.")
+
+    def _handle_champions_prize(self) -> None:
+        """Handle opening champion's prize (guaranteed epic/legendary)"""
+        prize = WeaponSystem.generate_random_weapon(
+            self.player, random.choice(['epic', 'legendary'])
+        )
+        
+        print(f"*** Champion's Prize: {prize['name']}")
+        print(f"  {prize['damage']} dmg | {prize['rarity'].title()}")
+        
+        try:
+            choice = input("Equip? (y/n): ").strip().lower()
+            if choice in ['y', 'yes']:
+                if self.player.weapon:
+                    print(f"Replaced {self.player.weapon['name']}")
+                self.player.equip_weapon(prize)
+            else:
+                self.player.add_weapon_to_inventory(prize)
+        except KeyboardInterrupt:
+            self.player.add_weapon_to_inventory(prize)
+
+    def _handle_regular_item(self, item: str) -> None:
+        """Handle picking up a regular item"""
+        # Immediate effect items (experience)
+        if item in GameConstants.IMMEDIATE_EFFECT_ITEMS:
+            effect = GameConstants.IMMEDIATE_EFFECT_ITEMS[item]
+            if effect['type'] == 'exp':
+                self.player.gain_experience(effect['amount'])
+            return
+        
+        # Gold coins
+        if item == 'golden coin':
+            coins = random.randint(3, 10)
+            self.player.gold_coins += coins
+            print(f"Collected {coins} gold coins!")
+            return
+        
+        # Wearable items
+        if item in GameConstants.WEARABLE_ITEMS:
+            self.player.inventory.append(item)
+            print(f"Picked up: {item} (wearable)")
+            return
+        
+        # All other items
+        self.player.add_item(item)
+
+    def use_item(self, *args) -> None:
+        """
+        Use special interactive items (torch, keys, medallion)
+        These items have puzzle-like interactions with specific rooms
+        """
+        if not args:
+            print("Use what? Usage: use <item name>")
+            return
+        
+        item_name = ' '.join(args)
+        
+        if item_name not in self.player.inventory:
+            print(f"You don't have '{item_name}'.")
+            return
+        
+        if item_name not in GameConstants.ACTIONABLE_ITEMS:
+            print(f"You can't use '{item_name}' like that.")
+            print("Try: 'heal', 'exp', or 'equip' for other items.")
+            return
+        
+        action_type = GameConstants.ACTIONABLE_ITEMS[item_name]
+        current_room = self.get_current_room()
+        
+        # TORCH - Opens secret room in Hidden Alcove
+        if action_type == 'light' and item_name == 'torch':
+            if 'Hidden Alcove' in current_room.name and not self.player.secret_room_unlocked:
+                print("\n*** You place the torch in the wall sconce...")
+                print("The flame flares brightly with an otherworldly glow!")
+                print("You hear a grinding sound as a hidden door slides open!")
+                
+                self.player.secret_room_unlocked = True
+                self.player.inventory.remove('torch')
+                
+                # Add secret room
+                secret_room_id = f"floor{self.player.current_floor}_secret"
+                current_room.exits['secret'] = secret_room_id
+                
+                # Create secret room if it doesn't exist
+                if secret_room_id not in self.floors[self.player.current_floor]:
+                    secret_template = RoomTemplates.get_secret_room_template()
+                    self.floors[self.player.current_floor][secret_room_id] = Room(
+                        secret_template['name'],
+                        secret_template['description'],
+                        self.player.current_floor,
+                        items=secret_template['items'],
+                        enemies=secret_template['enemies'],
+                        atmosphere=secret_template.get('atmosphere', '')
+                    )
+                    # Add return exit
+                    self.floors[self.player.current_floor][secret_room_id].exits['out'] = self.player.current_room
+                
+                print("\nA SECRET exit has appeared! Use 'go secret' to enter!")
+            else:
+                print("You hold up the torch, illuminating the area.")
+                print("Nothing unusual here. Perhaps somewhere with a torch sconce?")
+        
+        # RUSTY KEY - Opens Locked Vault chest
+        elif action_type == 'key' and item_name == 'rusty key':
+            if 'Locked Vault' in current_room.name or 'Vault' in current_room.name:
+                print("\n*** You approach the ornate chest with the rusty key...")
+                print("The key fits perfectly!")
+                print("With a satisfying *CLICK*, the chest opens!")
+                print("\n>>> The vault's treasures are revealed! <<<")
+                
+                self.player.inventory.remove('rusty key')
+                
+                # Add treasure to room
+                vault_rewards = [
+                    'weapon cache', 'weapon cache', 'legendary artifact', 
+                    'ultimate health potion', 'experience gem', 'power ring'
+                ]
+                for reward in vault_rewards:
+                    if reward not in current_room.items:
+                        current_room.items.append(reward)
+                
+                print(f"\nTreasures added: {', '.join(vault_rewards)}")
+                print("Use 'takeall' to collect everything!")
+                print("\nThe rusty key crumbles to dust...")
+            else:
+                print("You examine the rusty key.")
+                print("It looks like it would fit a large, ornate lock...")
+        
+        # BONE KEY - Flavor item
+        elif action_type == 'key' and item_name == 'bone key':
+            print(f"You hold the {item_name}. It's cold to the touch.")
+            print("This might unlock something in the crypts...")
+        
+        # OLD MAP - Shows dungeon map
+        elif action_type == 'map':
+            print("You study the old map carefully...")
+            self.show_map()
+        
+        # ANCIENT MEDALLION - Sacred Shrine offering for permanent stats
+        elif action_type == 'offering' and item_name == 'ancient medallion':
+            if 'Sacred Shrine' in current_room.name or 'Shrine' in current_room.name:
+                print("\n*** You approach the ancient altar...")
+                print("The medallion glows as you hold it near!")
+                print("You place the ancient medallion on the altar.")
+                print("\n>>> The altar erupts with brilliant light! <<<")
+                print("Ancient power flows through you!")
+                
+                self.player.inventory.remove('ancient medallion')
+                
+                # Class-specific permanent stat boosts
+                if self.player.character_class == 'warrior':
+                    self.player.stats['strength'] += 8
+                    self.player.stats['agility'] += 3
+                    print(f"*** Strength +8!")
+                    print(f"*** Agility +3!")
+                elif self.player.character_class == 'mage':
+                    self.player.stats['intelligence'] += 8
+                    self.player.stats['strength'] += 3
+                    print(f"*** Intelligence +8!")
+                    print(f"*** Strength +3!")
+                else:  # rogue
+                    self.player.stats['agility'] += 8
+                    self.player.stats['intelligence'] += 3
+                    print(f"*** Agility +8!")
+                    print(f"*** Intelligence +3!")
+                
+                # Bonus health and mana
+                self.player.max_health += 20
+                self.player.health = self.player.max_health
+                self.player.max_mana += 15
+                self.player.mana = self.player.max_mana
+                
+                print(f"*** Max health +20! (now {self.player.max_health})")
+                print(f"*** Max mana +15! (now {self.player.max_mana})")
+                print("*** Fully healed!")
+                print("\nThe altar's power fades, but your strength remains...")
+            else:
+                print("You hold the ancient medallion, studying its design.")
+                print("It should be placed somewhere specific...")
+                print("Perhaps on an altar or shrine?")
+
+    def open_shop(self, *args) -> None:
+        """Open merchant shop to buy items with gold coins"""
+        print("\n" + "="*40)
+        print("*** MERCHANT ***")
+        print("="*40)
+        print(f"Your gold: {self.player.gold_coins}")
+        
+        # Filter shop items based on class
+        shop_items = []
+        for item, price in GameConstants.SHOP_ITEMS.items():
+            # Only mages can buy magic scrolls
+            if item == 'magic scroll' and self.player.character_class != 'mage':
+                continue
+            shop_items.append((item, price))
+        
+        print("\n=== SHOP ===")
+        for i, (item, price) in enumerate(shop_items, 1):
+            print(f"{i}. {item} - {price}g")
+        print(f"{len(shop_items) + 1}. Leave")
+        
+        try:
+            choice = input("\nBuy item (number): ").strip()
+            choice_num = int(choice)
+            
+            if choice_num == len(shop_items) + 1:
+                print("The merchant nods farewell...")
+                return
+            
+            if 1 <= choice_num <= len(shop_items):
+                item, price = shop_items[choice_num - 1]
+                
+                if self.player.gold_coins >= price:
+                    if self.player.can_add_item() or item in GameConstants.WEARABLE_ITEMS:
+                        self.player.gold_coins -= price
+                        
+                        if item in GameConstants.WEARABLE_ITEMS:
+                            self.player.inventory.append(item)
+                        else:
+                            self.player.add_item(item)
+                        
+                        print(f"Purchased {item} for {price}g!")
+                        print(f"Gold remaining: {self.player.gold_coins}")
+                    else:
+                        print("Inventory full! Discard items first.")
+                else:
+                    print(f"Not enough gold! Need {price}g, have {self.player.gold_coins}g")
+            else:
+                print("Invalid choice.")
+        except (ValueError, KeyboardInterrupt):
+            print("Transaction cancelled.")
+    
+    def fight_enemy(self, *args) -> None:
+        """Initiate combat with an enemy"""
+        if not args:
+            print("Fight what? Usage: fight <enemy name>")
+            return
+        
+        input_enemy_name = ' '.join(args)
+        current_room = self.get_current_room()
+        
+        # Find matching enemy (case-insensitive)
+        matching_enemy = None
+        for e in current_room.enemies:
+            if e.lower() == input_enemy_name.lower():
+                matching_enemy = e
+                break
+        
+        if not matching_enemy:
+            print(f"No '{input_enemy_name}' here to fight!")
+            if current_room.enemies:
+                print(f"Enemies present: {', '.join(current_room.enemies)}")
+            return
+        
+        # Warn if no weapon
+        if not self.player.weapon:
+            print("! No weapon! Fight with fists?")
+            try:
+                choice = input("Continue? (y/n): ").strip().lower()
+                if choice not in ['y', 'yes']:
+                    return
+            except KeyboardInterrupt:
+                return
+        
+        # Check if boss fight
+        boss_names = list(GameConstants.BOSSES.keys())
+        if matching_enemy in boss_names:
+            success = self.combat.fight_boss(matching_enemy, self.player, current_room)
+        else:
+            success = self.combat.fight_regular_enemy(matching_enemy, self.player, current_room)
+        
+        if not success:
+            self.running = False
+
+    def upgrade_class_command(self) -> None:
+        """Upgrade player's class tier"""
+        if not self.player.can_upgrade_class():
+            if self.player.class_tier >= 3:
+                print("Already at max tier!")
+            else:
+                next_level = GameConstants.CLASS_UPGRADE_LEVELS[self.player.class_tier - 1]
+                print(f"Need level {next_level} to upgrade. (Currently level {self.player.level})")
+            return
+        
+        current_title = self.player.get_class_title()
+        next_title = self.player.get_next_class_title()
+        
+        print(f"\n*** CLASS UPGRADE AVAILABLE! ***")
+        print(f"Current: {current_title} (Tier {self.player.class_tier})")
+        print(f"Upgrade to: {next_title} (Tier {self.player.class_tier + 1})")
+        print("\nBenefits:")
+        print("• +5 all stats")
+        print("• +30 max health")
+        print("• +25 max mana")
+        print("• Full heal & mana restore")
+        print("• +5% better loot drops")
+        
+        try:
+            choice = input(f"\nUpgrade to {next_title}? (y/n): ").strip().lower()
+            if choice in ['y', 'yes']:
+                if self.player.upgrade_class():
+                    print("\nClass upgrade successful!")
+            else:
+                print("Upgrade cancelled.")
+        except KeyboardInterrupt:
+            print("\nUpgrade cancelled.")
+
+    def save_game(self) -> None:
+        """Save complete game state to file"""
+        try:
+            save_data = {
+                'version': GameConstants.VERSION,
+                'player': self.player.to_dict(),
+                'floors': {}
+            }
+            
+            # Save all floor data
+            for floor_num, floor_rooms in self.floors.items():
+                save_data['floors'][str(floor_num)] = {
+                    room_id: {
+                        'items': room.items,
+                        'enemies': room.enemies,
+                        'visited': room.visited,
+                        'exits': room.exits
+                    } for room_id, room in floor_rooms.items()
+                }
+            
+            with open(self.save_file, 'w') as f:
+                json.dump(save_data, f, indent=2)
+            
+            print(f"✓ Game saved successfully!")
+        except Exception as e:
+            logging.error(f"Save error: {str(e)}")
+            print(f"✗ Save failed: {e}")
+
+    def load_game(self) -> bool:
+        """Load game state from save file"""
+        try:
+            if not os.path.exists(self.save_file):
+                return False
+            
+            with open(self.save_file, 'r') as f:
+                save_data = json.load(f)
+            
+            # Version check
+            if save_data.get('version') != GameConstants.VERSION:
+                print(f"! Save version mismatch. Starting new game.")
+                return False
+            
+            # Load player
+            self.player = Player.from_dict(save_data['player'])
+            
+            # Check Golden Gun status
+            if self.player.weapon and self.player.weapon.get('special') == 'instant_kill':
+                if self.player.weapon.get('uses_remaining', 0) <= 0:
+                    print("! Your Golden Gun has depleted...")
+                    self.player.weapon = None
+            
+            # Reconstruct floors
+            self.floors = {}
+            for floor_str, floor_data in save_data['floors'].items():
+                floor_num = int(floor_str)
+                self.floors[floor_num] = {}
+                
+                for room_id, room_data in floor_data.items():
+                    # Determine room type and get appropriate template
+                    if room_id == 'start':
+                        room_name = "Entrance Hall"
+                        room_desc = "The dungeon entrance."
+                        atmosphere = "Adventure awaits."
+                    elif 'boss' in room_id:
+                        boss_template = RoomTemplates.get_boss_room(floor_num)
+                        room_name = boss_template['name']
+                        room_desc = boss_template['description']
+                        atmosphere = boss_template.get('atmosphere', '')
+                    elif 'stairs' in room_id:
+                        room_name = "Ancient Stairway"
+                        room_desc = "Stone stairs descend deeper."
+                        atmosphere = ""
+                    elif 'secret' in room_id:
+                        secret_template = RoomTemplates.get_secret_room_template()
+                        room_name = secret_template['name']
+                        room_desc = secret_template['description']
+                        atmosphere = secret_template.get('atmosphere', '')
+                    else:
+                        # Use themed template
+                        templates = RoomTemplates.get_themed_room_templates(floor_num)
+                        if templates:
+                            template = random.choice(templates)
+                            room_name = template['name']
+                            room_desc = template['description']
+                            atmosphere = template.get('atmosphere', '')
+                        else:
+                            room_name = "Mysterious Room"
+                            room_desc = "A dark room."
+                            atmosphere = ""
+                    
+                    # Create room with saved data
+                    self.floors[floor_num][room_id] = Room(
+                        room_name,
+                        room_desc,
+                        floor_num,
+                        items=room_data['items'],
+                        exits=room_data['exits'],
+                        enemies=room_data['enemies'],
+                        atmosphere=atmosphere
+                    )
+                    self.floors[floor_num][room_id].visited = room_data['visited']
+            
+            print(f"✓ Welcome back, {self.player.name} the {self.player.get_class_title()}!")
+            return True
+            
+        except Exception as e:
+            logging.error(f"Load error: {str(e)}")
+            print(f"✗ Load failed: {e}")
+            print("Save file may be corrupted.")
+            return False
+
+    def quit_game(self) -> None:
+        """Exit the game with optional save"""
+        try:
+            save_choice = input("\nSave before quitting? (y/n): ").strip().lower()
+            if save_choice in ['y', 'yes']:
+                self.save_game()
+        except KeyboardInterrupt:
+            pass
+        
+        print(f"\nThanks for playing, {self.player.name if self.player else 'Adventurer'}!")
+        print("See you next time!")
+        self.running = False
+
+#################################################################################
+# MAIN ENTRY POINT
+#################################################################################
+def main():
+    """Main entry point for the game"""
+    try:
+        game = Game()
+        game.start_game()
+    except KeyboardInterrupt:
+        print("\n\nGame interrupted. Goodbye!")
+    except Exception as e:
+        logging.error(f"Fatal error: {str(e)}")
+        print(f"\n\nFatal error: {e}")
+        print("Please report this bug!")
+
+if __name__ == "__main__":
+    main()
