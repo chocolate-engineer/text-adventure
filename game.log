@@ -44,3 +44,133 @@ Fatal error: Logger._log() got an unexpected keyword argument 'end'
 2025-10-08 17:46:46,078 [INFO] fight_enemy:1205 - Combat started: J (Lvl 1, HP 113) vs sewer rat (HP 15)
 2025-10-08 17:46:46,078 [INFO] fight_enemy:1219 - Victory: J defeated sewer rat in 1 turns. Gained 15 XP
 2025-10-08 17:46:46,078 [INFO] gain_experience:807 - Player gained 15 XP. Total: 45/100
+2025-10-08 18:01:06,443 [INFO] _create_character:1520 - New character: J (warrior) with Bronze Hammer
+2025-10-08 18:01:06,443 [INFO] _generate_dungeon:1535 - Starting dungeon generation...
+2025-10-08 18:01:06,445 [INFO] _generate_dungeon:1596 - Dungeon generated: 10 floors, 118 total rooms
+2025-10-08 18:01:56,943 [INFO] fight_enemy:1129 - Combat started: J (Lvl 1, HP 120) vs goblin (HP 25)
+2025-10-08 18:01:56,944 [INFO] fight_enemy:1143 - Victory: J defeated goblin in 2 turns. Gained 25 XP
+2025-10-08 18:01:56,944 [INFO] gain_experience:731 - Player gained 25 XP. Total: 25/100
+2025-10-08 18:01:56,944 [INFO] fight_enemy:1129 - Combat started: J (Lvl 1, HP 115) vs prison guard (HP 40)
+2025-10-08 18:01:56,945 [INFO] fight_enemy:1143 - Victory: J defeated prison guard in 2 turns. Gained 35 XP
+2025-10-08 18:01:56,945 [INFO] gain_experience:731 - Player gained 35 XP. Total: 60/100
+2025-10-08 18:15:07,132 [INFO] _create_character:1520 - New character: J (warrior) with Bronze Hammer
+2025-10-08 18:15:07,132 [INFO] _generate_dungeon:1535 - Starting dungeon generation...
+2025-10-08 18:15:07,134 [INFO] _generate_dungeon:1596 - Dungeon generated: 10 floors, 117 total rooms
+2025-10-08 18:15:26,978 [INFO] fight_enemy:1129 - Combat started: J (Lvl 1, HP 120) vs goblin (HP 25)
+2025-10-08 18:15:26,978 [INFO] fight_enemy:1143 - Victory: J defeated goblin in 2 turns. Gained 25 XP
+2025-10-08 18:15:26,978 [INFO] gain_experience:731 - Player gained 25 XP. Total: 25/100
+2025-10-08 18:15:26,978 [INFO] fight_enemy:1129 - Combat started: J (Lvl 1, HP 114) vs skeleton (HP 30)
+2025-10-08 18:15:26,979 [INFO] fight_enemy:1143 - Victory: J defeated skeleton in 2 turns. Gained 30 XP
+2025-10-08 18:15:26,979 [INFO] gain_experience:731 - Player gained 30 XP. Total: 55/100
+2025-10-08 18:17:34,413 [INFO] fight_enemy:1129 - Combat started: J (Lvl 1, HP 106) vs sewer rat (HP 15)
+2025-10-08 18:17:34,414 [INFO] fight_enemy:1143 - Victory: J defeated sewer rat in 1 turns. Gained 15 XP
+2025-10-08 18:17:34,414 [INFO] gain_experience:731 - Player gained 15 XP. Total: 70/100
+2025-10-08 18:18:10,122 [INFO] fight_enemy:1129 - Combat started: J (Lvl 1, HP 106) vs sewer rat (HP 15)
+2025-10-08 18:18:10,122 [INFO] fight_enemy:1143 - Victory: J defeated sewer rat in 1 turns. Gained 15 XP
+2025-10-08 18:18:10,123 [INFO] gain_experience:731 - Player gained 15 XP. Total: 85/100
+2025-10-08 18:18:31,933 [INFO] fight_enemy:1129 - Combat started: J (Lvl 1, HP 106) vs treasure guardian (HP 60)
+2025-10-08 18:18:31,934 [INFO] fight_enemy:1143 - Victory: J defeated treasure guardian in 3 turns. Gained 65 XP
+2025-10-08 18:18:31,934 [INFO] gain_experience:731 - Player gained 65 XP. Total: 150/100
+2025-10-08 18:18:31,934 [INFO] _level_up:757 - LEVEL UP: J reached level 2. HP: 135, MP: 60
+2025-10-08 18:18:31,935 [INFO] fight_enemy:1129 - Combat started: J (Lvl 2, HP 135) vs skeleton (HP 30)
+2025-10-08 18:18:31,935 [INFO] fight_enemy:1143 - Victory: J defeated skeleton in 2 turns. Gained 30 XP
+2025-10-08 18:18:31,936 [INFO] gain_experience:731 - Player gained 30 XP. Total: 80/140
+2025-10-08 18:18:57,701 [INFO] gain_experience:731 - Player gained 50 XP. Total: 130/140
+2025-10-08 18:20:06,953 [INFO] fight_enemy:1129 - Combat started: J (Lvl 2, HP 127) vs skeleton (HP 30)
+2025-10-08 18:20:06,954 [INFO] fight_enemy:1143 - Victory: J defeated skeleton in 2 turns. Gained 30 XP
+2025-10-08 18:20:06,954 [INFO] gain_experience:731 - Player gained 30 XP. Total: 160/140
+2025-10-08 18:20:06,954 [INFO] _level_up:757 - LEVEL UP: J reached level 3. HP: 150, MP: 70
+2025-10-08 18:20:06,954 [INFO] fight_enemy:1129 - Combat started: J (Lvl 3, HP 150) vs goblin (HP 25)
+2025-10-08 18:20:06,955 [INFO] fight_enemy:1143 - Victory: J defeated goblin in 1 turns. Gained 25 XP
+2025-10-08 18:20:06,955 [INFO] gain_experience:731 - Player gained 25 XP. Total: 45/196
+2025-10-08 18:22:42,330 [INFO] fight_enemy:1129 - Combat started: J (Lvl 3, HP 150) vs goblin (HP 25)
+2025-10-08 18:22:42,331 [INFO] fight_enemy:1143 - Victory: J defeated goblin in 1 turns. Gained 25 XP
+2025-10-08 18:22:42,331 [INFO] gain_experience:731 - Player gained 25 XP. Total: 70/196
+2025-10-08 18:22:42,331 [INFO] fight_enemy:1129 - Combat started: J (Lvl 3, HP 150) vs skeleton (HP 30)
+2025-10-08 18:22:42,331 [INFO] fight_enemy:1143 - Victory: J defeated skeleton in 2 turns. Gained 30 XP
+2025-10-08 18:22:42,331 [INFO] gain_experience:731 - Player gained 30 XP. Total: 100/196
+2025-10-08 18:24:44,976 [INFO] fight_boss:1190 - BOSS FIGHT: J (Lvl 3, HP 142) vs Arena Champion on floor 1
+2025-10-08 18:26:28,771 [INFO] fight_boss:1273 - BOSS VICTORY: J defeated Arena Champion in 6 turns on floor 1
+2025-10-08 18:26:28,771 [INFO] gain_experience:731 - Player gained 150 XP. Total: 250/196
+2025-10-08 18:26:28,771 [INFO] _level_up:757 - LEVEL UP: J reached level 4. HP: 165, MP: 80
+2025-10-08 18:26:28,772 [INFO] fight_boss:1293 - Boss reward: J received Gladius of Victory (32 dmg)
+2025-10-08 18:31:18,662 [INFO] _create_character:1520 - New character: K (mage) with Crystal Orb
+2025-10-08 18:31:18,662 [INFO] _generate_dungeon:1535 - Starting dungeon generation...
+2025-10-08 18:31:18,664 [INFO] _generate_dungeon:1596 - Dungeon generated: 10 floors, 119 total rooms
+2025-10-08 18:31:43,772 [INFO] _create_character:1520 - New character: l (rogue) with Steel Dagger
+2025-10-08 18:31:43,773 [INFO] _generate_dungeon:1535 - Starting dungeon generation...
+2025-10-08 18:31:43,775 [INFO] _generate_dungeon:1596 - Dungeon generated: 10 floors, 116 total rooms
+2025-10-08 18:31:47,903 [INFO] save_game:2268 - Game saved: l (Lvl 1, Floor 1)
+2025-10-08 18:31:56,483 [INFO] load_game:2327 - Game loaded: l (Lvl 1, Floor 1)
+2025-10-09 01:20:28,810 [INFO] _create_character:1596 - New character: J (warrior) with Bronze Hammer
+2025-10-09 01:20:28,836 [INFO] _generate_dungeon:1611 - Starting dungeon generation...
+2025-10-09 01:20:28,837 [INFO] _generate_dungeon:1689 - Dungeon generated: 10 floors, 119 total rooms
+2025-10-09 01:21:35,784 [INFO] fight_enemy:1163 - Combat started: J (Lvl 1, HP 120) vs prison guard (HP 40)
+2025-10-09 01:21:35,784 [INFO] fight_enemy:1177 - Victory: J defeated prison guard in 2 turns. Gained 35 XP
+2025-10-09 01:21:35,784 [INFO] gain_experience:756 - Player gained 35 XP. Total: 35/100
+2025-10-09 01:21:35,785 [INFO] fight_enemy:1163 - Combat started: J (Lvl 1, HP 109) vs skeleton (HP 30)
+2025-10-09 01:21:35,785 [INFO] fight_enemy:1177 - Victory: J defeated skeleton in 2 turns. Gained 30 XP
+2025-10-09 01:21:35,785 [INFO] gain_experience:756 - Player gained 30 XP. Total: 65/100
+2025-10-09 01:23:18,690 [INFO] fight_enemy:1163 - Combat started: J (Lvl 1, HP 100) vs sewer rat (HP 15)
+2025-10-09 01:23:18,690 [INFO] fight_enemy:1177 - Victory: J defeated sewer rat in 1 turns. Gained 15 XP
+2025-10-09 01:23:18,691 [INFO] gain_experience:756 - Player gained 15 XP. Total: 80/100
+2025-10-09 01:23:34,561 [INFO] fight_enemy:1163 - Combat started: J (Lvl 1, HP 100) vs goblin (HP 25)
+2025-10-09 01:23:34,562 [INFO] fight_enemy:1177 - Victory: J defeated goblin in 1 turns. Gained 25 XP
+2025-10-09 01:23:34,562 [INFO] gain_experience:756 - Player gained 25 XP. Total: 105/100
+2025-10-09 01:23:34,562 [INFO] _level_up:782 - LEVEL UP: J reached level 2. HP: 135, MP: 60
+2025-10-09 01:23:34,563 [INFO] fight_enemy:1163 - Combat started: J (Lvl 2, HP 135) vs prison guard (HP 40)
+2025-10-09 01:23:34,563 [INFO] fight_enemy:1177 - Victory: J defeated prison guard in 2 turns. Gained 35 XP
+2025-10-09 01:23:34,563 [INFO] gain_experience:756 - Player gained 35 XP. Total: 40/140
+2025-10-09 01:24:41,432 [INFO] fight_enemy:1163 - Combat started: J (Lvl 2, HP 126) vs prison guard (HP 40)
+2025-10-09 01:24:41,432 [INFO] fight_enemy:1177 - Victory: J defeated prison guard in 1 turns. Gained 35 XP
+2025-10-09 01:24:41,432 [INFO] gain_experience:756 - Player gained 35 XP. Total: 75/140
+2025-10-09 01:24:41,433 [INFO] fight_enemy:1163 - Combat started: J (Lvl 2, HP 126) vs sewer rat (HP 15)
+2025-10-09 01:24:41,433 [INFO] fight_enemy:1177 - Victory: J defeated sewer rat in 1 turns. Gained 15 XP
+2025-10-09 01:24:41,433 [INFO] gain_experience:756 - Player gained 15 XP. Total: 90/140
+2025-10-09 01:32:21,169 [INFO] _create_character:1614 - New character: J (warrior) with Bronze Hammer
+2025-10-09 01:32:21,169 [INFO] _generate_dungeon:1629 - Starting dungeon generation...
+2025-10-09 01:32:21,171 [INFO] _generate_dungeon:1708 - Dungeon generated: 10 floors, 119 total rooms
+2025-10-09 01:33:00,257 [INFO] fight_enemy:1176 - Combat started: J (Lvl 1, HP 120) vs treasure guardian (HP 60)
+2025-10-09 01:33:00,258 [INFO] fight_enemy:1190 - Victory: J defeated treasure guardian in 3 turns. Gained 65 XP
+2025-10-09 01:33:00,258 [INFO] gain_experience:762 - Player gained 65 XP. Total: 65/100
+2025-10-09 01:33:00,258 [INFO] fight_enemy:1176 - Combat started: J (Lvl 1, HP 85) vs goblin (HP 25)
+2025-10-09 01:33:00,258 [INFO] fight_enemy:1190 - Victory: J defeated goblin in 1 turns. Gained 25 XP
+2025-10-09 01:33:00,259 [INFO] gain_experience:762 - Player gained 25 XP. Total: 90/100
+2025-10-09 01:33:31,363 [INFO] gain_experience:762 - Player gained 50 XP. Total: 140/100
+2025-10-09 01:33:31,363 [INFO] _level_up:788 - LEVEL UP: J reached level 2. HP: 135, MP: 60
+2025-10-09 01:34:27,369 [INFO] fight_enemy:1176 - Combat started: J (Lvl 2, HP 135) vs goblin (HP 25)
+2025-10-09 01:34:27,369 [INFO] fight_enemy:1190 - Victory: J defeated goblin in 1 turns. Gained 25 XP
+2025-10-09 01:34:27,370 [INFO] gain_experience:762 - Player gained 25 XP. Total: 65/140
+2025-10-09 01:34:43,899 [INFO] fight_enemy:1176 - Combat started: J (Lvl 2, HP 135) vs goblin (HP 25)
+2025-10-09 01:34:43,899 [INFO] fight_enemy:1190 - Victory: J defeated goblin in 1 turns. Gained 25 XP
+2025-10-09 01:34:43,899 [INFO] gain_experience:762 - Player gained 25 XP. Total: 90/140
+2025-10-09 01:35:13,779 [INFO] fight_enemy:1176 - Combat started: J (Lvl 2, HP 135) vs skeleton (HP 30)
+2025-10-09 01:35:13,779 [INFO] fight_enemy:1190 - Victory: J defeated skeleton in 1 turns. Gained 30 XP
+2025-10-09 01:35:13,780 [INFO] gain_experience:762 - Player gained 30 XP. Total: 120/140
+2025-10-09 01:35:13,780 [INFO] fight_enemy:1176 - Combat started: J (Lvl 2, HP 135) vs sewer rat (HP 15)
+2025-10-09 01:35:13,780 [INFO] fight_enemy:1190 - Victory: J defeated sewer rat in 1 turns. Gained 15 XP
+2025-10-09 01:35:13,781 [INFO] gain_experience:762 - Player gained 15 XP. Total: 135/140
+2025-10-09 01:36:14,383 [INFO] fight_enemy:1176 - Combat started: J (Lvl 2, HP 135) vs skeleton (HP 30)
+2025-10-09 01:36:14,383 [INFO] fight_enemy:1190 - Victory: J defeated skeleton in 1 turns. Gained 30 XP
+2025-10-09 01:36:14,383 [INFO] gain_experience:762 - Player gained 30 XP. Total: 165/140
+2025-10-09 01:36:14,384 [INFO] _level_up:788 - LEVEL UP: J reached level 3. HP: 150, MP: 70
+2025-10-09 01:36:14,384 [INFO] fight_enemy:1176 - Combat started: J (Lvl 3, HP 150) vs prison guard (HP 40)
+2025-10-09 01:36:14,384 [INFO] fight_enemy:1190 - Victory: J defeated prison guard in 1 turns. Gained 35 XP
+2025-10-09 01:36:14,385 [INFO] gain_experience:762 - Player gained 35 XP. Total: 60/196
+2025-10-09 01:36:59,661 [INFO] fight_enemy:1176 - Combat started: J (Lvl 3, HP 150) vs skeleton (HP 30)
+2025-10-09 01:36:59,662 [INFO] fight_enemy:1190 - Victory: J defeated skeleton in 1 turns. Gained 30 XP
+2025-10-09 01:36:59,662 [INFO] gain_experience:762 - Player gained 30 XP. Total: 90/196
+2025-10-09 01:36:59,662 [INFO] fight_enemy:1176 - Combat started: J (Lvl 3, HP 150) vs prison guard (HP 40)
+2025-10-09 01:36:59,662 [INFO] fight_enemy:1190 - Victory: J defeated prison guard in 1 turns. Gained 35 XP
+2025-10-09 01:36:59,663 [INFO] gain_experience:762 - Player gained 35 XP. Total: 125/196
+2025-10-09 01:38:02,748 [INFO] fight_boss:1237 - BOSS FIGHT: J (Lvl 3, HP 150) vs Arena Champion on floor 1
+2025-10-09 01:38:10,070 [INFO] fight_boss:1323 - BOSS VICTORY: J defeated Arena Champion in 2 turns on floor 1
+2025-10-09 01:38:10,070 [INFO] gain_experience:762 - Player gained 150 XP. Total: 275/196
+2025-10-09 01:38:10,070 [INFO] _level_up:788 - LEVEL UP: J reached level 4. HP: 165, MP: 80
+2025-10-09 01:38:10,071 [INFO] fight_boss:1348 - Boss reward: J received Gladius of Victory (32 dmg)
+2025-10-09 01:39:47,236 [INFO] save_game:2468 - Game saved to slot 1: J (Lvl 4, Floor 2)
+2025-10-09 01:40:11,812 [INFO] _create_character:1614 - New character: J (mage) with Crystal Orb
+2025-10-09 01:40:11,812 [INFO] _generate_dungeon:1629 - Starting dungeon generation...
+2025-10-09 01:40:11,814 [INFO] _generate_dungeon:1708 - Dungeon generated: 10 floors, 118 total rooms
+2025-10-09 01:40:24,512 [INFO] save_game:2468 - Game saved to slot 2: J (Lvl 1, Floor 1)
+2025-10-09 01:40:38,217 [INFO] delete_save:2630 - Save file deleted: slot 2

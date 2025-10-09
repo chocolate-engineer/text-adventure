@@ -2,7 +2,7 @@
 ================================================================================
 TEXT ADVENTURE RPG GAME - COMPLETE 10 FLOOR EDITION
 ================================================================================
-Version: 6.0.0
+Version: 6.6.2
 Author: DEKU
 Python: 3.13+
 """
@@ -29,8 +29,10 @@ logger = logging.getLogger(__name__)
 #################################################################################
 class GameConstants:
     """Central configuration class containing all game constants"""
-    VERSION = "6.5.0"
+    VERSION = "6.6.2"
     SAVE_FILE = "savegame.json"
+    SAVE_DIRECTORY = "saves"
+    MAX_SAVE_SLOTS = 5
     
     # Floor configuration
     NUM_FLOORS = 10
@@ -83,7 +85,7 @@ class GameConstants:
     }
     
     RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic', 'divine']
-    BETTER_WEAPON_RARITY_BOOST = 0.15  # 15% boost for better rarity
+    BETTER_WEAPON_RARITY_BOOST = 0.15
     
     WEAPON_TYPES = {
         'melee': ['Sword', 'Axe', 'Hammer', 'Spear', 'Blade', 'Greatsword', 'Mace'],
@@ -195,8 +197,8 @@ class GameConstants:
         'swift boots': 25, 'elixir of life': 30, 'soul crystal': 40
     }
     
-    # Drop rates
-    WEAPON_DROP_CHANCE = 0.4
+    # Drop rates (INCREASED weapon cache drop rate)
+    WEAPON_DROP_CHANCE = 0.65  # Increased from 0.4 to 0.65
     ITEM_DROP_BASE_CHANCE = 0.35
     GOLD_DROP_CHANCE = 0.6
     GOLD_DROP_MIN = 2
@@ -217,6 +219,13 @@ class GameConstants:
     MIN_BOSS_DAMAGE = 5
     MAGIC_MANA_COST = 15
     MAGIC_DAMAGE_RANGE = (10, 25)
+    
+    # Magic scaling by class (BALANCED)
+    MAGIC_MULTIPLIERS = {
+        'mage': 1.5,      # Mages are good at magic
+        'warrior': 0.6,   # Warriors are weak at magic
+        'rogue': 0.8      # Rogues are decent at magic
+    }
 
 #################################################################################
 # DATA-DRIVEN ROOM TEMPLATES
@@ -631,8 +640,7 @@ class MapGenerator:
             room = floor_rooms[room_id]
             room_graph[room_id] = {
                 'name': room.name[:15],
-                'exits': {d: floor_rooms[room.exits[d]].name[:15] 
-                         for d in room.exits if room.exits[d] in visited_floor}
+                'exits': room.exits  # Show ALL exits from visited rooms
             }
         
         # Start building map from starting room
@@ -651,22 +659,27 @@ class MapGenerator:
             lines.append(f"{marker} │ {room.name[:29]:<29} │")
             lines.append(f"{marker} └─────────────────────────────────┘")
             
-            # Show exits
+            # Show exits - including unexplored ones
             exits_list = []
-            if 'north' in room.exits and room.exits['north'] in visited_floor:
-                exits_list.append("↑N")
-            if 'south' in room.exits and room.exits['south'] in visited_floor:
-                exits_list.append("↓S")
-            if 'east' in room.exits and room.exits['east'] in visited_floor:
-                exits_list.append("→E")
-            if 'west' in room.exits and room.exits['west'] in visited_floor:
-                exits_list.append("←W")
+            if 'north' in room.exits:
+                marker = "↑N" if room.exits['north'] in visited_floor else "↑N(?)"
+                exits_list.append(marker)
+            if 'south' in room.exits:
+                marker = "↓S" if room.exits['south'] in visited_floor else "↓S(?)"
+                exits_list.append(marker)
+            if 'east' in room.exits:
+                marker = "→E" if room.exits['east'] in visited_floor else "→E(?)"
+                exits_list.append(marker)
+            if 'west' in room.exits:
+                marker = "←W" if room.exits['west'] in visited_floor else "←W(?)"
+                exits_list.append(marker)
             if 'up' in room.exits:
                 exits_list.append("↑UP")
             if 'down' in room.exits:
                 exits_list.append("↓DOWN")
-            if 'secret' in room.exits and room.exits['secret'] in visited_floor:
-                exits_list.append("★SECRET")
+            if 'secret' in room.exits:
+                marker = "★SECRET" if room.exits['secret'] in visited_floor else "★SECRET(?)"
+                exits_list.append(marker)
             
             if exits_list:
                 lines.append(f"    Exits: {' '.join(exits_list)}")
@@ -680,7 +693,7 @@ class MapGenerator:
         
         lines.append("\n" + "=" * 70)
         lines.append(f"Explored: {len(visited_floor)}/{len(floor_rooms)} rooms")
-        lines.append(">>> = Current Location")
+        lines.append(">>> = Current Location | (?) = Unexplored direction")
         lines.append("=" * 70)
         
         return '\n'.join(lines)
@@ -723,6 +736,7 @@ class Player:
         self.bosses_defeated: List[str] = []
         self.gold_coins = 0
         self.secret_room_unlocked = False
+        self.unique_items_spawned: Set[str] = set()  # Track unique items spawned
     
     def gain_experience(self, amount: int) -> None:
         """Add experience and handle level ups"""
@@ -935,7 +949,7 @@ class Player:
             'current_room': self.current_room, 'visited_rooms': list(self.visited_rooms),
             'bosses_defeated': self.bosses_defeated, 'rarity_boost': self.rarity_boost,
             'gold_coins': self.gold_coins, 'secret_room_unlocked': self.secret_room_unlocked,
-            'special_items': self.special_items
+            'special_items': self.special_items, 'unique_items_spawned': list(self.unique_items_spawned)
         }
     
     @classmethod
@@ -947,8 +961,15 @@ class Player:
                 setattr(player, key, set(value))
             elif key == 'special_items':
                 setattr(player, key, value if value else [])
+            elif key == 'unique_items_spawned':
+                setattr(player, key, set(value) if value else set())
             else:
                 setattr(player, key, value)
+        
+        # Ensure unique_items_spawned exists even in old saves
+        if not hasattr(player, 'unique_items_spawned'):
+            player.unique_items_spawned = set()
+        
         return player
 
 #################################################################################
@@ -1033,15 +1054,17 @@ class WeaponSystem:
     
     @classmethod
     def _calculate_rarity(cls, level: int, boost: float, equipped_rarity: Optional[str] = None) -> str:
-        """Calculate weapon rarity with boost for better than equipped"""
+        """Calculate weapon rarity with boost for better than equipped - BALANCED"""
         boost_val = int(boost * 100)
+        
+        # More conservative legendary/mythic chances - scale with level more
         chances = {
-            'common': max(50 - (level * 2) - boost_val, 10),
-            'uncommon': min(25 + level, 35),
-            'rare': min(15 + level // 2 + boost_val // 3, 25),
-            'epic': min(8 + level // 3 + boost_val // 3, 15),
-            'legendary': min(2 + level // 4 + boost_val // 3, 8),
-            'mythic': min(level // 6 + boost_val // 3, 2)
+            'common': max(55 - (level * 2) - boost_val, 15),
+            'uncommon': min(25 + level, 30),
+            'rare': min(12 + level // 2 + boost_val // 4, 20),
+            'epic': min(6 + level // 4 + boost_val // 4, 12),
+            'legendary': min(1 + level // 8 + boost_val // 5, 5) if level >= 10 else 0,  # Only after level 10
+            'mythic': min(1 + level // 12 + boost_val // 6, 2) if level >= 15 else 0  # Only after level 15
         }
         
         if equipped_rarity and equipped_rarity in GameConstants.RARITY_ORDER:
@@ -1052,6 +1075,13 @@ class WeaponSystem:
                 if rarity == 'divine':
                     continue
                 rarity_idx = GameConstants.RARITY_ORDER.index(rarity)
+                
+                # FIXED: Don't boost level-locked rarities
+                if rarity == 'legendary' and level < 10:
+                    continue
+                if rarity == 'mythic' and level < 15:
+                    continue
+                
                 if rarity_idx > equipped_idx:
                     chances[rarity] = min(chances[rarity] + boost_amount // (rarity_idx - equipped_idx), 40)
                 elif rarity_idx < equipped_idx:
@@ -1232,7 +1262,10 @@ class CombatSystem:
             elif action == "2":
                 if player.mana >= GameConstants.MAGIC_MANA_COST:
                     player.mana -= GameConstants.MAGIC_MANA_COST
-                    player_dmg = player.stats['intelligence'] + random.randint(*GameConstants.MAGIC_DAMAGE_RANGE)
+                    base_magic_dmg = player.stats['intelligence'] + random.randint(*GameConstants.MAGIC_DAMAGE_RANGE)
+                    # Apply class multiplier for magic (BALANCED)
+                    class_multiplier = GameConstants.MAGIC_MULTIPLIERS.get(player.character_class, 1.0)
+                    player_dmg = int(base_magic_dmg * class_multiplier)
                     print(f"*** Magic: {player_dmg} damage!")
                 else:
                     print("Not enough mana!")
@@ -1279,6 +1312,11 @@ class CombatSystem:
         room.enemies.remove(boss_name)
         player.bosses_defeated.append(boss_name)
         player.gain_experience(boss_config['exp_reward'])
+        
+        # FIXED: Add champion's prize to room AFTER defeating boss
+        if "champion's prize" not in room.items:
+            room.items.append("champion's prize")
+            print("\n*** A champion's prize chest appears!")
         
         weapon_data = boss_config['weapons'][player.character_class]
         weapon_type = GameConstants.CLASSES[player.character_class]['weapon_types'][0]
@@ -1341,7 +1379,7 @@ class CommandRegistry:
             print("Unknown command. Type 'help'")
 
 #################################################################################
-# GAME CLASS
+# GAME CLASS WITH ALL BUG FIXES
 #################################################################################
 class Game:
     """Main game controller"""
@@ -1362,7 +1400,9 @@ class Game:
         def cmd_help(g): g.show_help()
         
         @r('look', 'l')
-        def cmd_look(g): g.look_around()
+        def cmd_look(g): 
+            g.look_around()
+            g.show_room_summary()
         
         @r('go')
         def cmd_go(g, direction): g.move(direction)
@@ -1386,51 +1426,80 @@ class Game:
         def cmd_down(g): g.move('down')
         
         @r('take', 'get')
-        def cmd_take(g, *args): g.take_item(' '.join(args))
+        def cmd_take(g, *args): 
+            g.take_item(' '.join(args))
+            g.show_room_summary()
         
         @r('takeall')
-        def cmd_takeall(g): g.take_all_items()
+        def cmd_takeall(g): 
+            g.take_all_items()
+            g.show_room_summary()
         
         @r('inventory', 'inv', 'i')
-        def cmd_inventory(g): g.show_inventory()
+        def cmd_inventory(g): 
+            g.show_inventory()
+            g.show_room_summary()
         
         @r('stats', 'status')
-        def cmd_stats(g): g.player.show_stats()
+        def cmd_stats(g): 
+            g.player.show_stats()
+            g.show_room_summary()
         
         @r('fight', 'attack')
-        def cmd_fight(g, *args): g.fight_enemy(' '.join(args))
+        def cmd_fight(g, *args): 
+            g.fight_enemy(' '.join(args))
+            if g.running:  # Only show if player survived
+                g.show_room_summary()
         
         @r('fightall', 'attackall')
-        def cmd_fightall(g): g.fight_all_enemies()
+        def cmd_fightall(g): 
+            g.fight_all_enemies()
+            if g.running:  # Only show if player survived
+                g.show_room_summary()
         
         @r('heal')
-        def cmd_heal(g, *args): ItemHandler.use_item(g.player, 'healing', ' '.join(args) if args else None)
+        def cmd_heal(g, *args): 
+            ItemHandler.use_item(g.player, 'healing', ' '.join(args) if args else None)
+            g.show_room_summary()
         
         @r('exp', 'experience')
-        def cmd_exp(g, *args): ItemHandler.use_item(g.player, 'experience', ' '.join(args) if args else None)
+        def cmd_exp(g, *args): 
+            ItemHandler.use_item(g.player, 'experience', ' '.join(args) if args else None)
+            g.show_room_summary()
         
         @r('equip', 'wear')
-        def cmd_equip(g, *args): g.equip_wearable(' '.join(args) if args else None)
+        def cmd_equip(g, *args): 
+            g.equip_wearable(' '.join(args) if args else None)
+            g.show_room_summary()
         
         @r('switch')
         def cmd_switch(g, *args): g.player.switch_weapon(' '.join(args) if args else None)
         
         @r('discard', 'drop')
-        def cmd_discard(g, *args): g.discard_item(' '.join(args))
+        def cmd_discard(g, *args): 
+            g.discard_item(' '.join(args))
+            g.show_room_summary()
         
         @r('use')
-        def cmd_use(g, *args): g.use_special_item(' '.join(args))
+        def cmd_use(g, *args): 
+            g.use_special_item(' '.join(args))
+            g.show_room_summary()
         
         @r('upgrade')
-        def cmd_upgrade(g): g.upgrade_class()
+        def cmd_upgrade(g): 
+            g.upgrade_class()
+            g.show_room_summary()
         
         @r('shop', 'buy')
-        def cmd_shop(g): g.open_shop()
+        def cmd_shop(g): 
+            g.open_shop()
+            g.show_room_summary()
         
         @r('map')
         def cmd_map(g): 
             if g.player.has_map():
                 g.show_map()
+                g.show_room_summary()
             else:
                 print("You need a map to use this command!")
                 print("Look for one on the ground or buy one from a merchant.")
@@ -1441,36 +1510,56 @@ class Game:
         @r('load')
         def cmd_load(g): g.load_game()
         
+        @r('delete')
+        def cmd_delete(g): g.delete_save()
+        
         @r('quit', 'exit')
         def cmd_quit(g): g.quit_game()
     
     def start_game(self):
-        """Start game"""
-        print("="*50)
-        print(" TEXT ADVENTURE RPG - 10 FLOOR EDITION")
-        print(f" Version {GameConstants.VERSION}")
-        print("="*50)
-        print("\n1.New Game | 2.Load Game")
-        
+        """Start game with looping menu"""
         while True:
+            print("\n" + "="*50)
+            print(" TEXT ADVENTURE RPG - 10 FLOOR EDITION")
+            print(f" Version {GameConstants.VERSION}")
+            print("="*50)
+            print("\n1.New Game | 2.Load Game | 3.Delete Save | 4.Quit")
+            
             try:
-                choice = input("Choice: ").strip()
+                choice = input("\nChoice: ").strip()
+                
                 if choice == '1':
                     self._create_character()
-                    break
+                    break  # Exit menu loop and start game
+                
                 elif choice == '2':
                     if self.load_game():
-                        break
-                    print("No save found. Starting new...")
-                    self._create_character()
-                    break
+                        break  # Successfully loaded, start game
+                    # If load failed or cancelled, loop back to menu
+                    continue
+                
+                elif choice == '3':
+                    self.delete_save()
+                    # After delete, loop back to menu
+                    continue
+                
+                elif choice == '4':
+                    print("\nGoodbye!")
+                    return  # Exit game entirely
+                
+                else:
+                    print("Invalid choice. Please enter 1, 2, 3, or 4.")
+                    continue
+                    
             except KeyboardInterrupt:
-                print("\nInterrupted")
+                print("\n\nGoodbye!")
                 return
         
+        # Game starts here after menu selection
         self.combat = CombatSystem(self)
         print("\nType 'help' for commands")
         self.look_around()
+        self.show_room_summary()
         self._game_loop()
     
     def _game_loop(self):
@@ -1531,10 +1620,13 @@ class Game:
             self._generate_dungeon()
     
     def _generate_dungeon(self):
-        """Generate complete dungeon"""
+        """Generate complete dungeon with unique item tracking"""
         logger.info("Starting dungeon generation...")
         print("\n*** Generating dungeon...")
         self.floors = {}
+        
+        # Track unique items across entire dungeon
+        unique_item_types = {'rusty key', 'torch', 'bone key', 'ancient medallion'}
         
         total_rooms = 0
         for floor_num in range(1, GameConstants.NUM_FLOORS + 1):
@@ -1543,8 +1635,13 @@ class Game:
             
             if floor_num == 1:
                 start_id = 'start'
+                start_items = ['health potion', 'old map']
+                # Only add rusty key if not spawned yet
+                if 'rusty key' not in self.player.unique_items_spawned:
+                    start_items.append('rusty key')
+                    self.player.unique_items_spawned.add('rusty key')
                 rooms[start_id] = Room("Entrance Hall", "The dungeon entrance awaits.", floor_num,
-                                      ['rusty key', 'health potion', 'old map'], {}, [], 
+                                      start_items, {}, [], 
                                       "A merchant has set up shop here. Use 'shop' to trade.")
             else:
                 start_id = f"floor{floor_num}_start"
@@ -1564,16 +1661,26 @@ class Game:
                 if template.special_type == 'treasure':
                     room_enemies = ['treasure guardian'] + room_enemies[:1]
                 
+                # Filter out unique items that have already spawned
                 items = self._filter_items_by_class(template.items.copy())
+                filtered_items = []
+                for item in items:
+                    if item in unique_item_types:
+                        if item not in self.player.unique_items_spawned:
+                            filtered_items.append(item)
+                            self.player.unique_items_spawned.add(item)
+                    else:
+                        filtered_items.append(item)
                 
                 rooms[room_id] = Room(template.name, template.description, floor_num,
-                                     items, {}, room_enemies, template.atmosphere)
+                                     filtered_items, {}, room_enemies, template.atmosphere)
             
             boss_template = BossConfig.get_boss_room_template(floor_num)
             boss_config = BossConfig.generate(floor_num)
             boss_room_id = f"floor{floor_num}_boss"
+            # Don't include champion's prize in initial items - added after boss defeat
             rooms[boss_room_id] = Room(boss_template.name, boss_template.description, floor_num,
-                                       self._filter_items_by_class(boss_template.items),
+                                       ['ultimate health potion'],  # FIXED: No champion's prize until boss defeated
                                        {}, [boss_config['name']], boss_template.atmosphere)
             
             if floor_num < GameConstants.NUM_FLOORS:
@@ -1652,6 +1759,27 @@ class Game:
         """Get player's current room"""
         return self.floors[self.player.current_floor][self.player.current_room]
     
+    def show_room_summary(self):
+        """Display quick summary of current room"""
+        room = self.get_current_room()
+        print(f"\n--- {room.name} ---")
+        
+        if room.items:
+            print(f"Items: {', '.join(room.items)}")
+        else:
+            print("Items: None")
+        
+        if room.exits:
+            exits_list = []
+            for direction, target_id in room.exits.items():
+                if direction in ['up', 'down', 'secret']:
+                    exits_list.append(direction.upper())
+                else:
+                    exits_list.append(direction[0].upper())
+            print(f"Exits: {' | '.join(exits_list)}")
+        else:
+            print("Exits: None")
+    
     def show_help(self):
         """Context-aware help"""
         room = self.get_current_room()
@@ -1692,7 +1820,7 @@ class Game:
         if self.player.can_upgrade_class():
             print("upgrade")
         
-        print("map | save | load | quit")
+        print("map | save | load | delete | quit")
         
         if self.player.has_map():
             print("\n★ Map doesn't use inventory space")
@@ -1745,6 +1873,7 @@ class Game:
         self.player.visited_rooms.add(next_id)
         print(f"You go {direction}.")
         self.look_around()
+        self.show_room_summary()
     
     def show_inventory(self):
         """Show organized inventory"""
@@ -1870,10 +1999,20 @@ class Game:
                 print("Left weapon behind.")
     
     def _handle_champions_prize(self):
-        """Handle champion's prize"""
-        weapon = WeaponSystem.generate_weapon(self.player, random.choice(['epic', 'legendary']))
+        """Handle champion's prize - FIXED to respect level restrictions"""
+        # Choose rarity based on player level
+        if self.player.level >= 15:
+            rarity = random.choice(['epic', 'legendary', 'mythic'])
+        elif self.player.level >= 10:
+            rarity = random.choice(['epic', 'legendary'])
+        elif self.player.level >= 5:
+            rarity = 'epic'
+        else:
+            rarity = 'rare'  # For early game, give rare instead
         
-        print("\n*** CHAMPION'S PRIZE! ***")
+        weapon = WeaponSystem.generate_weapon(self.player, rarity)
+        
+        print(f"\n*** CHAMPION'S PRIZE! ({rarity.upper()}) ***")
         comparison = WeaponComparison.compare_weapons(weapon, self.player.weapon, self.player)
         print(comparison)
         
@@ -2011,7 +2150,7 @@ class Game:
         print(f"Final HP: {self.player.health}/{self.player.max_health}")
     
     def equip_wearable(self, item_name: Optional[str]):
-        """Equip wearable item"""
+        """Equip wearable item - FIXED"""
         if not item_name:
             wearables = [i for i in self.player.inventory if i in GameConstants.WEARABLE_ITEMS]
             if not wearables:
@@ -2027,17 +2166,20 @@ class Game:
                 choice = int(input("Choose: ")) - 1
                 if 0 <= choice < len(wearables):
                     item_name = wearables[choice]
+                else:
+                    return
             except (ValueError, KeyboardInterrupt):
                 print("Cancelled")
                 return
         
-        if item_name and item_name in self.player.inventory:
+        if item_name and item_name in self.player.inventory and item_name in GameConstants.WEARABLE_ITEMS:
+            effect = GameConstants.WEARABLE_ITEMS[item_name]
             self.player.inventory.remove(item_name)
-            ItemHandler.use_item(self.player, 'wearable', item_name)
-            self.player.inventory.append(item_name)
-            self.player.inventory.remove(item_name)
+            self.player.stats[effect['stat']] += effect['bonus']
+            self.player.wearables.append({'item': item_name, 'stat': effect['stat'], 'bonus': effect['bonus']})
+            print(f"*** Equipped {item_name}! +{effect['bonus']} {effect['stat']}")
         else:
-            print(f"You don't have '{item_name}'")
+            print(f"You don't have '{item_name}' or it's not a wearable")
     
     def discard_item(self, item_name: str):
         """Discard item"""
@@ -2244,8 +2386,61 @@ class Game:
         print(visual_map)
     
     def save_game(self):
-        """Save game state"""
+        """Save game state to selected slot"""
         try:
+            # Create saves directory if it doesn't exist
+            if not os.path.exists(GameConstants.SAVE_DIRECTORY):
+                os.makedirs(GameConstants.SAVE_DIRECTORY)
+            
+            # Show available save slots
+            print("\n" + "="*40)
+            print("SAVE GAME")
+            print("="*40)
+            
+            # List existing saves
+            for slot in range(1, GameConstants.MAX_SAVE_SLOTS + 1):
+                save_path = os.path.join(GameConstants.SAVE_DIRECTORY, f"save{slot}.json")
+                if os.path.exists(save_path):
+                    try:
+                        with open(save_path, 'r') as f:
+                            save_data = json.load(f)
+                            player_data = save_data.get('player', {})
+                            name = player_data.get('name', 'Unknown')
+                            level = player_data.get('level', 1)
+                            floor = player_data.get('current_floor', 1)
+                            print(f"{slot}. {name} - Lvl {level} - Floor {floor}")
+                    except:
+                        print(f"{slot}. [Corrupted Save]")
+                else:
+                    print(f"{slot}. [Empty Slot]")
+            
+            print(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
+            
+            try:
+                choice = int(input(f"\nChoose slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
+                if choice == GameConstants.MAX_SAVE_SLOTS + 1:
+                    print("Cancelled.")
+                    return
+                if choice < 1 or choice > GameConstants.MAX_SAVE_SLOTS:
+                    print("Invalid slot!")
+                    return
+            except (ValueError, KeyboardInterrupt):
+                print("Cancelled.")
+                return
+            
+            save_path = os.path.join(GameConstants.SAVE_DIRECTORY, f"save{choice}.json")
+            
+            # Confirm overwrite if slot exists
+            if os.path.exists(save_path):
+                try:
+                    confirm = input(f"Overwrite slot {choice}? (y/n): ").strip().lower()
+                    if confirm not in ['y', 'yes']:
+                        print("Cancelled.")
+                        return
+                except KeyboardInterrupt:
+                    print("Cancelled.")
+                    return
+            
             save_data = {
                 'version': GameConstants.VERSION,
                 'player': self.player.to_dict(),
@@ -2262,29 +2457,71 @@ class Game:
                     } for room_id, room in floor_rooms.items()
                 }
             
-            with open(GameConstants.SAVE_FILE, 'w') as f:
+            with open(save_path, 'w') as f:
                 json.dump(save_data, f, indent=2)
             
-            logger.info(f"Game saved: {self.player.name} (Lvl {self.player.level}, Floor {self.player.current_floor})")
-            print("✓ Game saved!")
+            logger.info(f"Game saved to slot {choice}: {self.player.name} (Lvl {self.player.level}, Floor {self.player.current_floor})")
+            print(f"✓ Game saved to slot {choice}!")
         except Exception as e:
             logging.error(f"Save error: {e}", exc_info=True)
             print(f"✗ Save failed: {e}")
     
     def load_game(self) -> bool:
-        """Load game state"""
+        """Load game state from selected slot"""
         try:
-            if not os.path.exists(GameConstants.SAVE_FILE):
-                logger.debug("No save file found")
+            # Create saves directory if it doesn't exist
+            if not os.path.exists(GameConstants.SAVE_DIRECTORY):
+                os.makedirs(GameConstants.SAVE_DIRECTORY)
                 return False
             
-            with open(GameConstants.SAVE_FILE, 'r') as f:
+            # Show available save slots
+            print("\n" + "="*40)
+            print("LOAD GAME")
+            print("="*40)
+            
+            available_saves = []
+            for slot in range(1, GameConstants.MAX_SAVE_SLOTS + 1):
+                save_path = os.path.join(GameConstants.SAVE_DIRECTORY, f"save{slot}.json")
+                if os.path.exists(save_path):
+                    try:
+                        with open(save_path, 'r') as f:
+                            save_data = json.load(f)
+                            player_data = save_data.get('player', {})
+                            name = player_data.get('name', 'Unknown')
+                            level = player_data.get('level', 1)
+                            char_class = player_data.get('character_class', 'warrior')
+                            floor = player_data.get('current_floor', 1)
+                            print(f"{slot}. {name} - {char_class.title()} Lvl {level} - Floor {floor}")
+                            available_saves.append(slot)
+                    except:
+                        print(f"{slot}. [Corrupted Save]")
+                else:
+                    print(f"{slot}. [Empty Slot]")
+            
+            if not available_saves:
+                print("\nNo save files found!")
+                return False
+            
+            print(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
+            
+            try:
+                choice = int(input(f"\nChoose slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
+                if choice == GameConstants.MAX_SAVE_SLOTS + 1:
+                    return False
+                if choice not in available_saves:
+                    print("Invalid or empty slot!")
+                    return False
+            except (ValueError, KeyboardInterrupt):
+                return False
+            
+            save_path = os.path.join(GameConstants.SAVE_DIRECTORY, f"save{choice}.json")
+            
+            with open(save_path, 'r') as f:
                 save_data = json.load(f)
             
             if save_data.get('version') != GameConstants.VERSION:
                 logger.warning(f"Save version mismatch: {save_data.get('version')} vs {GameConstants.VERSION}")
-                print("! Save version mismatch")
-                return False
+                print("! Save version mismatch - may have issues")
             
             self.player = Player.from_dict(save_data['player'])
             
@@ -2324,7 +2561,7 @@ class Game:
                     )
                     self.floors[floor_num][room_id].visited = room_data['visited']
             
-            logger.info(f"Game loaded: {self.player.name} (Lvl {self.player.level}, Floor {self.player.current_floor})")
+            logger.info(f"Game loaded from slot {choice}: {self.player.name} (Lvl {self.player.level}, Floor {self.player.current_floor})")
             print(f"✓ Welcome back, {self.player.name} the {self.player.get_class_title()}!")
             return True
             
@@ -2332,6 +2569,65 @@ class Game:
             logging.error(f"Load error: {e}", exc_info=True)
             print(f"✗ Load failed: {e}")
             return False
+    
+    def delete_save(self):
+        """Delete a save file"""
+        try:
+            if not os.path.exists(GameConstants.SAVE_DIRECTORY):
+                print("No save files found!")
+                return
+            
+            print("\n" + "="*40)
+            print("DELETE SAVE")
+            print("="*40)
+            
+            available_saves = []
+            for slot in range(1, GameConstants.MAX_SAVE_SLOTS + 1):
+                save_path = os.path.join(GameConstants.SAVE_DIRECTORY, f"save{slot}.json")
+                if os.path.exists(save_path):
+                    try:
+                        with open(save_path, 'r') as f:
+                            save_data = json.load(f)
+                            player_data = save_data.get('player', {})
+                            name = player_data.get('name', 'Unknown')
+                            level = player_data.get('level', 1)
+                            floor = player_data.get('current_floor', 1)
+                            print(f"{slot}. {name} - Lvl {level} - Floor {floor}")
+                            available_saves.append(slot)
+                    except:
+                        print(f"{slot}. [Corrupted Save]")
+                        available_saves.append(slot)
+                else:
+                    print(f"{slot}. [Empty Slot]")
+            
+            if not available_saves:
+                print("\nNo save files to delete!")
+                return
+            
+            print(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
+            
+            try:
+                choice = int(input(f"\nDelete slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
+                if choice == GameConstants.MAX_SAVE_SLOTS + 1:
+                    return
+                if choice not in available_saves:
+                    print("Invalid or empty slot!")
+                    return
+            except (ValueError, KeyboardInterrupt):
+                return
+            
+            save_path = os.path.join(GameConstants.SAVE_DIRECTORY, f"save{choice}.json")
+            
+            confirm = input(f"Delete slot {choice}? This cannot be undone! (y/n): ").strip().lower()
+            if confirm in ['y', 'yes']:
+                os.remove(save_path)
+                print(f"✓ Slot {choice} deleted!")
+                logger.info(f"Save file deleted: slot {choice}")
+            else:
+                print("Cancelled.")
+        except Exception as e:
+            logging.error(f"Delete save error: {e}", exc_info=True)
+            print(f"✗ Delete failed: {e}")
     
     def quit_game(self):
         """Exit game"""
