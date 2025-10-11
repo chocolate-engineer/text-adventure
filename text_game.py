@@ -2,15 +2,23 @@
 ================================================================================
 TEXT ADVENTURE RPG GAME - COMPLETE 10 FLOOR EDITION
 ================================================================================
-Version: 6.6.9
+Version: 6.9.0
 Author: DEKU
 Python: 3.13+
 
-CHANGELOG 6.6.9:
-- Boss weapons now prompt to equip (like weapon caches) instead of auto-equipping
-- All classes start with 5 inventory slots (uniform progression)
-- Room summary shows (?) for unexplored exits
-- Compass-style map showing rooms in cardinal directions (N/S/E/W)
+CHANGELOG 6.9.0:
+- MAJOR: Added 48+ new unique room templates (12 per theme)
+- Each floor theme now has diverse, thematic room names and descriptions
+- EXPANDED compass map shows up to 3 rooms in each direction
+- Depth indicators (→, →→, →→→) show how far rooms are from you
+- Floor overview section lists ALL rooms with their status
+- Combines compass navigation with complete floor visibility
+
+CHANGELOG 6.8.0:
+- MAJOR: Boss weapons now scale dynamically with player level and current weapon
+- Boss weapons provide appropriate boost (15-50%) based on floor without overpowering
+- Early floors (1-4) have damage caps to prevent one-shotting enemies
+- Boss rewards remain legendary rarity but with balanced damage scaling
 """
 
 import random
@@ -35,7 +43,7 @@ logger = logging.getLogger(__name__)
 #################################################################################
 class GameConstants:
     """Central configuration class containing all game constants"""
-    VERSION = "6.6.9"
+    VERSION = "6.9.0"
     SAVE_FILE = "savegame.json"
     SAVE_DIRECTORY = "saves"
     MAX_SAVE_SLOTS = 5
@@ -81,13 +89,13 @@ class GameConstants:
     
     # Weapon rarity system
     WEAPON_RARITIES = {
-        'common': {'multiplier': 1.0, 'color': 'WHITE'},
-        'uncommon': {'multiplier': 1.3, 'color': 'GREEN'},
-        'rare': {'multiplier': 1.6, 'color': 'BLUE'},
-        'epic': {'multiplier': 2.0, 'color': 'PURPLE'},
-        'legendary': {'multiplier': 2.5, 'color': 'GOLD'},
-        'mythic': {'multiplier': 3.0, 'color': 'RED'},
-        'divine': {'multiplier': 999.0, 'color': 'STAR'}
+        'common': {'multiplier': 1.0, 'color': 'WHITE', 'base_min': 8, 'base_max': 12},
+        'uncommon': {'multiplier': 1.3, 'color': 'GREEN', 'base_min': 10, 'base_max': 14},
+        'rare': {'multiplier': 1.6, 'color': 'BLUE', 'base_min': 12, 'base_max': 16},
+        'epic': {'multiplier': 2.0, 'color': 'PURPLE', 'base_min': 14, 'base_max': 18},
+        'legendary': {'multiplier': 2.5, 'color': 'GOLD', 'base_min': 16, 'base_max': 20},
+        'mythic': {'multiplier': 3.0, 'color': 'RED', 'base_min': 18, 'base_max': 22},
+        'divine': {'multiplier': 999.0, 'color': 'STAR', 'base_min': 100, 'base_max': 100}
     }
     
     RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic', 'divine']
@@ -188,10 +196,14 @@ class GameConstants:
     
     ACTIONABLE_ITEMS = {
         'rusty key': 'key',
-        'bone key': 'key',
+        'bone key': 'bone_key',
         'torch': 'light',
         'old map': 'map',
-        'ancient medallion': 'offering'
+        'ancient medallion': 'offering',
+        'demon seal': 'demon_seal',
+        'crystal shard': 'crystal',
+        'void essence': 'void',
+        'primordial rune': 'rune'
     }
     
     QUEST_ITEMS = ['rusty key', 'old map', 'legendary artifact', 'bone key', 
@@ -261,7 +273,23 @@ class RoomTemplateConfig:
                 RoomTemplate("Torture Chamber", "Chains hang from the ceiling. Ancient implements of pain line the walls.",
                            "Echoes of past suffering seem to whisper in the darkness.", ['cursed amulet', 'bone key']),
                 RoomTemplate("Sewage Tunnel", "Putrid water flows through channels in the floor.",
-                           "The stench is overwhelming. Rats scurry in the shadows.", ['energy drink', 'torch'])
+                           "The stench is overwhelming. Rats scurry in the shadows.", ['energy drink', 'torch']),
+                RoomTemplate("Abandoned Mess Hall", "Moldy food still sits on overturned tables.",
+                           "The prisoners left in a hurry... or were taken.", ['health potion', 'golden coin']),
+                RoomTemplate("Warden's Office", "Dusty ledgers and broken furniture fill this administrative room.",
+                           "The warden's skeleton still sits at his desk.", ['rusty key', 'power ring']),
+                RoomTemplate("Iron Maiden Chamber", "The spiked coffin stands open, waiting for victims.",
+                           "Dried blood stains every surface.", ['weapon cache', 'vitality tonic']),
+                RoomTemplate("The Pit", "A deep hole descends into darkness. Screams echo from below.",
+                           "Crude rope ladders dangle over the edge.", ['bone key', 'experience gem']),
+                RoomTemplate("Rat Warren", "Hundreds of small tunnels honeycomb the walls.",
+                           "Glowing eyes watch from every shadow.", ['health potion', 'torch']),
+                RoomTemplate("Collapsed Hallway", "Rubble blocks most of this corridor.",
+                           "Something glints among the debris.", ['weapon cache', 'armor piece']),
+                RoomTemplate("Flooded Dungeon", "Water rises to your knees in this submerged chamber.",
+                           "Something moves beneath the murky surface.", ['energy drink', 'rusty key']),
+                RoomTemplate("Execution Gallery", "Nooses hang from the ceiling in neat rows.",
+                           "The floor creaks ominously beneath you.", ['soul crystal', 'golden coin'])
             ]
         },
         'crypt': {
@@ -275,7 +303,23 @@ class RoomTemplateConfig:
                 RoomTemplate("Burial Chamber", "Rows of burial niches stretch into the darkness.",
                            "The dead do not rest peacefully here.", ['health potion', 'wisdom gem']),
                 RoomTemplate("Ossuary", "Bones are stacked floor to ceiling in intricate patterns.",
-                           "The bones seem to shift and rearrange when you're not looking.", ['bone key', 'cursed amulet'])
+                           "The bones seem to shift and rearrange when you're not looking.", ['bone key', 'cursed amulet']),
+                RoomTemplate("Catacomb Maze", "Endless tunnels branch in all directions.",
+                           "Skulls embedded in the walls seem to follow your movements.", ['weapon cache', 'torch']),
+                RoomTemplate("Embalming Chamber", "Ancient tools and dried organs line dusty shelves.",
+                           "The scent of death is overwhelming.", ['vitality tonic', 'soul crystal']),
+                RoomTemplate("Tomb of Nobles", "Ornate crypts bear the names of forgotten lords.",
+                           "Their restless spirits still guard their treasures.", ['weapon cache', 'arcane pendant']),
+                RoomTemplate("Shadow Gallery", "Darkness seems to move with unnatural purpose here.",
+                           "Wraiths drift between the pillars.", ['shadow cloak', 'experience gem']),
+                RoomTemplate("Charnel Pit", "A massive pile of bones fills this circular chamber.",
+                           "Ghouls have been feeding here recently.", ['bone key', 'health potion']),
+                RoomTemplate("Lich's Laboratory", "Arcane experiments in undeath cover every workbench.",
+                           "The results shamble about mindlessly.", ['magic scroll', 'wisdom gem']),
+                RoomTemplate("Mourning Hall", "Rows of candles still burn with spectral flames.",
+                           "The temperature drops as you enter.", ['soul crystal', 'ultimate health potion']),
+                RoomTemplate("Grave Keeper's Quarters", "Tools for digging and maintaining graves line the walls.",
+                           "The keeper never left his post... even in death.", ['rusty key', 'weapon cache'])
             ]
         },
         'elemental': {
@@ -289,7 +333,23 @@ class RoomTemplateConfig:
                 RoomTemplate("Storm Hall", "Lightning arcs between metal pillars in this charged chamber.",
                            "Static electricity makes your hair stand on end.", ['magic scroll', 'power ring']),
                 RoomTemplate("Elemental Nexus", "All four elements clash in chaotic harmony here.",
-                           "Fire, ice, lightning, and stone war for dominance.", ['weapon cache', 'titan gauntlet'])
+                           "Fire, ice, lightning, and stone war for dominance.", ['weapon cache', 'titan gauntlet']),
+                RoomTemplate("Magma Flow", "Rivers of molten rock flow through carved channels.",
+                           "The stone beneath your feet radiates unbearable heat.", ['elixir of life', 'soul crystal']),
+                RoomTemplate("Glacier Heart", "A massive block of eternal ice dominates this room.",
+                           "Strange shapes are frozen within it.", ['ice crystal', 'weapon cache']),
+                RoomTemplate("Thunder Forge", "Lightning strikes continuously at metal anvils.",
+                           "The forge produces weapons of pure energy.", ['weapon cache', 'power ring']),
+                RoomTemplate("Earth Shrine", "Stone pillars grow from floor to ceiling like ancient trees.",
+                           "The rock itself seems alive here.", ['titan gauntlet', 'armor piece']),
+                RoomTemplate("Pyroclastic Chamber", "Volcanic ash fills the air in choking clouds.",
+                           "Lava bubbles up through cracks in the floor.", ['elixir of life', 'experience gem']),
+                RoomTemplate("Permafrost Vault", "Everything is encased in thick, ancient ice.",
+                           "The cold here predates civilization.", ['frozen artifact', 'ultimate health potion']),
+                RoomTemplate("Capacitor Core", "Massive crystals crackle with stored lightning.",
+                           "The energy here is almost tangible.", ['magic scroll', 'arcane pendant']),
+                RoomTemplate("Petrified Garden", "Living creatures turned to stone fill this chamber.",
+                           "A stone golem tends them like precious flowers.", ['weapon cache', 'wisdom gem'])
             ]
         },
         'dark_magic': {
@@ -303,7 +363,23 @@ class RoomTemplateConfig:
                 RoomTemplate("Corrupted Sanctum", "What was once a holy place now serves darker powers.",
                            "Desecrated altars radiate profane energy.", ['weapon cache', 'ultimate health potion']),
                 RoomTemplate("Abyssal Pit", "A bottomless chasm yawns before you, bridged by bone.",
-                           "Screams echo up from unfathomable depths.", ['demon seal', 'arcane pendant'])
+                           "Screams echo up from unfathomable depths.", ['demon seal', 'arcane pendant']),
+                RoomTemplate("Summoning Circle", "Concentric rings of power glow with hellish light.",
+                           "The barrier between worlds is thin here.", ['demon seal', 'soul crystal']),
+                RoomTemplate("Blood Altar", "Dried blood covers every surface of this profane shrine.",
+                           "The stains never fully dry.", ['weapon cache', 'elixir of life']),
+                RoomTemplate("Void Cathedral", "Impossible architecture defies natural law.",
+                           "Your mind struggles to comprehend the geometry.", ['void essence', 'wisdom gem']),
+                RoomTemplate("Cultist Dormitory", "Fanatical devotees once slept in these rows of beds.",
+                           "Their nightmares still linger in the air.", ['shadow cloak', 'health potion']),
+                RoomTemplate("Demon Scriptorium", "Unholy texts written in blood line the shelves.",
+                           "Reading them risks madness.", ['demon seal', 'arcane pendant']),
+                RoomTemplate("Torture Sanctum", "Pain is worship here, suffering is prayer.",
+                           "The implements are disturbingly well-maintained.", ['ultimate health potion', 'soul crystal']),
+                RoomTemplate("Hellforge", "Demonic weapons are crafted in these infernal flames.",
+                           "The fire burns with souls instead of wood.", ['weapon cache', 'weapon cache']),
+                RoomTemplate("Void Containment", "Reality fractures are held in stasis by dark magic.",
+                           "Something vast moves beyond the tears.", ['void essence', 'legendary artifact'])
             ]
         },
         'cosmic': {
@@ -317,7 +393,23 @@ class RoomTemplateConfig:
                 RoomTemplate("Hall of Eternity", "Time flows strangely in this ageless corridor.",
                            "Past, present, and future seem to overlap here.", ['soul crystal', 'legendary artifact']),
                 RoomTemplate("Reality Fracture", "The laws of physics break down in this impossible space.",
-                           "You see things that cannot be and yet are.", ['void essence', 'ultimate health potion'])
+                           "You see things that cannot be and yet are.", ['void essence', 'ultimate health potion']),
+                RoomTemplate("Titan's Tomb", "A being the size of a mountain lies entombed here.",
+                           "Its chest still rises and falls with ancient breathing.", ['titan gauntlet', 'weapon cache']),
+                RoomTemplate("Stellar Forge", "Stars are born and die in this cosmic furnace.",
+                           "The universe itself is shaped here.", ['weapon cache', 'wisdom gem']),
+                RoomTemplate("Time Vault", "Clocks of every era tick in different rhythms.",
+                           "Some run backwards, others skip forward unpredictably.", ['soul crystal', 'experience gem']),
+                RoomTemplate("Celestial Armory", "Weapons forged in the hearts of dying stars line the walls.",
+                           "Each blade hums with cosmic power.", ['weapon cache', 'weapon cache']),
+                RoomTemplate("Ancient Library", "Books containing the secrets of creation fill endless shelves.",
+                           "Some texts predate the universe itself.", ['wisdom gem', 'legendary artifact']),
+                RoomTemplate("Guardian Barracks", "Eternal sentinels stand vigil in perfect formation.",
+                           "They have not moved in millennia.", ['titan gauntlet', 'ultimate health potion']),
+                RoomTemplate("Void Observatory", "Windows look out into absolute nothingness.",
+                           "The void gazes back into you.", ['void essence', 'primordial rune']),
+                RoomTemplate("Creation Chamber", "Reality itself is malleable in this sacred space.",
+                           "Worlds are born and die at a thought.", ['legendary artifact', 'soul crystal'])
             ]
         }
     }
@@ -336,7 +428,22 @@ class RoomTemplateConfig:
                    ['health potion', 'golden coin'], 1, 'altar'),
         RoomTemplate("Locked Vault", "A sealed vault with an ornate chest at its center.",
                    "The chest has an old rusty keyhole. It hasn't been opened in centuries.",
-                   ['weapon cache', 'golden coin'], 2, 'vault')
+                   ['weapon cache', 'golden coin'], 2, 'vault'),
+        RoomTemplate("Bone Crypt", "Ancient bones form intricate patterns on the walls.",
+                   "A sealed bone door blocks deeper access. It has a skeletal keyhole.",
+                   ['bone key', 'health potion'], 1, 'bone_vault'),
+        RoomTemplate("Demon Gate", "A massive demonic portal pulses with dark energy.",
+                   "The gate is sealed with arcane chains. A demon seal indent is visible.",
+                   ['demon seal', 'soul crystal'], 2, 'demon_gate'),
+        RoomTemplate("Crystal Chamber", "Crystalline formations cover every surface.",
+                   "A dormant crystal mechanism awaits activation.",
+                   ['crystal shard', 'magic scroll'], 1, 'crystal_room'),
+        RoomTemplate("Void Tear", "Reality fractures here, creating a swirling void portal.",
+                   "The portal is unstable. Void essence could stabilize it.",
+                   ['void essence', 'weapon cache'], 1, 'void_portal'),
+        RoomTemplate("Primordial Monument", "An ancient stone monument covered in runic inscriptions.",
+                   "The runes glow faintly, waiting for the right key.",
+                   ['primordial rune', 'legendary artifact'], 1, 'rune_monument')
     ]
     
     @classmethod
@@ -363,25 +470,25 @@ class BossConfig:
     
     BOSS_DATA = {
         1: {'name': 'Arena Champion', 'special': "CHAMPION'S FURY", 
-            'weapons': {'warrior': ('Gladius of Victory', 32), 'mage': ("Champion's Scepter", 28), 'rogue': ('Twin Blades of Honor', 30)}},
+            'weapons': {'warrior': 'Gladius of Victory', 'mage': "Champion's Scepter", 'rogue': 'Twin Blades of Honor'}},
         2: {'name': 'Necromancer Lord', 'special': 'DEATH CURSE',
-            'weapons': {'warrior': ('Soul Reaper', 35), 'mage': ('Death Staff', 32), 'rogue': ('Shadow Fang', 33)}},
+            'weapons': {'warrior': 'Soul Reaper', 'mage': 'Death Staff', 'rogue': 'Shadow Fang'}},
         3: {'name': 'Crypt Overlord', 'special': 'SOUL DRAIN',
-            'weapons': {'warrior': ('Bone Crusher', 38), 'mage': ('Crypt Scepter', 35), 'rogue': ('Grave Shiv', 36)}},
+            'weapons': {'warrior': 'Bone Crusher', 'mage': 'Crypt Scepter', 'rogue': 'Grave Shiv'}},
         4: {'name': 'Shadow King', 'special': 'SHADOW STRIKE',
-            'weapons': {'warrior': ('Shadowbane', 41), 'mage': ('Dark Orb', 38), 'rogue': ('Night Piercer', 39)}},
+            'weapons': {'warrior': 'Shadowbane', 'mage': 'Dark Orb', 'rogue': 'Night Piercer'}},
         5: {'name': 'Flame Lord', 'special': 'INFERNO',
-            'weapons': {'warrior': ('Flamebringer', 44), 'mage': ('Inferno Staff', 41), 'rogue': ('Cinder Bow', 42)}},
+            'weapons': {'warrior': 'Flamebringer', 'mage': 'Inferno Staff', 'rogue': 'Cinder Bow'}},
         6: {'name': 'Frost Titan', 'special': 'GLACIAL STORM',
-            'weapons': {'warrior': ('Frostbane Greatsword', 47), 'mage': ('Staff of Eternal Winter', 44), 'rogue': ('Icicle Piercer', 45)}},
+            'weapons': {'warrior': 'Frostbane Greatsword', 'mage': 'Staff of Eternal Winter', 'rogue': 'Icicle Piercer'}},
         7: {'name': 'Demon Prince', 'special': 'HELLFIRE',
-            'weapons': {'warrior': ("Demon's Edge", 50), 'mage': ('Abyssal Staff', 47), 'rogue': ('Soul Piercer', 48)}},
+            'weapons': {'warrior': "Demon's Edge", 'mage': 'Abyssal Staff', 'rogue': 'Soul Piercer'}},
         8: {'name': 'Void Archon', 'special': 'VOID RIFT',
-            'weapons': {'warrior': ('Voidreaver', 53), 'mage': ('Reality Staff', 50), 'rogue': ('Oblivion Blade', 51)}},
+            'weapons': {'warrior': 'Voidreaver', 'mage': 'Reality Staff', 'rogue': 'Oblivion Blade'}},
         9: {'name': 'Primordial Beast', 'special': 'ANCIENT WRATH',
-            'weapons': {'warrior': ('Titan Slayer', 56), 'mage': ('Primordial Staff', 53), 'rogue': ('Beast Fang', 54)}},
+            'weapons': {'warrior': 'Titan Slayer', 'mage': 'Primordial Staff', 'rogue': 'Beast Fang'}},
         10: {'name': 'Reality Breaker', 'special': 'COSMIC ANNIHILATION',
-             'weapons': {'warrior': ('Worldender', 60), 'mage': ('Cosmos Staff', 57), 'rogue': ('Reality Ripper', 58)}}
+             'weapons': {'warrior': 'Worldender', 'mage': 'Cosmos Staff', 'rogue': 'Reality Ripper'}}
     }
     
     BOSS_ROOMS = {
@@ -422,8 +529,66 @@ class BossConfig:
             'special_bonus': 12 + (floor - 1) * 2,
             'stat_bonus': 2 + (floor - 1) // 2,
             'min_level': floor * 2,
-            'weapons': data['weapons']
+            'weapon_names': data['weapons']  # Just the names now
         }
+    
+    @classmethod
+    def generate_boss_weapon(cls, floor: int, player: 'Player') -> Dict:
+        """Generate scaled boss weapon based on player level and current weapon"""
+        boss_config = cls.generate(floor)
+        weapon_name = boss_config['weapon_names'][player.character_class]
+        weapon_type = GameConstants.CLASSES[player.character_class]['weapon_types'][0]
+        
+        # Calculate appropriate boss weapon damage
+        # Floor 1-4: Moderate boost (15-25% better than current)
+        # Floor 5-7: Good boost (25-35% better)
+        # Floor 8-10: Great boost (35-50% better)
+        
+        if floor <= 4:
+            boost_percent = random.uniform(0.15, 0.25)
+        elif floor <= 7:
+            boost_percent = random.uniform(0.25, 0.35)
+        else:
+            boost_percent = random.uniform(0.35, 0.50)
+        
+        # Base damage calculation using legendary rarity range
+        rarity_data = GameConstants.WEAPON_RARITIES['legendary']
+        base_damage = random.randint(rarity_data['base_min'], rarity_data['base_max']) + (player.level * 2)
+        base_weapon_damage = int(base_damage * rarity_data['multiplier'])
+        
+        # If player has a weapon, ensure boss weapon is better but not OP
+        if player.weapon:
+            current_damage = player.weapon['damage']
+            # Calculate boosted damage
+            boosted_damage = int(current_damage * (1 + boost_percent))
+            # Take the higher of base calculation or boosted current weapon
+            # But cap it to prevent early-game one-shotting
+            final_damage = max(base_weapon_damage, boosted_damage)
+            
+            # Cap early floors to prevent overpowering
+            if floor <= 2:
+                max_damage = 45 + (player.level * 3)  # Level 2: max ~51 damage
+            elif floor <= 4:
+                max_damage = 60 + (player.level * 4)  # Level 8: max ~92 damage
+            elif floor <= 6:
+                max_damage = 80 + (player.level * 5)  # Level 12: max ~140 damage
+            else:
+                max_damage = 999999  # No cap for late floors
+            
+            final_damage = min(final_damage, max_damage)
+        else:
+            # No weapon equipped, use base calculation
+            final_damage = base_weapon_damage
+        
+        boss_weapon = {
+            'name': weapon_name,
+            'damage': final_damage,
+            'type': weapon_type,
+            'rarity': 'legendary',
+            'base_name': weapon_name
+        }
+        
+        return boss_weapon
     
     @classmethod
     def get_boss_room_template(cls, floor: int) -> RoomTemplate:
@@ -633,7 +798,7 @@ class MapGenerator:
                            current_floor: int, 
                            current_room: str,
                            visited_rooms: Set[str]) -> str:
-        """Generate compass-style ASCII map for current floor"""
+        """Generate expanded compass-style ASCII map for current floor"""
         floor_rooms = floors[current_floor]
         visited_floor = [r for r in visited_rooms if r in floor_rooms]
         
@@ -643,18 +808,67 @@ class MapGenerator:
         current = floor_rooms[current_room]
         
         lines = []
-        lines.append("╔" + "═" * 68 + "╗")
-        lines.append(f"║ FLOOR {current_floor} COMPASS MAP{' ' * (68 - len(f' FLOOR {current_floor} COMPASS MAP'))}║")
-        lines.append("╠" + "═" * 68 + "╣")
+        lines.append("╔" + "═" * 78 + "╗")
+        lines.append(f"║ FLOOR {current_floor} COMPASS MAP - EXPANDED VIEW{' ' * (78 - len(f' FLOOR {current_floor} COMPASS MAP - EXPANDED VIEW'))}║")
+        lines.append("╠" + "═" * 78 + "╣")
         
-        # Get rooms in each direction from current room
-        def get_room_info(direction):
+        # Get rooms in each direction from current room (with depth)
+        def get_room_chain(direction, max_depth=3):
+            """Get chain of rooms in a direction"""
+            chain = []
+            current_id = current_room
+            
+            for depth in range(max_depth):
+                if current_id not in floor_rooms:
+                    break
+                    
+                room = floor_rooms[current_id]
+                if direction not in room.exits:
+                    break
+                
+                target_id = room.exits[direction]
+                if target_id not in floor_rooms:
+                    break
+                
+                target_room = floor_rooms[target_id]
+                is_visited = target_id in visited_rooms
+                
+                name = target_room.name[:18] if is_visited else "Unexplored"
+                markers = []
+                
+                if is_visited:
+                    if target_room.enemies:
+                        markers.append("⚔")
+                    if target_room.items:
+                        markers.append("◆")
+                else:
+                    markers.append("?")
+                
+                chain.append({
+                    'name': name,
+                    'markers': " ".join(markers),
+                    'visited': is_visited,
+                    'depth': depth + 1
+                })
+                
+                current_id = target_id
+            
+            return chain
+        
+        # Get room chains in all directions
+        north_chain = get_room_chain('north')
+        south_chain = get_room_chain('south')
+        east_chain = get_room_chain('east')
+        west_chain = get_room_chain('west')
+        
+        # Get special exits
+        def get_special_info(direction):
             if direction in current.exits:
                 target_id = current.exits[direction]
                 target_room = floor_rooms.get(target_id)
                 if target_room:
                     is_visited = target_id in visited_rooms
-                    name = target_room.name[:20] if is_visited else "Unexplored"
+                    name = target_room.name[:18] if is_visited else "Unexplored"
                     markers = []
                     if is_visited:
                         if target_room.enemies:
@@ -666,43 +880,42 @@ class MapGenerator:
                     return name, " ".join(markers), is_visited
             return None, None, False
         
-        # Get directional room info
-        north_info = get_room_info('north')
-        south_info = get_room_info('south')
-        east_info = get_room_info('east')
-        west_info = get_room_info('west')
-        up_info = get_room_info('up')
-        down_info = get_room_info('down')
-        secret_info = get_room_info('secret')
+        up_info = get_special_info('up')
+        down_info = get_special_info('down')
+        secret_info = get_special_info('secret')
         
-        # Build compass display
-        lines.append("║" + " " * 68 + "║")
+        # Build expanded compass display
+        lines.append("║" + " " * 78 + "║")
         
-        # NORTH
-        if north_info[0]:
-            name_line = f"║{' ' * 23}[NORTH]{' ' * 38}║"
-            lines.append(name_line)
-            room_line = f"║{' ' * 20}{north_info[0]:<20}"
-            if north_info[1]:
-                room_line += f" {north_info[1]:>3}"
-            room_line += " " * (68 - len(room_line) + 1) + "║"
-            lines.append(room_line)
-            lines.append(f"║{' ' * 30}↑{' ' * 37}║")
+        # NORTH CHAIN (show up to 3 rooms)
+        if north_chain:
+            lines.append("║" + " " * 33 + "[NORTH]" + " " * 38 + "║")
+            for i, room_info in enumerate(reversed(north_chain)):
+                depth_marker = "↑" * room_info['depth']
+                room_line = f"║{' ' * 18}{depth_marker} {room_info['name']:<18}"
+                if room_info['markers']:
+                    room_line += f" {room_info['markers']:>4}"
+                room_line += " " * (78 - len(room_line) + 1) + "║"
+                lines.append(room_line)
+            lines.append("║" + " " * 35 + "│" + " " * 42 + "║")
         
-        # WEST - CENTER - EAST
-        center_line = "║"
+        # WEST-CENTER-EAST ROW
+        west_display = ""
+        east_display = ""
         
-        # WEST
-        if west_info[0]:
-            west_display = f"{west_info[0][:15]:<15}"
-            if west_info[1]:
-                west_display += f" {west_info[1]}"
-            center_line += f" {west_display:>20} ←"
-        else:
-            center_line += " " * 22
+        # WEST CHAIN
+        if west_chain:
+            west_rooms = []
+            for room_info in reversed(west_chain):
+                depth_marker = "←" * room_info['depth']
+                room_str = f"{room_info['name'][:12]:<12}"
+                if room_info['markers']:
+                    room_str += f" {room_info['markers']}"
+                west_rooms.append(f"{room_str} {depth_marker}")
+            west_display = " ".join(west_rooms)
         
         # CENTER (Current Room)
-        current_name = current.name[:15]
+        current_name = current.name[:16]
         current_markers = []
         if current.enemies:
             current_markers.append("⚔")
@@ -710,72 +923,171 @@ class MapGenerator:
             current_markers.append("◆")
         marker_str = " ".join(current_markers) if current_markers else ""
         
-        center_line += f"[ ►{current_name:<15}]"
+        center_display = f"[ ►{current_name:<16}]"
         if marker_str:
-            center_line += f" {marker_str}"
+            center_display += f" {marker_str}"
         
-        # EAST
-        if east_info[0]:
-            center_line += f"→ {east_info[0][:15]:<15}"
-            if east_info[1]:
-                center_line += f" {east_info[1]}"
+        # EAST CHAIN
+        if east_chain:
+            east_rooms = []
+            for room_info in east_chain:
+                depth_marker = "→" * room_info['depth']
+                room_str = f"{room_info['name'][:12]:<12}"
+                if room_info['markers']:
+                    room_str += f" {room_info['markers']}"
+                east_rooms.append(f"{depth_marker} {room_str}")
+            east_display = " ".join(east_rooms)
         
-        # Pad center line
-        padding = 68 - len(center_line) + 1
-        center_line += " " * padding + "║"
+        # Build center line
+        center_line = "║"
+        
+        if west_display:
+            center_line += f" {west_display}"
+        else:
+            center_line += " " * 2
+        
+        center_line += f" {center_display} "
+        
+        if east_display:
+            center_line += f"{east_display}"
+        
+        # Pad to width
+        padding = 78 - len(center_line) + 1
+        if padding > 0:
+            center_line += " " * padding
+        center_line += "║"
         lines.append(center_line)
         
-        # Add WEST/EAST labels
+        # Direction labels
         label_line = "║"
-        if west_info[0]:
-            label_line += f"{' ' * 9}[WEST]"
+        if west_chain:
+            label_line += f"{' ' * 5}[WEST]"
         else:
-            label_line += " " * 15
-        label_line += " " * 22
-        if east_info[0]:
+            label_line += " " * 11
+        
+        label_line += " " * 30
+        
+        if east_chain:
             label_line += f"[EAST]"
-        padding = 68 - len(label_line) + 1
-        label_line += " " * padding + "║"
+        
+        padding = 78 - len(label_line) + 1
+        if padding > 0:
+            label_line += " " * padding
+        label_line += "║"
         lines.append(label_line)
         
-        # SOUTH
-        if south_info[0]:
-            lines.append(f"║{' ' * 30}↓{' ' * 37}║")
-            room_line = f"║{' ' * 20}{south_info[0]:<20}"
-            if south_info[1]:
-                room_line += f" {south_info[1]:>3}"
-            room_line += " " * (68 - len(room_line) + 1) + "║"
-            lines.append(room_line)
-            lines.append(f"║{' ' * 22}[SOUTH]{' ' * 38}║")
+        # SOUTH CHAIN
+        if south_chain:
+            lines.append("║" + " " * 35 + "│" + " " * 42 + "║")
+            for room_info in south_chain:
+                depth_marker = "↓" * room_info['depth']
+                room_line = f"║{' ' * 18}{depth_marker} {room_info['name']:<18}"
+                if room_info['markers']:
+                    room_line += f" {room_info['markers']:>4}"
+                room_line += " " * (78 - len(room_line) + 1) + "║"
+                lines.append(room_line)
+            lines.append("║" + " " * 33 + "[SOUTH]" + " " * 38 + "║")
         
-        lines.append("║" + " " * 68 + "║")
+        lines.append("║" + " " * 78 + "║")
         
-        # UP/DOWN/SECRET at bottom
+        # Special exits at bottom
         special_dirs = []
         if up_info[0]:
-            special_dirs.append(f"↑UP: {up_info[0][:15]} {up_info[1] or ''}")
+            special_dirs.append(f"↑UP: {up_info[0][:20]} {up_info[1] or ''}")
         if down_info[0]:
-            special_dirs.append(f"↓DOWN: {down_info[0][:15]} {down_info[1] or ''}")
+            special_dirs.append(f"↓DOWN: {down_info[0][:20]} {down_info[1] or ''}")
         if secret_info[0]:
-            special_dirs.append(f"★SECRET: {secret_info[0][:12]} {secret_info[1] or ''}")
+            special_dirs.append(f"★SECRET: {secret_info[0][:17]} {secret_info[1] or ''}")
         
         if special_dirs:
-            lines.append("║ Special Exits:" + " " * 53 + "║")
+            lines.append("║ Special Exits:" + " " * 63 + "║")
             for spec in special_dirs:
                 line = f"║   {spec}"
-                padding = 68 - len(line) + 1
+                padding = 78 - len(line) + 1
                 line += " " * padding + "║"
                 lines.append(line)
+            lines.append("║" + " " * 78 + "║")
         
-        lines.append("║" + " " * 68 + "║")
-        lines.append("╠" + "═" * 68 + "╣")
+        # Floor overview of ALL rooms
+        lines.append("╠" + "═" * 78 + "╣")
+        lines.append("║ FLOOR OVERVIEW - All Rooms:" + " " * 49 + "║")
+        lines.append("║" + " " * 78 + "║")
+        
+        # List all rooms with status
+        all_rooms = []
+        for room_id, room in floor_rooms.items():
+            is_current = (room_id == current_room)
+            is_visited = room_id in visited_rooms
+            
+            marker = "►" if is_current else ("○" if is_visited else "·")
+            
+            room_type = ""
+            if 'boss' in room_id:
+                room_type = "⚔BOSS"
+            elif 'stairs' in room_id:
+                room_type = "⬇STAIRS"
+            elif room_id == 'start' or 'start' in room_id:
+                room_type = "⬆START"
+            elif 'secret' in room_id:
+                room_type = "★SECRET"
+            
+            all_rooms.append({
+                'marker': marker,
+                'name': room.name[:20],
+                'type': room_type,
+                'visited': is_visited
+            })
+        
+        # Sort: Start, Regular, Boss, Stairs, Secret
+        def sort_key(r):
+            if 'START' in r['type']:
+                return (0, r['name'])
+            elif 'BOSS' in r['type']:
+                return (2, r['name'])
+            elif 'STAIRS' in r['type']:
+                return (3, r['name'])
+            elif 'SECRET' in r['type']:
+                return (4, r['name'])
+            else:
+                return (1, r['name'])
+        
+        all_rooms.sort(key=sort_key)
+        
+        # Display in two columns
+        for i in range(0, len(all_rooms), 2):
+            room1 = all_rooms[i]
+            line = f"║ {room1['marker']} {room1['name']:<20}"
+            if room1['type']:
+                line += f" [{room1['type']}]"
+            
+            if i + 1 < len(all_rooms):
+                room2 = all_rooms[i + 1]
+                # Pad first column
+                current_len = len(line) - 1  # Subtract the ║
+                padding_needed = 40 - current_len
+                if padding_needed > 0:
+                    line += " " * padding_needed
+                line += f"{room2['marker']} {room2['name']:<20}"
+                if room2['type']:
+                    line += f" [{room2['type']}]"
+            
+            # Final padding
+            padding = 78 - len(line) + 1
+            if padding > 0:
+                line += " " * padding
+            line += "║"
+            lines.append(line)
+        
+        lines.append("║" + " " * 78 + "║")
+        lines.append("╠" + "═" * 78 + "╣")
         
         # Stats and legend
-        stats_line = f"║ Explored: {len(visited_floor)}/{len(floor_rooms)} rooms  |  Current Floor: {current_floor}"
-        padding = 68 - len(stats_line) + 1
+        stats_line = f"║ Progress: {len(visited_floor)}/{len(floor_rooms)} rooms  |  Current Floor: {current_floor}"
+        padding = 78 - len(stats_line) + 1
         lines.append(stats_line + " " * padding + "║")
-        lines.append("║ ► = You Are Here  |  ? = Unexplored  |  ⚔ = Enemies  |  ◆ = Items     ║")
-        lines.append("╚" + "═" * 68 + "╝")
+        lines.append("║ ► = You  |  ○ = Visited  |  · = Undiscovered  |  ⚔ = Enemies  |  ◆ = Items ║")
+        lines.append("║ Arrows show depth: → (1 room away), →→ (2 rooms away), etc.            ║")
+        lines.append("╚" + "═" * 78 + "╝")
         
         return '\n'.join(lines)
 
@@ -1117,8 +1429,10 @@ class WeaponSystem:
         material = random.choice(GameConstants.WEAPON_MATERIALS[rarity])
         weapon_name = random.choice(GameConstants.WEAPON_TYPES[weapon_type])
         
-        base_damage = random.randint(8, 15) + (player.level * 2)
-        multiplier = GameConstants.WEAPON_RARITIES[rarity]['multiplier']
+        # Use rarity-specific base damage range
+        rarity_data = GameConstants.WEAPON_RARITIES[rarity]
+        base_damage = random.randint(rarity_data['base_min'], rarity_data['base_max']) + (player.level * 2)
+        multiplier = rarity_data['multiplier']
         final_damage = int(base_damage * multiplier)
         
         weapon = {
@@ -1399,19 +1713,13 @@ class CombatSystem:
             room.items.append("champion's prize")
             print("\n*** A champion's prize chest appears!")
         
-        weapon_data = boss_config['weapons'][player.character_class]
-        weapon_type = GameConstants.CLASSES[player.character_class]['weapon_types'][0]
-        boss_weapon = {
-            'name': weapon_data[0],
-            'damage': weapon_data[1],
-            'type': weapon_type,
-            'rarity': 'legendary',
-            'base_name': weapon_data[0]
-        }
+        # Generate scaled boss weapon
+        boss_weapon = BossConfig.generate_boss_weapon(floor, player)
         
-        logger.info(f"Boss reward: {player.name} received {boss_weapon['name']} ({boss_weapon['damage']} dmg)")
+        logger.info(f"Boss reward: {player.name} received {boss_weapon['name']} ({boss_weapon['damage']} dmg) - scaled for level {player.level}")
         
         print(f"\n*** Legendary Reward: {boss_weapon['name']}!")
+        print(f"[Scaled for your level: {player.level}]")
         
         # Show weapon comparison
         comparison = WeaponComparison.compare_weapons(boss_weapon, player.weapon, player)
@@ -1720,6 +2028,7 @@ class Game:
             print(f"\nWelcome, {name} the {char_class.title()}!")
             print(f"Weapon: {weapon['name']}")
             print(f"{GameConstants.NUM_FLOORS} floors await!")
+            print(f"\n=== TEXT ADVENTURE RPG v{GameConstants.VERSION} ===")
             
         except Exception as e:
             logging.error(f"Character creation error: {e}", exc_info=True)
@@ -1732,8 +2041,8 @@ class Game:
         print("\n*** Generating dungeon...")
         self.floors = {}
         
-        # Track unique items across entire dungeon
-        unique_item_types = {'rusty key', 'torch', 'bone key', 'ancient medallion'}
+        # Track unique items across entire dungeon (items that should only spawn once)
+        unique_item_types = {'torch', 'ancient medallion'}
         
         total_rooms = 0
         for floor_num in range(1, GameConstants.NUM_FLOORS + 1):
@@ -1742,11 +2051,7 @@ class Game:
             
             if floor_num == 1:
                 start_id = 'start'
-                start_items = ['health potion', 'old map']
-                # Only add rusty key if not spawned yet
-                if 'rusty key' not in self.player.unique_items_spawned:
-                    start_items.append('rusty key')
-                    self.player.unique_items_spawned.add('rusty key')
+                start_items = ['health potion', 'old map', 'rusty key']  # Always spawn rusty key in start
                 rooms[start_id] = Room("Entrance Hall", "The dungeon entrance awaits.", floor_num,
                                       start_items, {}, [], 
                                       "A merchant has set up shop here. Use 'shop' to trade.")
@@ -2320,8 +2625,6 @@ class Game:
                 self.player.inventory.remove(item)
                 print(f"Discarded: {item}")
                 return
-        print(f"Don't have '{item_name}'")
-    
     def use_special_item(self, item_name: str):
         """Use special actionable items"""
         if not item_name:
@@ -2344,6 +2647,7 @@ class Game:
         action_type = GameConstants.ACTIONABLE_ITEMS[item_name]
         room = self.get_current_room()
         
+        # TORCH - Open secret rooms
         if action_type == 'light' and item_name == 'torch':
             if 'Hidden Alcove' in room.name and not self.player.secret_room_unlocked:
                 print("\n*** You place the torch in the wall sconce...")
@@ -2371,6 +2675,7 @@ class Game:
             else:
                 print("You hold up the torch. Nothing unusual here.")
         
+        # RUSTY KEY - Open locked vaults
         elif action_type == 'key' and item_name == 'rusty key':
             if 'Vault' in room.name:
                 print("\n*** The key fits perfectly! The chest opens!")
@@ -2387,10 +2692,142 @@ class Game:
             else:
                 print("You examine the key. It looks like it would fit a large lock...")
         
-        elif action_type == 'map':
-            print("You study the old map...")
-            self.show_map()
+        # BONE KEY - Open bone crypts
+        elif action_type == 'bone_key' and item_name == 'bone key':
+            if 'Bone Crypt' in room.name:
+                print("\n*** The bone key dissolves into the skeletal lock!")
+                print("The bone door crumbles away, revealing hidden treasures!")
+                
+                self.player.inventory.remove('bone key')
+                
+                treasures = ['weapon cache', 'weapon cache', 'soul crystal',
+                            'arcane pendant', 'titan gauntlet', 'wisdom gem']
+                for t in treasures:
+                    if t not in room.items:
+                        room.items.append(t)
+                
+                print(f"\nTreasures: {', '.join(treasures)}")
+            else:
+                print("The bone key rattles ominously. This is meant for a bone door...")
         
+        # DEMON SEAL - Banish demons and open demon gates
+        elif action_type == 'demon_seal' and item_name == 'demon seal':
+            if 'Demon Gate' in room.name:
+                print("\n*** You press the demon seal into the gate!")
+                print("The demonic chains shatter! A portal opens to the abyss!")
+                
+                self.player.inventory.remove('demon seal')
+                
+                treasures = ['weapon cache', 'weapon cache', 'weapon cache',
+                            'demon seal', 'soul crystal', 'shadow cloak', 'elixir of life']
+                for t in treasures:
+                    if t not in room.items:
+                        room.items.append(t)
+                
+                # Bonus: Remove all demon enemies instantly
+                demon_enemies = [e for e in room.enemies if 'demon' in e.lower()]
+                for demon in demon_enemies:
+                    room.enemies.remove(demon)
+                    print(f"The {demon} is banished back to the abyss!")
+                
+                print(f"\nTreasures from the abyss: {', '.join(treasures)}")
+            elif any('demon' in e.lower() for e in room.enemies):
+                print("\n*** You activate the demon seal!")
+                demons = [e for e in room.enemies if 'demon' in e.lower()]
+                for demon in demons:
+                    room.enemies.remove(demon)
+                    self.player.gain_experience(GameConstants.ENEMIES[demon.lower()]['exp'])
+                    print(f"The {demon} is banished! +{GameConstants.ENEMIES[demon.lower()]['exp']} exp")
+                self.player.inventory.remove('demon seal')
+                print("The seal crumbles to ash...")
+            else:
+                print("The demon seal pulses with dark energy. It's meant for demons...")
+        
+        # CRYSTAL SHARD - Activate crystal mechanisms
+        elif action_type == 'crystal' and item_name == 'crystal shard':
+            if 'Crystal Chamber' in room.name:
+                print("\n*** You insert the crystal shard into the mechanism!")
+                print("The chamber floods with brilliant light!")
+                
+                self.player.inventory.remove('crystal shard')
+                
+                # Restore all mana and boost max mana
+                old_max = self.player.max_mana
+                self.player.max_mana += 30
+                self.player.mana = self.player.max_mana
+                
+                # Boost intelligence
+                self.player.stats['intelligence'] += 5
+                
+                treasures = ['weapon cache', 'ice crystal', 'magic scroll', 'arcane pendant']
+                for t in treasures:
+                    if t not in room.items:
+                        room.items.append(t)
+                
+                print(f"*** Max Mana +30 ({old_max} → {self.player.max_mana})! Intelligence +5!")
+                print(f"Treasures: {', '.join(treasures)}")
+            else:
+                print("The crystal shard glows softly. It needs a crystal mechanism...")
+        
+        # VOID ESSENCE - Stabilize void portals
+        elif action_type == 'void' and item_name == 'void essence':
+            if 'Void Tear' in room.name:
+                print("\n*** You channel the void essence into the portal!")
+                print("The tear stabilizes, revealing the void's secrets!")
+                
+                self.player.inventory.remove('void essence')
+                
+                # Major stat boost and legendary loot
+                self.player.stats['strength'] += 4
+                self.player.stats['intelligence'] += 4
+                self.player.stats['agility'] += 4
+                
+                treasures = ['weapon cache', 'weapon cache', 'void essence',
+                            'legendary artifact', 'ultimate health potion', 'wisdom gem']
+                for t in treasures:
+                    if t not in room.items:
+                        room.items.append(t)
+                
+                print("*** All stats +4! The void rewards you!")
+                print(f"Treasures: {', '.join(treasures)}")
+            else:
+                print("The void essence writhes with otherworldly power. It needs a void tear...")
+        
+        # PRIMORDIAL RUNE - Activate ancient monuments
+        elif action_type == 'rune' and item_name == 'primordial rune':
+            if 'Primordial Monument' in room.name:
+                print("\n*** You place the rune upon the monument!")
+                print("Ancient power flows through the ages!")
+                
+                self.player.inventory.remove('primordial rune')
+                
+                # Massive permanent bonuses
+                old_hp = self.player.max_health
+                old_mp = self.player.max_mana
+                
+                self.player.max_health += 50
+                self.player.max_mana += 40
+                self.player.health = self.player.max_health
+                self.player.mana = self.player.max_mana
+                
+                self.player.stats['strength'] += 6
+                self.player.stats['intelligence'] += 6
+                self.player.stats['agility'] += 6
+                
+                treasures = ['weapon cache', 'weapon cache', 'weapon cache',
+                            'legendary artifact', 'ultimate health potion', 'soul crystal']
+                for t in treasures:
+                    if t not in room.items:
+                        room.items.append(t)
+                
+                print(f"*** Max HP +50 ({old_hp} → {self.player.max_health})!")
+                print(f"*** Max MP +40 ({old_mp} → {self.player.max_mana})!")
+                print("*** All stats +6! You are blessed by the ancients!")
+                print(f"Treasures: {', '.join(treasures)}")
+            else:
+                print("The primordial rune hums with ancient power. It belongs on a monument...")
+        
+        # ANCIENT MEDALLION - Offer at shrines
         elif action_type == 'offering' and item_name == 'ancient medallion':
             if 'Shrine' in room.name:
                 print("\n*** The altar erupts with brilliant light!")
@@ -2419,6 +2856,10 @@ class Game:
                 print(f"*** Max health +20! Max mana +15! Fully healed!")
             else:
                 print("You hold the medallion. It should be placed on an altar...")
+        
+        elif action_type == 'map':
+            print("You study the old map...")
+            self.show_map()
     
     def upgrade_class(self):
         """Upgrade class tier"""
@@ -2434,7 +2875,7 @@ class Game:
         next_title = GameConstants.CLASS_NAMES[self.player.class_tier + 1][self.player.character_class]
         
         print(f"\n*** CLASS UPGRADE!")
-        print(f"Current: {current} (Tier {self.class_tier})")
+        print(f"Current: {current} (Tier {self.player.class_tier})")
         print(f"Upgrade to: {next_title} (Tier {self.player.class_tier + 1})")
         print("\nBenefits: +5 all stats, +30 HP, +25 MP, +5% loot")
         
