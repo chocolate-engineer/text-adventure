@@ -425,3 +425,6 @@ Fatal error: Logger._log() got an unexpected keyword argument 'end'
 2025-10-10 22:50:08,313 [WARNING] load_game:2639 - Save version mismatch: 6.6.1 vs 6.6.9
 2025-10-10 22:50:08,314 [INFO] load_game:2680 - Game loaded from slot 1: J (Lvl 4, Floor 2)
 2025-10-10 22:50:40,021 [INFO] save_game:2579 - Game saved to slot 1: J (Lvl 4, Floor 2)
+2025-10-10 22:56:33,877 [WARNING] load_game:2639 - Save version mismatch: 6.6.2 vs 6.6.9
+2025-10-10 22:56:33,878 [INFO] load_game:2680 - Game loaded from slot 2: Yandhi (Lvl 10, Floor 8)
+2025-10-10 22:57:38,737 [INFO] save_game:2579 - Game saved to slot 2: Yandhi (Lvl 10, Floor 8)

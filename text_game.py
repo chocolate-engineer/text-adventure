@@ -2,9 +2,15 @@
 ================================================================================
 TEXT ADVENTURE RPG GAME - COMPLETE 10 FLOOR EDITION
 ================================================================================
-Version: 6.6.2
+Version: 6.6.9
 Author: DEKU
 Python: 3.13+
+
+CHANGELOG 6.6.9:
+- Boss weapons now prompt to equip (like weapon caches) instead of auto-equipping
+- All classes start with 5 inventory slots (uniform progression)
+- Room summary shows (?) for unexplored exits
+- Compass-style map showing rooms in cardinal directions (N/S/E/W)
 """
 
 import random
@@ -29,7 +35,7 @@ logger = logging.getLogger(__name__)
 #################################################################################
 class GameConstants:
     """Central configuration class containing all game constants"""
-    VERSION = "6.6.2"
+    VERSION = "6.6.9"
     SAVE_FILE = "savegame.json"
     SAVE_DIRECTORY = "saves"
     MAX_SAVE_SLOTS = 5
@@ -44,21 +50,21 @@ class GameConstants:
         'warrior': {
             'base_health': 120, 'base_mana': 50,
             'base_stats': {'strength': 15, 'intelligence': 8, 'agility': 10},
-            'health_per_level': 15, 'inventory_slots': 10,
+            'health_per_level': 15, 'inventory_slots': 5,
             'weapon_types': ['melee'],
             'stat_growth': {'strength': 3, 'intelligence': 1, 'agility': 1}
         },
         'mage': {
             'base_health': 80, 'base_mana': 150,
             'base_stats': {'strength': 8, 'intelligence': 15, 'agility': 10},
-            'health_per_level': 8, 'inventory_slots': 8,
+            'health_per_level': 8, 'inventory_slots': 5,
             'weapon_types': ['magic'],
             'stat_growth': {'strength': 1, 'intelligence': 3, 'agility': 1}
         },
         'rogue': {
             'base_health': 100, 'base_mana': 75,
             'base_stats': {'strength': 10, 'intelligence': 10, 'agility': 15},
-            'health_per_level': 12, 'inventory_slots': 12,
+            'health_per_level': 12, 'inventory_slots': 5,
             'weapon_types': ['stealth'],
             'stat_growth': {'strength': 1, 'intelligence': 1, 'agility': 3}
         }
@@ -617,7 +623,7 @@ class WeaponComparison:
         return '\n'.join(lines)
 
 #################################################################################
-# VISUAL MAP GENERATOR
+# VISUAL MAP GENERATOR (COMPASS STYLE)
 #################################################################################
 class MapGenerator:
     """Generate ASCII visual map of explored rooms"""
@@ -627,74 +633,149 @@ class MapGenerator:
                            current_floor: int, 
                            current_room: str,
                            visited_rooms: Set[str]) -> str:
-        """Generate ASCII map for current floor"""
+        """Generate compass-style ASCII map for current floor"""
         floor_rooms = floors[current_floor]
         visited_floor = [r for r in visited_rooms if r in floor_rooms]
         
         if not visited_floor:
             return "No rooms explored on this floor yet!"
         
-        # Build room graph
-        room_graph = {}
-        for room_id in visited_floor:
-            room = floor_rooms[room_id]
-            room_graph[room_id] = {
-                'name': room.name[:15],
-                'exits': room.exits  # Show ALL exits from visited rooms
-            }
+        current = floor_rooms[current_room]
         
-        # Start building map from starting room
         lines = []
-        lines.append("=" * 70)
-        lines.append(f"FLOOR {current_floor} MAP - Explored Rooms")
-        lines.append("=" * 70)
+        lines.append("╔" + "═" * 68 + "╗")
+        lines.append(f"║ FLOOR {current_floor} COMPASS MAP{' ' * (68 - len(f' FLOOR {current_floor} COMPASS MAP'))}║")
+        lines.append("╠" + "═" * 68 + "╣")
         
-        for room_id in sorted(visited_floor):
-            room = floor_rooms[room_id]
-            is_current = (room_id == current_room)
-            
-            # Draw room box
-            marker = ">>>" if is_current else "   "
-            lines.append(f"\n{marker} ┌─────────────────────────────────┐")
-            lines.append(f"{marker} │ {room.name[:29]:<29} │")
-            lines.append(f"{marker} └─────────────────────────────────┘")
-            
-            # Show exits - including unexplored ones
-            exits_list = []
-            if 'north' in room.exits:
-                marker = "↑N" if room.exits['north'] in visited_floor else "↑N(?)"
-                exits_list.append(marker)
-            if 'south' in room.exits:
-                marker = "↓S" if room.exits['south'] in visited_floor else "↓S(?)"
-                exits_list.append(marker)
-            if 'east' in room.exits:
-                marker = "→E" if room.exits['east'] in visited_floor else "→E(?)"
-                exits_list.append(marker)
-            if 'west' in room.exits:
-                marker = "←W" if room.exits['west'] in visited_floor else "←W(?)"
-                exits_list.append(marker)
-            if 'up' in room.exits:
-                exits_list.append("↑UP")
-            if 'down' in room.exits:
-                exits_list.append("↓DOWN")
-            if 'secret' in room.exits:
-                marker = "★SECRET" if room.exits['secret'] in visited_floor else "★SECRET(?)"
-                exits_list.append(marker)
-            
-            if exits_list:
-                lines.append(f"    Exits: {' '.join(exits_list)}")
-            
-            # Show contents
-            if room.enemies:
-                lines.append(f"    Enemies: {', '.join(room.enemies)}")
-            if room.items:
-                lines.append(f"    Items: {', '.join(room.items[:3])}" + 
-                           (" ..." if len(room.items) > 3 else ""))
+        # Get rooms in each direction from current room
+        def get_room_info(direction):
+            if direction in current.exits:
+                target_id = current.exits[direction]
+                target_room = floor_rooms.get(target_id)
+                if target_room:
+                    is_visited = target_id in visited_rooms
+                    name = target_room.name[:20] if is_visited else "Unexplored"
+                    markers = []
+                    if is_visited:
+                        if target_room.enemies:
+                            markers.append("⚔")
+                        if target_room.items:
+                            markers.append("◆")
+                    else:
+                        markers.append("?")
+                    return name, " ".join(markers), is_visited
+            return None, None, False
         
-        lines.append("\n" + "=" * 70)
-        lines.append(f"Explored: {len(visited_floor)}/{len(floor_rooms)} rooms")
-        lines.append(">>> = Current Location | (?) = Unexplored direction")
-        lines.append("=" * 70)
+        # Get directional room info
+        north_info = get_room_info('north')
+        south_info = get_room_info('south')
+        east_info = get_room_info('east')
+        west_info = get_room_info('west')
+        up_info = get_room_info('up')
+        down_info = get_room_info('down')
+        secret_info = get_room_info('secret')
+        
+        # Build compass display
+        lines.append("║" + " " * 68 + "║")
+        
+        # NORTH
+        if north_info[0]:
+            name_line = f"║{' ' * 23}[NORTH]{' ' * 38}║"
+            lines.append(name_line)
+            room_line = f"║{' ' * 20}{north_info[0]:<20}"
+            if north_info[1]:
+                room_line += f" {north_info[1]:>3}"
+            room_line += " " * (68 - len(room_line) + 1) + "║"
+            lines.append(room_line)
+            lines.append(f"║{' ' * 30}↑{' ' * 37}║")
+        
+        # WEST - CENTER - EAST
+        center_line = "║"
+        
+        # WEST
+        if west_info[0]:
+            west_display = f"{west_info[0][:15]:<15}"
+            if west_info[1]:
+                west_display += f" {west_info[1]}"
+            center_line += f" {west_display:>20} ←"
+        else:
+            center_line += " " * 22
+        
+        # CENTER (Current Room)
+        current_name = current.name[:15]
+        current_markers = []
+        if current.enemies:
+            current_markers.append("⚔")
+        if current.items:
+            current_markers.append("◆")
+        marker_str = " ".join(current_markers) if current_markers else ""
+        
+        center_line += f"[ ►{current_name:<15}]"
+        if marker_str:
+            center_line += f" {marker_str}"
+        
+        # EAST
+        if east_info[0]:
+            center_line += f"→ {east_info[0][:15]:<15}"
+            if east_info[1]:
+                center_line += f" {east_info[1]}"
+        
+        # Pad center line
+        padding = 68 - len(center_line) + 1
+        center_line += " " * padding + "║"
+        lines.append(center_line)
+        
+        # Add WEST/EAST labels
+        label_line = "║"
+        if west_info[0]:
+            label_line += f"{' ' * 9}[WEST]"
+        else:
+            label_line += " " * 15
+        label_line += " " * 22
+        if east_info[0]:
+            label_line += f"[EAST]"
+        padding = 68 - len(label_line) + 1
+        label_line += " " * padding + "║"
+        lines.append(label_line)
+        
+        # SOUTH
+        if south_info[0]:
+            lines.append(f"║{' ' * 30}↓{' ' * 37}║")
+            room_line = f"║{' ' * 20}{south_info[0]:<20}"
+            if south_info[1]:
+                room_line += f" {south_info[1]:>3}"
+            room_line += " " * (68 - len(room_line) + 1) + "║"
+            lines.append(room_line)
+            lines.append(f"║{' ' * 22}[SOUTH]{' ' * 38}║")
+        
+        lines.append("║" + " " * 68 + "║")
+        
+        # UP/DOWN/SECRET at bottom
+        special_dirs = []
+        if up_info[0]:
+            special_dirs.append(f"↑UP: {up_info[0][:15]} {up_info[1] or ''}")
+        if down_info[0]:
+            special_dirs.append(f"↓DOWN: {down_info[0][:15]} {down_info[1] or ''}")
+        if secret_info[0]:
+            special_dirs.append(f"★SECRET: {secret_info[0][:12]} {secret_info[1] or ''}")
+        
+        if special_dirs:
+            lines.append("║ Special Exits:" + " " * 53 + "║")
+            for spec in special_dirs:
+                line = f"║   {spec}"
+                padding = 68 - len(line) + 1
+                line += " " * padding + "║"
+                lines.append(line)
+        
+        lines.append("║" + " " * 68 + "║")
+        lines.append("╠" + "═" * 68 + "╣")
+        
+        # Stats and legend
+        stats_line = f"║ Explored: {len(visited_floor)}/{len(floor_rooms)} rooms  |  Current Floor: {current_floor}"
+        padding = 68 - len(stats_line) + 1
+        lines.append(stats_line + " " * padding + "║")
+        lines.append("║ ► = You Are Here  |  ? = Unexplored  |  ⚔ = Enemies  |  ◆ = Items     ║")
+        lines.append("╚" + "═" * 68 + "╝")
         
         return '\n'.join(lines)
 
@@ -1331,8 +1412,34 @@ class CombatSystem:
         logger.info(f"Boss reward: {player.name} received {boss_weapon['name']} ({boss_weapon['damage']} dmg)")
         
         print(f"\n*** Legendary Reward: {boss_weapon['name']}!")
-        print(f"Damage: {boss_weapon['damage']} | Rarity: Legendary")
-        player.equip_weapon(boss_weapon)
+        
+        # Show weapon comparison
+        comparison = WeaponComparison.compare_weapons(boss_weapon, player.weapon, player)
+        print(comparison)
+        
+        # Ask to equip like weapon cache
+        try:
+            if input("\nEquip this weapon? (y/n): ").strip().lower() in ['y', 'yes']:
+                if player.weapon:
+                    player.inventory_weapons.append(player.weapon)
+                    player.inventory.append(f"WEAPON: {player.weapon['name']}")
+                    print(f"Stored previous weapon: {player.weapon['name']}")
+                player.equip_weapon(boss_weapon)
+            else:
+                # Store boss weapon in inventory
+                if player.can_add_item():
+                    player.inventory_weapons.append(boss_weapon)
+                    player.inventory.append(f"WEAPON: {boss_weapon['name']}")
+                    print(f"Stored: {boss_weapon['name']}")
+                else:
+                    print("Inventory full! Boss weapon left on ground.")
+                    room.items.append("weapon cache")  # Add it back as a cache
+        except KeyboardInterrupt:
+            # On interrupt, store weapon if possible
+            if player.can_add_item():
+                player.inventory_weapons.append(boss_weapon)
+                player.inventory.append(f"WEAPON: {boss_weapon['name']}")
+                print(f"Stored: {boss_weapon['name']}")
         
         bonus = boss_config['stat_bonus']
         for stat in player.stats:
@@ -1772,10 +1879,19 @@ class Game:
         if room.exits:
             exits_list = []
             for direction, target_id in room.exits.items():
+                # Check if the exit leads to a visited room
+                is_visited = target_id in self.player.visited_rooms
+                
                 if direction in ['up', 'down', 'secret']:
-                    exits_list.append(direction.upper())
+                    marker = direction.upper()
                 else:
-                    exits_list.append(direction[0].upper())
+                    marker = direction[0].upper()
+                
+                # Add (?) if unexplored
+                if not is_visited:
+                    marker += "(?)"
+                
+                exits_list.append(marker)
             print(f"Exits: {' | '.join(exits_list)}")
         else:
             print("Exits: None")
@@ -2318,7 +2434,7 @@ class Game:
         next_title = GameConstants.CLASS_NAMES[self.player.class_tier + 1][self.player.character_class]
         
         print(f"\n*** CLASS UPGRADE!")
-        print(f"Current: {current} (Tier {self.player.class_tier})")
+        print(f"Current: {current} (Tier {self.class_tier})")
         print(f"Upgrade to: {next_title} (Tier {self.player.class_tier + 1})")
         print("\nBenefits: +5 all stats, +30 HP, +25 MP, +5% loot")
         
