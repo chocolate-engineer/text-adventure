@@ -428,3 +428,63 @@ Fatal error: Logger._log() got an unexpected keyword argument 'end'
 2025-10-10 22:56:33,877 [WARNING] load_game:2639 - Save version mismatch: 6.6.2 vs 6.6.9
 2025-10-10 22:56:33,878 [INFO] load_game:2680 - Game loaded from slot 2: Yandhi (Lvl 10, Floor 8)
 2025-10-10 22:57:38,737 [INFO] save_game:2579 - Game saved to slot 2: Yandhi (Lvl 10, Floor 8)
+2025-10-10 22:59:54,659 [INFO] load_game:2680 - Game loaded from slot 2: Yandhi (Lvl 10, Floor 8)
+2025-10-10 23:02:12,193 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs void spawn (HP 80)
+2025-10-10 23:02:12,194 [INFO] fight_enemy:1254 - Victory: Yandhi defeated void spawn in 1 turns. Gained 95 XP
+2025-10-10 23:02:12,194 [INFO] gain_experience:826 - Player gained 95 XP. Total: 495/2058
+2025-10-10 23:02:55,938 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs lesser demon (HP 70)
+2025-10-10 23:02:55,938 [INFO] fight_enemy:1254 - Victory: Yandhi defeated lesser demon in 1 turns. Gained 85 XP
+2025-10-10 23:02:55,939 [INFO] gain_experience:826 - Player gained 85 XP. Total: 580/2058
+2025-10-10 23:02:55,939 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs dark cultist (HP 65)
+2025-10-10 23:02:55,939 [INFO] fight_enemy:1254 - Victory: Yandhi defeated dark cultist in 1 turns. Gained 80 XP
+2025-10-10 23:02:55,939 [INFO] gain_experience:826 - Player gained 80 XP. Total: 660/2058
+2025-10-10 23:03:21,211 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs lesser demon (HP 70)
+2025-10-10 23:03:21,212 [INFO] fight_enemy:1254 - Victory: Yandhi defeated lesser demon in 1 turns. Gained 85 XP
+2025-10-10 23:03:21,212 [INFO] gain_experience:826 - Player gained 85 XP. Total: 745/2058
+2025-10-10 23:03:21,212 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs void spawn (HP 80)
+2025-10-10 23:03:21,213 [INFO] fight_enemy:1254 - Victory: Yandhi defeated void spawn in 1 turns. Gained 95 XP
+2025-10-10 23:03:21,213 [INFO] gain_experience:826 - Player gained 95 XP. Total: 840/2058
+2025-10-10 23:04:00,705 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs shadow beast (HP 75)
+2025-10-10 23:04:00,705 [INFO] fight_enemy:1254 - Victory: Yandhi defeated shadow beast in 1 turns. Gained 90 XP
+2025-10-10 23:04:00,705 [INFO] gain_experience:826 - Player gained 90 XP. Total: 930/2058
+2025-10-10 23:04:00,705 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs dark cultist (HP 65)
+2025-10-10 23:04:00,706 [INFO] fight_enemy:1254 - Victory: Yandhi defeated dark cultist in 1 turns. Gained 80 XP
+2025-10-10 23:04:00,706 [INFO] gain_experience:826 - Player gained 80 XP. Total: 1010/2058
+2025-10-10 23:05:33,801 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs dark cultist (HP 65)
+2025-10-10 23:05:33,802 [INFO] fight_enemy:1254 - Victory: Yandhi defeated dark cultist in 1 turns. Gained 80 XP
+2025-10-10 23:05:33,802 [INFO] gain_experience:826 - Player gained 80 XP. Total: 1090/2058
+2025-10-10 23:05:33,802 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs shadow beast (HP 75)
+2025-10-10 23:05:33,803 [INFO] fight_enemy:1254 - Victory: Yandhi defeated shadow beast in 1 turns. Gained 90 XP
+2025-10-10 23:05:33,803 [INFO] gain_experience:826 - Player gained 90 XP. Total: 1180/2058
+2025-10-10 23:05:51,421 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs lesser demon (HP 70)
+2025-10-10 23:05:51,422 [INFO] fight_enemy:1254 - Victory: Yandhi defeated lesser demon in 1 turns. Gained 85 XP
+2025-10-10 23:05:51,422 [INFO] gain_experience:826 - Player gained 85 XP. Total: 1265/2058
+2025-10-10 23:06:18,463 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs dark cultist (HP 65)
+2025-10-10 23:06:18,463 [INFO] fight_enemy:1254 - Victory: Yandhi defeated dark cultist in 1 turns. Gained 80 XP
+2025-10-10 23:06:18,464 [INFO] gain_experience:826 - Player gained 80 XP. Total: 1345/2058
+2025-10-10 23:06:18,464 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs void spawn (HP 80)
+2025-10-10 23:06:18,464 [INFO] fight_enemy:1254 - Victory: Yandhi defeated void spawn in 1 turns. Gained 95 XP
+2025-10-10 23:06:18,464 [INFO] gain_experience:826 - Player gained 95 XP. Total: 1440/2058
+2025-10-10 23:06:26,737 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs lesser demon (HP 70)
+2025-10-10 23:06:26,738 [INFO] fight_enemy:1254 - Victory: Yandhi defeated lesser demon in 1 turns. Gained 85 XP
+2025-10-10 23:06:26,738 [INFO] gain_experience:826 - Player gained 85 XP. Total: 1525/2058
+2025-10-10 23:06:26,738 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs shadow beast (HP 75)
+2025-10-10 23:06:26,738 [INFO] fight_enemy:1254 - Victory: Yandhi defeated shadow beast in 1 turns. Gained 90 XP
+2025-10-10 23:06:26,738 [INFO] gain_experience:826 - Player gained 90 XP. Total: 1615/2058
+2025-10-10 23:08:24,746 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs treasure guardian (HP 60)
+2025-10-10 23:08:24,746 [INFO] fight_enemy:1254 - Victory: Yandhi defeated treasure guardian in 1 turns. Gained 65 XP
+2025-10-10 23:08:24,746 [INFO] gain_experience:826 - Player gained 65 XP. Total: 1680/2058
+2025-10-10 23:08:24,747 [INFO] fight_enemy:1240 - Combat started: Yandhi (Lvl 10, HP 212) vs shadow beast (HP 75)
+2025-10-10 23:08:24,747 [INFO] fight_enemy:1254 - Victory: Yandhi defeated shadow beast in 1 turns. Gained 90 XP
+2025-10-10 23:08:24,748 [INFO] gain_experience:826 - Player gained 90 XP. Total: 1770/2058
+2025-10-10 23:09:40,566 [INFO] fight_boss:1301 - BOSS FIGHT: Yandhi (Lvl 10, HP 212) vs Void Archon on floor 8
+2025-10-10 23:09:40,566 [WARNING] fight_boss:1308 - Player Yandhi (Lvl 10) attempting Void Archon (recommended Lvl 16)
+2025-10-10 23:10:15,278 [INFO] fight_boss:1387 - BOSS VICTORY: Yandhi defeated Void Archon in 2 turns on floor 8
+2025-10-10 23:10:15,279 [INFO] gain_experience:826 - Player gained 360 XP. Total: 2130/2058
+2025-10-10 23:10:15,279 [INFO] _level_up:852 - LEVEL UP: Yandhi reached level 11. HP: 220, MP: 300
+2025-10-10 23:10:15,279 [INFO] fight_boss:1412 - Boss reward: Yandhi received Reality Staff (50 dmg)
+2025-10-10 23:19:46,660 [INFO] save_game:2579 - Game saved to slot 2: Yandhi (Lvl 11, Floor 8)
+2025-10-10 23:20:00,003 [INFO] save_game:2579 - Game saved to slot 2: Yandhi (Lvl 11, Floor 8)
+2025-10-11 03:41:25,749 [WARNING] load_game:3080 - Save version mismatch: 6.6.9 vs 6.9.0
+2025-10-11 03:41:25,750 [INFO] load_game:3121 - Game loaded from slot 1: J (Lvl 4, Floor 2)
+2025-10-11 03:42:37,032 [INFO] save_game:3020 - Game saved to slot 1: J (Lvl 4, Floor 2)

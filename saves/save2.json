@@ -4,18 +4,18 @@
     "name": "Yandhi",
     "character_class": "mage",
     "class_tier": 3,
-    "level": 10,
-    "experience": 400,
-    "experience_to_next": 2058,
+    "level": 11,
+    "experience": 72,
+    "experience_to_next": 2881,
     "stats": {
-      "strength": 27,
-      "intelligence": 52,
-      "agility": 29
+      "strength": 33,
+      "intelligence": 66,
+      "agility": 35
     },
-    "health": 212,
-    "max_health": 212,
-    "mana": 290,
-    "max_mana": 290,
+    "health": 220,
+    "max_health": 220,
+    "mana": 300,
+    "max_mana": 300,
     "inventory": [
       "health potion",
       "legendary artifact",
@@ -33,7 +33,8 @@
       "ultimate health potion",
       "magic scroll",
       "ultimate health potion",
-      "elixir of life"
+      "elixir of life",
+      "demon seal"
     ],
     "inventory_weapons": [],
     "weapon": {
@@ -123,78 +124,94 @@
         "item": "power ring",
         "stat": "strength",
         "bonus": 4
+      },
+      {
+        "item": "arcane pendant",
+        "stat": "intelligence",
+        "bonus": 6
       }
     ],
-    "max_inventory": 20,
+    "max_inventory": 21,
     "current_floor": 8,
-    "current_room": "floor8_start",
+    "current_room": "floor8_room9",
     "visited_rooms": [
-      "floor5_stairs",
-      "floor3_room2",
-      "floor3_room5",
+      "floor6_room3",
+      "floor4_stairs",
       "floor3_room1",
       "floor5_room6",
-      "floor6_room3",
-      "floor3_room3",
-      "floor5_room2",
-      "floor6_stairs",
-      "floor1_room3",
-      "floor6_start",
+      "floor2_room7",
+      "floor8_room5",
+      "floor6_room7",
+      "floor8_room7",
       "floor1_room7",
-      "floor5_room8",
-      "floor3_room4",
-      "floor8_start",
-      "floor1_boss",
-      "floor6_boss",
-      "floor3_room7",
-      "floor2_room8",
-      "floor5_room4",
-      "floor5_room7",
-      "floor3_start",
-      "floor4_room6",
+      "floor7_room3",
+      "floor8_room2",
       "floor6_room6",
-      "floor5_start",
-      "floor1_room2",
-      "floor1_room6",
-      "floor3_stairs",
-      "floor3_room6",
-      "floor1_room1",
-      "floor1_stairs",
-      "floor1_room8",
-      "floor2_stairs",
-      "floor4_stairs",
-      "floor2_boss",
-      "floor7_start",
-      "floor4_start",
-      "floor7_boss",
-      "floor4_room8",
-      "floor2_room4",
-      "floor2_start",
-      "floor2_room6",
-      "floor2_room9",
-      "floor3_room9",
-      "floor6_room4",
-      "floor3_boss",
-      "floor7_room6",
-      "floor2_room1",
-      "floor7_stairs",
+      "floor2_room8",
+      "floor3_room5",
       "floor5_room1",
       "start",
-      "floor6_room7",
-      "floor3_room8",
-      "floor7_room9",
-      "floor7_room5",
-      "floor6_room9",
-      "floor6_room8",
-      "floor2_room7",
-      "floor7_room1",
-      "floor7_room3",
       "floor4_room5",
-      "floor5_boss",
-      "floor2_room5",
+      "floor7_room6",
+      "floor3_start",
+      "floor5_room2",
       "floor6_room1",
+      "floor3_room3",
+      "floor1_stairs",
+      "floor6_room4",
+      "floor8_start",
+      "floor4_start",
+      "floor7_stairs",
+      "floor5_room7",
+      "floor6_stairs",
       "floor1_room4",
-      "floor4_boss"
+      "floor8_room8",
+      "floor3_room6",
+      "floor1_room2",
+      "floor8_room4",
+      "floor8_stairs",
+      "floor2_stairs",
+      "floor2_room4",
+      "floor2_room6",
+      "floor7_boss",
+      "floor1_room3",
+      "floor6_room8",
+      "floor8_boss",
+      "floor8_room6",
+      "floor7_start",
+      "floor5_boss",
+      "floor5_stairs",
+      "floor1_room8",
+      "floor6_boss",
+      "floor3_room9",
+      "floor1_room6",
+      "floor2_room5",
+      "floor7_room1",
+      "floor3_boss",
+      "floor1_boss",
+      "floor3_room7",
+      "floor7_room5",
+      "floor7_room9",
+      "floor2_boss",
+      "floor2_start",
+      "floor4_room6",
+      "floor3_room8",
+      "floor8_room9",
+      "floor4_room8",
+      "floor4_boss",
+      "floor2_room9",
+      "floor8_room3",
+      "floor6_start",
+      "floor3_stairs",
+      "floor5_start",
+      "floor6_room9",
+      "floor3_room2",
+      "floor5_room8",
+      "floor1_room1",
+      "floor2_room1",
+      "floor5_room4",
+      "floor8_room1",
+      "floor3_room4"
     ],
     "bosses_defeated": [
       "Arena Champion",
@@ -203,10 +220,11 @@
       "Shadow King",
       "Flame Lord",
       "Frost Titan",
-      "Demon Prince"
+      "Demon Prince",
+      "Void Archon"
     ],
     "rarity_boost": 0.1,
-    "gold_coins": 92,
+    "gold_coins": 160,
     "secret_room_unlocked": false,
     "special_items": [
       "old map"
@@ -1267,10 +1285,8 @@
       },
       "floor8_room1": {
         "items": [],
-        "enemies": [
-          "void spawn"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "west": "floor8_start",
           "north": "floor8_room8",
@@ -1279,14 +1295,12 @@
       },
       "floor8_room2": {
         "items": [
-          "demon seal",
+          "weapon cache",
+          "weapon cache",
           "weapon cache"
         ],
-        "enemies": [
-          "lesser demon",
-          "void spawn"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "south": "floor8_start",
           "north": "floor8_room9",
@@ -1297,13 +1311,11 @@
       "floor8_room3": {
         "items": [
           "weapon cache",
-          "golden coin"
+          "golden coin",
+          "magic scroll"
         ],
-        "enemies": [
-          "dark cultist",
-          "shadow beast"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "east": "floor8_room7",
           "north": "floor8_stairs",
@@ -1312,13 +1324,11 @@
       },
       "floor8_room4": {
         "items": [
-          "weapon cache"
+          "weapon cache",
+          "ice crystal"
         ],
-        "enemies": [
-          "lesser demon",
-          "shadow beast"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "east": "floor8_start",
           "south": "floor8_room7"
@@ -1327,13 +1337,11 @@
       "floor8_room5": {
         "items": [
           "shadow cloak",
-          "soul crystal"
+          "soul crystal",
+          "magic scroll"
         ],
-        "enemies": [
-          "dark cultist",
-          "void spawn"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "west": "floor8_room7"
         }
@@ -1342,13 +1350,11 @@
         "items": [
           "golden coin",
           "weapon cache",
-          "experience gem"
+          "experience gem",
+          "weapon cache"
         ],
-        "enemies": [
-          "treasure guardian",
-          "shadow beast"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "west": "floor8_room1"
         }
@@ -1358,10 +1364,8 @@
           "health potion",
           "golden coin"
         ],
-        "enemies": [
-          "lesser demon"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "north": "floor8_room4",
           "west": "floor8_room3",
@@ -1371,13 +1375,11 @@
       "floor8_room8": {
         "items": [
           "weapon cache",
-          "ultimate health potion"
+          "ultimate health potion",
+          "weapon cache"
         ],
-        "enemies": [
-          "lesser demon",
-          "dark cultist"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "south": "floor8_room1",
           "east": "floor8_room2"
@@ -1386,13 +1388,11 @@
       "floor8_room9": {
         "items": [
           "demon seal",
-          "arcane pendant"
+          "magic scroll",
+          "weapon cache"
         ],
-        "enemies": [
-          "shadow beast",
-          "dark cultist"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "south": "floor8_room2"
         }
@@ -1401,10 +1401,8 @@
         "items": [
           "ultimate health potion"
         ],
-        "enemies": [
-          "Void Archon"
-        ],
-        "visited": false,
+        "enemies": [],
+        "visited": true,
         "exits": {
           "north": "floor8_start"
         }
@@ -1412,7 +1410,7 @@
       "floor8_stairs": {
         "items": [],
         "enemies": [],
-        "visited": false,
+        "visited": true,
         "exits": {
           "south": "floor8_room3",
           "down": "floor9_start"
