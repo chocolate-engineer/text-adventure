@@ -1,5 +1,5 @@
 {
-  "version": "6.6.1",
+  "version": "6.6.9",
   "player": {
     "name": "J",
     "character_class": "warrior",
@@ -58,17 +58,17 @@
     "current_floor": 2,
     "current_room": "floor2_room8",
     "visited_rooms": [
-      "floor1_room5",
-      "floor1_room3",
-      "floor1_room4",
-      "floor2_room8",
-      "floor1_room2",
-      "floor1_room1",
-      "start",
       "floor1_boss",
-      "floor2_start",
+      "floor1_room1",
+      "floor1_room4",
+      "floor1_stairs",
+      "floor1_room3",
+      "start",
+      "floor1_room2",
+      "floor1_room5",
       "floor1_room6",
-      "floor1_stairs"
+      "floor2_start",
+      "floor2_room8"
     ],
     "bosses_defeated": [
       "Arena Champion"
@@ -80,9 +80,9 @@
       "old map"
     ],
     "unique_items_spawned": [
-      "torch",
+      "rusty key",
       "bone key",
-      "rusty key"
+      "torch"
     ]
   },
   "floors": {
