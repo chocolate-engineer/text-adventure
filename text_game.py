@@ -25,6 +25,9 @@ import random
 import json
 import os
 import logging
+import asyncio
+from .bot import retrieve_discord_response, send_discord_message
+
 from typing import Dict, List, Optional, Set, Tuple, Any, Callable
 from difflib import get_close_matches
 from dataclasses import dataclass, field
@@ -614,7 +617,7 @@ class ItemHandler:
         if not item_name:
             available = [i for i in player.inventory if i in item_dict]
             if not available:
-                print(f"No {category} items!")
+                send_discord_message(f"No {category} items!")
                 return False
             item_name = ItemHandler._show_menu(available, item_dict, category)
             if not item_name:
@@ -624,7 +627,7 @@ class ItemHandler:
             player.inventory.remove(item_name)
             return ItemHandler._apply_effect(player, item_name, item_dict[item_name], category)
         
-        print(f"You don't have '{item_name}' or it's not a {category} item.")
+        send_discord_message(f"You don't have '{item_name}' or it's not a {category} item.")
         return False
     
     @staticmethod
@@ -639,17 +642,17 @@ class ItemHandler:
     @staticmethod
     def _show_menu(items: List[str], item_dict: Dict, category: str) -> Optional[str]:
         """Show item selection menu"""
-        print(f"Available {category} items:")
+        send_discord_message(f"Available {category} items:")
         for i, item in enumerate(items, 1):
             effect = item_dict[item]
             desc = ItemHandler._format_effect(effect)
-            print(f"{i}. {item} - {desc}")
+            send_discord_message(f"{i}. {item} - {desc}")
         
         try:
-            choice = int(input(f"Choose (1-{len(items)}): ")) - 1
+            choice = int(discord_input(f"Choose (1-{len(items)}): ")) - 1
             return items[choice] if 0 <= choice < len(items) else None
         except (ValueError, KeyboardInterrupt):
-            print("Cancelled.")
+            send_discord_message("Cancelled.")
             return None
     
     @staticmethod
@@ -675,11 +678,11 @@ class ItemHandler:
                 else:
                     heal = min(effect['heal'], player.max_health - player.health)
                     player.health += heal
-                print(f"+ Restored {heal} health!")
+                send_discord_message(f"+ Restored {heal} health!")
             else:  # mana
                 mana = min(effect['heal'], player.max_mana - player.mana)
                 player.mana += mana
-                print(f"+ Restored {mana} mana!")
+                send_discord_message(f"+ Restored {mana} mana!")
         
         elif category == 'experience':
             player.gain_experience(effect['amount'])
@@ -687,7 +690,7 @@ class ItemHandler:
         elif category == 'wearable':
             player.stats[effect['stat']] += effect['bonus']
             player.wearables.append({'item': item_name, 'stat': effect['stat'], 'bonus': effect['bonus']})
-            print(f"*** Equipped {item_name}! +{effect['bonus']} {effect['stat']}")
+            send_discord_message(f"*** Equipped {item_name}! +{effect['bonus']} {effect['stat']}")
         
         return True
 
@@ -705,10 +708,10 @@ class DamageCalculator:
             if player.weapon.get('uses_remaining', 0) > 0:
                 player.weapon['uses_remaining'] -= 1
                 remaining = player.weapon['uses_remaining']
-                print(f"*** THE {player.weapon['base_name'].upper()} FIRES!")
-                print(f"*** INSTANT OBLITERATION! ({remaining}/6 remaining)")
+                send_discord_message(f"*** THE {player.weapon['base_name'].upper()} FIRES!")
+                send_discord_message(f"*** INSTANT OBLITERATION! ({remaining}/6 remaining)")
                 if remaining <= 0:
-                    print(f"The {player.weapon['base_name']} crumbles to dust...")
+                    send_discord_message(f"The {player.weapon['base_name']} crumbles to dust...")
                     player.weapon = None
                 return 99999
         
@@ -1134,7 +1137,7 @@ class Player:
     def gain_experience(self, amount: int) -> None:
         """Add experience and handle level ups"""
         self.experience += amount
-        print(f"+ {amount} experience!")
+        send_discord_message(f"+ {amount} experience!")
         logger.info(f"Player gained {amount} XP. Total: {self.experience}/{self.experience_to_next}")
         
         while self.experience >= self.experience_to_next:
@@ -1163,11 +1166,11 @@ class Player:
         
         logger.info(f"LEVEL UP: {self.name} reached level {self.level}. HP: {self.max_health}, MP: {self.max_mana}")
         
-        print(f"\n*** LEVEL UP! Now level {self.level}!")
-        print(f"Health +{health_gain} (now {self.max_health}) | Mana +{GameConstants.MANA_PER_LEVEL} (now {self.max_mana})")
+        send_discord_message(f"\n*** LEVEL UP! Now level {self.level}!")
+        send_discord_message(f"Health +{health_gain} (now {self.max_health}) | Mana +{GameConstants.MANA_PER_LEVEL} (now {self.max_mana})")
         if self.max_inventory > old_max_inv:
-            print(f"Inventory: {old_max_inv} → {self.max_inventory} slots")
-        print("Fully healed!")
+            send_discord_message(f"Inventory: {old_max_inv} → {self.max_inventory} slots")
+        send_discord_message("Fully healed!")
     
     def can_upgrade_class(self) -> bool:
         """Check if class upgrade available"""
@@ -1207,10 +1210,10 @@ class Player:
         
         logger.info(f"CLASS UPGRADE: {self.name} advanced from tier {old_tier} to {self.class_tier} ({self.get_class_title()})")
         
-        print(f"\n*** CLASS UPGRADE! Now a {self.get_class_title()}!")
-        print(f"All stats +5 | Health +{self.max_health - old_health} | Mana +{self.max_mana - old_mana}")
-        print(f"Loot drop boost: +{self.rarity_boost * 100}%")
-        print("Fully healed!")
+        send_discord_message(f"\n*** CLASS UPGRADE! Now a {self.get_class_title()}!")
+        send_discord_message(f"All stats +5 | Health +{self.max_health - old_health} | Mana +{self.max_mana - old_mana}")
+        send_discord_message(f"Loot drop boost: +{self.rarity_boost * 100}%")
+        send_discord_message("Fully healed!")
         return True
     
     def add_item(self, item: str) -> bool:
@@ -1218,40 +1221,40 @@ class Player:
         if item == 'old map':
             if 'old map' not in self.special_items:
                 self.special_items.append('old map')
-                print(f"+ {item} (★ doesn't use inventory space)")
-                print("  Use 'use old map' to view the dungeon, or 'map' as shortcut")
+                send_discord_message(f"+ {item} (★ doesn't use inventory space)")
+                send_discord_message("  Use 'use old map' to view the dungeon, or 'map' as shortcut")
                 logger.debug(f"Player picked up map (special item)")
                 return True
             else:
-                print("You already have a map!")
+                send_discord_message("You already have a map!")
                 return False
         
         if len(self.inventory) >= self.max_inventory:
-            print(f"X Inventory full! ({self.max_inventory} slots)")
+            send_discord_message(f"X Inventory full! ({self.max_inventory} slots)")
             return False
         self.inventory.append(item)
-        print(f"+ {item}")
+        send_discord_message(f"+ {item}")
         return True
     
     def add_weapon_to_inventory(self, weapon: Dict) -> bool:
         """Store weapon in inventory"""
         if len(self.inventory) >= self.max_inventory:
-            print(f"X Inventory full!")
+            send_discord_message(f"X Inventory full!")
             return False
         self.inventory_weapons.append(weapon)
         self.inventory.append(f"WEAPON: {weapon['name']}")
-        print(f"Stored: {weapon['name']}")
+        send_discord_message(f"Stored: {weapon['name']}")
         return True
     
     def equip_weapon(self, weapon: Dict) -> None:
         """Equip weapon"""
         self.weapon = weapon
-        print(f"Equipped: {weapon['name']}")
+        send_discord_message(f"Equipped: {weapon['name']}")
     
     def switch_weapon(self, identifier: Optional[str] = None) -> bool:
         """Switch to different weapon"""
         if not self.inventory_weapons:
-            print("No spare weapons!")
+            send_discord_message("No spare weapons!")
             return False
         
         target = None
@@ -1261,17 +1264,17 @@ class Player:
                     target = w
                     break
             if not target:
-                print(f"No weapon matching '{identifier}'")
+                send_discord_message(f"No weapon matching '{identifier}'")
                 return False
         else:
-            print("Available weapons:")
+            send_discord_message("Available weapons:")
             for i, w in enumerate(self.inventory_weapons, 1):
-                print(f"{i}. {w['name']} ({w['damage']} dmg)")
+                send_discord_message(f"{i}. {w['name']} ({w['damage']} dmg)")
             try:
-                choice = int(input("Choose: ")) - 1
+                choice = int(discord_input("Choose: ")) - 1
                 target = self.inventory_weapons[choice] if 0 <= choice < len(self.inventory_weapons) else None
             except (ValueError, KeyboardInterrupt):
-                print("Cancelled")
+                send_discord_message("Cancelled")
                 return False
         
         if target:
@@ -1281,7 +1284,7 @@ class Player:
             self.inventory_weapons.remove(target)
             self.inventory.remove(f"WEAPON: {target['name']}")
             self.weapon = target
-            print(f"Equipped: {target['name']} ({target['damage']} dmg)")
+            send_discord_message(f"Equipped: {target['name']} ({target['damage']} dmg)")
             return True
         return False
     
@@ -1308,27 +1311,27 @@ class Player:
     def show_stats(self) -> None:
         """Display character sheet"""
         weapon = self.weapon['name'] if self.weapon else "None"
-        print(f"\n=== {self.name} the {self.get_class_title()} ===")
-        print(f"Level {self.level} (Tier {self.class_tier}/3) | XP: {self.experience}/{self.experience_to_next}")
-        print(f"Health: {self.health}/{self.max_health} | Mana: {self.mana}/{self.max_mana}")
-        print(f"Gold: {self.gold_coins} | Weapon: {weapon}")
-        print(f"STR: {self.stats['strength']} | INT: {self.stats['intelligence']} | AGI: {self.stats['agility']}")
-        print(f"Inventory: {len(self.inventory)}/{self.max_inventory} | Floor: {self.current_floor}/{GameConstants.NUM_FLOORS}")
-        print(f"Bosses: {len(self.bosses_defeated)}/{GameConstants.NUM_FLOORS}")
+        send_discord_message(f"\n=== {self.name} the {self.get_class_title()} ===")
+        send_discord_message(f"Level {self.level} (Tier {self.class_tier}/3) | XP: {self.experience}/{self.experience_to_next}")
+        send_discord_message(f"Health: {self.health}/{self.max_health} | Mana: {self.mana}/{self.max_mana}")
+        send_discord_message(f"Gold: {self.gold_coins} | Weapon: {weapon}")
+        send_discord_message(f"STR: {self.stats['strength']} | INT: {self.stats['intelligence']} | AGI: {self.stats['agility']}")
+        send_discord_message(f"Inventory: {len(self.inventory)}/{self.max_inventory} | Floor: {self.current_floor}/{GameConstants.NUM_FLOORS}")
+        send_discord_message(f"Bosses: {len(self.bosses_defeated)}/{GameConstants.NUM_FLOORS}")
         
         if self.wearables:
-            print("\nWearables:")
+            send_discord_message("\nWearables:")
             for w in self.wearables:
-                print(f"  {w['item']}: +{w['bonus']} {w['stat']}")
+                send_discord_message(f"  {w['item']}: +{w['bonus']} {w['stat']}")
         
         if self.can_upgrade_class():
             next_title = GameConstants.CLASS_NAMES[self.class_tier + 1][self.character_class]
-            print(f"\n*** CLASS UPGRADE AVAILABLE! → {next_title}")
+            send_discord_message(f"\n*** CLASS UPGRADE AVAILABLE! → {next_title}")
     
     def show_status_summary(self) -> None:
         """Quick status"""
         weapon = self.weapon['name'] if self.weapon else "None"
-        print(f"\n[F{self.current_floor}] HP:{self.health}/{self.max_health} MP:{self.mana}/{self.max_mana} W:{weapon}")
+        send_discord_message(f"\n[F{self.current_floor}] HP:{self.health}/{self.max_health} MP:{self.mana}/{self.max_mana} W:{weapon}")
     
     def to_dict(self) -> Dict:
         """Serialize for saving"""
@@ -1385,26 +1388,26 @@ class Room:
     def describe(self) -> None:
         """Show room description"""
         if not self.visited:
-            print(f"\n{self.description}")
+            send_discord_message(f"\n{self.description}")
             if self.atmosphere:
-                print(f"{self.atmosphere}")
+                send_discord_message(f"{self.atmosphere}")
             self.visited = True
         else:
-            print(f"\nYou are in {self.name}")
+            send_discord_message(f"\nYou are in {self.name}")
             if 'merchant' in self.atmosphere.lower():
-                print("A merchant is here. Use 'shop' to trade.")
+                send_discord_message("A merchant is here. Use 'shop' to trade.")
         
         if self.enemies:
-            print(f"\n*** ENEMIES:")
+            send_discord_message(f"\n*** ENEMIES:")
             for enemy in self.enemies:
                 info = GameConstants.ENEMIES.get(enemy.lower())
                 if info:
-                    print(f"  - {enemy}: {info['desc']}")
+                    send_discord_message(f"  - {enemy}: {info['desc']}")
         
         if self.items:
-            print(f"\nItems: {', '.join(self.items)}")
+            send_discord_message(f"\nItems: {', '.join(self.items)}")
         if self.exits:
-            print(f"Exits: {', '.join(self.exits.keys())}")
+            send_discord_message(f"Exits: {', '.join(self.exits.keys())}")
 
 #################################################################################
 # WEAPON SYSTEM
@@ -1545,7 +1548,7 @@ class CombatSystem:
         enemy = GameConstants.ENEMIES.get(enemy_name.lower())
         if not enemy:
             logger.warning(f"Unknown enemy attempted: {enemy_name}")
-            print(f"Unknown enemy: {enemy_name}")
+            send_discord_message(f"Unknown enemy: {enemy_name}")
             return True
         
         hp = enemy['health']
@@ -1553,8 +1556,8 @@ class CombatSystem:
         
         logger.info(f"Combat started: {player.name} (Lvl {player.level}, HP {player.health}) vs {enemy_name} (HP {hp})")
         
-        print(f"\n*** Combat: {enemy_name}!")
-        print(f"{enemy['desc']}")
+        send_discord_message(f"\n*** Combat: {enemy_name}!")
+        send_discord_message(f"{enemy['desc']}")
         
         turn = 0
         while hp > 0 and player.health > 0:
@@ -1562,11 +1565,11 @@ class CombatSystem:
             damage = DamageCalculator.calculate_player_damage(player)
             hp -= damage
             weapon = player.weapon.get('base_name', player.weapon['name']) if player.weapon else 'fists'
-            print(f"You strike with {weapon} for {damage} damage!")
+            send_discord_message(f"You strike with {weapon} for {damage} damage!")
             
             if hp <= 0:
                 logger.info(f"Victory: {player.name} defeated {enemy_name} in {turn} turns. Gained {enemy['exp']} XP")
-                print(f"*** Defeated {enemy_name}!")
+                send_discord_message(f"*** Defeated {enemy_name}!")
                 room.enemies.remove(enemy_name)
                 player.gain_experience(enemy['exp'])
                 self._handle_drops(enemy_name, room, player)
@@ -1574,11 +1577,11 @@ class CombatSystem:
             
             hit = DamageCalculator.calculate_enemy_damage(dmg, player)
             player.health -= hit
-            print(f"{enemy_name} hits for {hit} damage!")
+            send_discord_message(f"{enemy_name} hits for {hit} damage!")
             
             if player.health <= 0:
                 logger.error(f"PLAYER DEATH: {player.name} (Lvl {player.level}) killed by {enemy_name} on floor {player.current_floor}")
-                print("*** DEFEATED! GAME OVER!")
+                send_discord_message("*** DEFEATED! GAME OVER!")
                 return False
         
         return True
@@ -1592,11 +1595,11 @@ class CombatSystem:
         if random.random() < GameConstants.GOLD_DROP_CHANCE:
             coins = random.randint(GameConstants.GOLD_DROP_MIN, GameConstants.GOLD_DROP_MAX)
             player.gold_coins += coins
-            print(f"+ {coins} gold coins!")
+            send_discord_message(f"+ {coins} gold coins!")
         
         if random.random() < drop_chance:
             if random.random() < GameConstants.WEAPON_DROP_CHANCE:
-                print(f"+ Weapon cache dropped!")
+                send_discord_message(f"+ Weapon cache dropped!")
                 room.items.append("weapon cache")
             else:
                 if player.character_class == 'mage':
@@ -1605,7 +1608,7 @@ class CombatSystem:
                     drops = ["health potion", "energy drink", "vitality tonic", "power ring", "swift boots"]
                 item = random.choice(drops)
                 room.items.append(item)
-                print(f"+ {item}")
+                send_discord_message(f"+ {item}")
     
     def fight_boss(self, boss_name: str, player: Player, room: Room) -> bool:
         """Boss combat"""
@@ -1614,15 +1617,15 @@ class CombatSystem:
         
         logger.info(f"BOSS FIGHT: {player.name} (Lvl {player.level}, HP {player.health}) vs {boss_name} on floor {floor}")
         
-        print("\n" + "="*60)
-        print(f"*** BOSS FIGHT: {boss_name.upper()}!")
-        print("="*60)
+        send_discord_message("\n" + "="*60)
+        send_discord_message(f"*** BOSS FIGHT: {boss_name.upper()}!")
+        send_discord_message("="*60)
         
         if player.level < boss_config['min_level']:
             logger.warning(f"Player {player.name} (Lvl {player.level}) attempting {boss_name} (recommended Lvl {boss_config['min_level']})")
-            print(f"! WARNING: Recommended level {boss_config['min_level']}+!")
+            send_discord_message(f"! WARNING: Recommended level {boss_config['min_level']}+!")
             try:
-                if input("Continue? (y/n): ").strip().lower() not in ['y', 'yes']:
+                if discord_input("Continue? (y/n): ").strip().lower() not in ['y', 'yes']:
                     return True
             except KeyboardInterrupt:
                 return True
@@ -1631,20 +1634,20 @@ class CombatSystem:
         max_hp = hp
         dmg = boss_config['damage']
         
-        print(f"\n{boss_name}: {hp} HP")
+        send_discord_message(f"\n{boss_name}: {hp} HP")
         
         turn = 1
         while hp > 0 and player.health > 0:
-            print(f"\n--- Turn {turn} ---")
-            print(f"You: {player.health}/{player.max_health} | {boss_name}: {hp}/{max_hp}")
+            send_discord_message(f"\n--- Turn {turn} ---")
+            send_discord_message(f"You: {player.health}/{player.max_health} | {boss_name}: {hp}/{max_hp}")
             
-            print("\n1.Attack | 2.Magic | 3.Defend", end="")
+            send_discord_message("\n1.Attack | 2.Magic | 3.Defend", end="")
             if any(i in GameConstants.HEALING_ITEMS for i in player.inventory):
-                print(" | 4.Heal", end="")
-            print()
+                send_discord_message(" | 4.Heal", end="")
+            send_discord_message()
             
             try:
-                action = input("Action: ").strip()
+                action = discord_input("Action: ").strip()
             except KeyboardInterrupt:
                 action = "1"
             
@@ -1653,7 +1656,7 @@ class CombatSystem:
             
             if action == "1":
                 player_dmg = DamageCalculator.calculate_player_damage(player)
-                print(f"*** {player_dmg} damage!")
+                send_discord_message(f"*** {player_dmg} damage!")
             elif action == "2":
                 if player.mana >= GameConstants.MAGIC_MANA_COST:
                     player.mana -= GameConstants.MAGIC_MANA_COST
@@ -1661,13 +1664,13 @@ class CombatSystem:
                     # Apply class multiplier for magic (BALANCED)
                     class_multiplier = GameConstants.MAGIC_MULTIPLIERS.get(player.character_class, 1.0)
                     player_dmg = int(base_magic_dmg * class_multiplier)
-                    print(f"*** Magic: {player_dmg} damage!")
+                    send_discord_message(f"*** Magic: {player_dmg} damage!")
                 else:
-                    print("Not enough mana!")
+                    send_discord_message("Not enough mana!")
                     player_dmg = player.weapon['damage'] if player.weapon else 5
             elif action == "3":
                 defend = True
-                print("*** Defending!")
+                send_discord_message("*** Defending!")
             elif action == "4":
                 ItemHandler.use_item(player, 'healing')
             
@@ -1682,27 +1685,27 @@ class CombatSystem:
                 boss_dmg = dmg + boss_config['special_bonus']
                 if defend:
                     boss_dmg //= GameConstants.BOSS_DEFEND_REDUCTION
-                print(f"*** {boss_config['special_attack']}! {boss_dmg} damage!")
+                send_discord_message(f"*** {boss_config['special_attack']}! {boss_dmg} damage!")
             else:
                 boss_dmg = dmg + random.randint(1, 10)
                 boss_dmg = DamageCalculator.calculate_enemy_damage(boss_dmg, player, True)
                 if defend:
                     boss_dmg //= GameConstants.BOSS_DEFEND_REDUCTION
-                print(f"Boss attacks: {boss_dmg} damage!")
+                send_discord_message(f"Boss attacks: {boss_dmg} damage!")
             
             player.health -= boss_dmg
             if player.health <= 0:
                 logger.error(f"BOSS DEATH: {player.name} (Lvl {player.level}) defeated by {boss_name} on turn {turn}")
-                print(f"\n*** Defeated by {boss_name}! GAME OVER!")
+                send_discord_message(f"\n*** Defeated by {boss_name}! GAME OVER!")
                 return False
             
             turn += 1
         
         logger.info(f"BOSS VICTORY: {player.name} defeated {boss_name} in {turn} turns on floor {floor}")
         
-        print("\n" + "="*60)
-        print("*** VICTORY!")
-        print("="*60)
+        send_discord_message("\n" + "="*60)
+        send_discord_message("*** VICTORY!")
+        send_discord_message("="*60)
         
         room.enemies.remove(boss_name)
         player.bosses_defeated.append(boss_name)
@@ -1711,43 +1714,43 @@ class CombatSystem:
         # FIXED: Add champion's prize to room AFTER defeating boss
         if "champion's prize" not in room.items:
             room.items.append("champion's prize")
-            print("\n*** A champion's prize chest appears!")
+            send_discord_message("\n*** A champion's prize chest appears!")
         
         # Generate scaled boss weapon
         boss_weapon = BossConfig.generate_boss_weapon(floor, player)
         
         logger.info(f"Boss reward: {player.name} received {boss_weapon['name']} ({boss_weapon['damage']} dmg) - scaled for level {player.level}")
         
-        print(f"\n*** Legendary Reward: {boss_weapon['name']}!")
-        print(f"[Scaled for your level: {player.level}]")
+        send_discord_message(f"\n*** Legendary Reward: {boss_weapon['name']}!")
+        send_discord_message(f"[Scaled for your level: {player.level}]")
         
         # Show weapon comparison
         comparison = WeaponComparison.compare_weapons(boss_weapon, player.weapon, player)
-        print(comparison)
+        send_discord_message(comparison)
         
         # Ask to equip like weapon cache
         try:
-            if input("\nEquip this weapon? (y/n): ").strip().lower() in ['y', 'yes']:
+            if discord_input("\nEquip this weapon? (y/n): ").strip().lower() in ['y', 'yes']:
                 if player.weapon:
                     player.inventory_weapons.append(player.weapon)
                     player.inventory.append(f"WEAPON: {player.weapon['name']}")
-                    print(f"Stored previous weapon: {player.weapon['name']}")
+                    send_discord_message(f"Stored previous weapon: {player.weapon['name']}")
                 player.equip_weapon(boss_weapon)
             else:
                 # Store boss weapon in inventory
                 if player.can_add_item():
                     player.inventory_weapons.append(boss_weapon)
                     player.inventory.append(f"WEAPON: {boss_weapon['name']}")
-                    print(f"Stored: {boss_weapon['name']}")
+                    send_discord_message(f"Stored: {boss_weapon['name']}")
                 else:
-                    print("Inventory full! Boss weapon left on ground.")
+                    send_discord_message("Inventory full! Boss weapon left on ground.")
                     room.items.append("weapon cache")  # Add it back as a cache
         except KeyboardInterrupt:
             # On interrupt, store weapon if possible
             if player.can_add_item():
                 player.inventory_weapons.append(boss_weapon)
                 player.inventory.append(f"WEAPON: {boss_weapon['name']}")
-                print(f"Stored: {boss_weapon['name']}")
+                send_discord_message(f"Stored: {boss_weapon['name']}")
         
         bonus = boss_config['stat_bonus']
         for stat in player.stats:
@@ -1756,7 +1759,7 @@ class CombatSystem:
         player.health = player.max_health
         player.mana = player.max_mana
         
-        print(f"\n*** All stats +{bonus}! Fully healed!")
+        send_discord_message(f"\n*** All stats +{bonus}! Fully healed!")
         return True
 
 #################################################################################
@@ -1784,14 +1787,14 @@ class CommandRegistry:
                 self.commands[cmd](game, *args)
             except Exception as e:
                 logging.error(f"Command error: {e}", exc_info=True)
-                print(f"Error: {e}")
+                send_discord_message(f"Error: {e}")
             return
         
         matches = get_close_matches(cmd, self.commands.keys(), n=1, cutoff=0.6)
         if matches:
-            print(f"Did you mean '{matches[0]}'?")
+            send_discord_message(f"Did you mean '{matches[0]}'?")
         else:
-            print("Unknown command. Type 'help'")
+            send_discord_message("Unknown command. Type 'help'")
 
 #################################################################################
 # GAME CLASS WITH ALL BUG FIXES
@@ -1916,8 +1919,8 @@ class Game:
                 g.show_map()
                 g.show_room_summary()
             else:
-                print("You need a map to use this command!")
-                print("Look for one on the ground or buy one from a merchant.")
+                send_discord_message("You need a map to use this command!")
+                send_discord_message("Look for one on the ground or buy one from a merchant.")
         
         @r('save')
         def cmd_save(g): g.save_game()
@@ -1934,14 +1937,14 @@ class Game:
     def start_game(self):
         """Start game with looping menu"""
         while True:
-            print("\n" + "="*50)
-            print(" TEXT ADVENTURE RPG - 10 FLOOR EDITION")
-            print(f" Version {GameConstants.VERSION}")
-            print("="*50)
-            print("\n1.New Game | 2.Load Game | 3.Delete Save | 4.Quit")
+            send_discord_message("\n" + "="*50)
+            send_discord_message(" TEXT ADVENTURE RPG - 10 FLOOR EDITION")
+            send_discord_message(f" Version {GameConstants.VERSION}")
+            send_discord_message("="*50)
+            send_discord_message("\n1.New Game | 2.Load Game | 3.Delete Save | 4.Quit")
             
             try:
-                choice = input("\nChoice: ").strip()
+                choice = discord_input("\nChoice: ").strip()
                 
                 if choice == '1':
                     self._create_character()
@@ -1959,20 +1962,20 @@ class Game:
                     continue
                 
                 elif choice == '4':
-                    print("\nGoodbye!")
+                    send_discord_message("\nGoodbye!")
                     return  # Exit game entirely
                 
                 else:
-                    print("Invalid choice. Please enter 1, 2, 3, or 4.")
+                    send_discord_message("Invalid choice. Please enter 1, 2, 3, or 4.")
                     continue
                     
             except KeyboardInterrupt:
-                print("\n\nGoodbye!")
+                send_discord_message("\n\nGoodbye!")
                 return
         
         # Game starts here after menu selection
         self.combat = CombatSystem(self)
-        print("\nType 'help' for commands")
+        send_discord_message("\nType 'help' for commands")
         self.look_around()
         self.show_room_summary()
         self._game_loop()
@@ -1981,7 +1984,7 @@ class Game:
         """Main game loop"""
         while self.running:
             try:
-                cmd_input = input("\n> ").strip().lower()
+                cmd_input = discord_input("\n> ").strip().lower()
                 if not cmd_input:
                     continue
                 
@@ -1996,28 +1999,28 @@ class Game:
                     
             except KeyboardInterrupt:
                 logger.info("Game interrupted by user")
-                print("\n\nInterrupted. Save before quitting!")
+                send_discord_message("\n\nInterrupted. Save before quitting!")
                 break
             except Exception as e:
                 logging.error(f"Game loop error: {e}", exc_info=True)
-                print(f"Error: {e}")
+                send_discord_message(f"Error: {e}")
     
     def _create_character(self):
         """Create new character"""
         try:
-            name = input("Name: ").strip() or "Adventurer"
+            name = discord_input("Name: ").strip() or "Adventurer"
             
-            print("\n1.Warrior | 2.Mage | 3.Rogue")
-            choice = input("Class: ").strip()
+            send_discord_message("\n1.Warrior | 2.Mage | 3.Rogue")
+            choice = discord_input("Class: ").strip()
             char_class = {'1': 'warrior', '2': 'mage', '3': 'rogue'}.get(choice, 'warrior')
             
             self.player = Player(name, char_class)
             
             weapons = WeaponSystem.create_starting_weapons()[char_class]
-            print("\nWeapons:")
+            send_discord_message("\nWeapons:")
             for i, w in enumerate(weapons, 1):
-                print(f"{i}. {w['name']} ({w['damage']} dmg)")
-            choice = input("Choose: ").strip()
+                send_discord_message(f"{i}. {w['name']} ({w['damage']} dmg)")
+            choice = discord_input("Choose: ").strip()
             weapon = weapons[int(choice) - 1] if choice in ['1', '2', '3'] else weapons[0]
             self.player.equip_weapon(weapon.copy())
             
@@ -2025,10 +2028,10 @@ class Game:
             
             self._generate_dungeon()
             
-            print(f"\nWelcome, {name} the {char_class.title()}!")
-            print(f"Weapon: {weapon['name']}")
-            print(f"{GameConstants.NUM_FLOORS} floors await!")
-            print(f"\n=== TEXT ADVENTURE RPG v{GameConstants.VERSION} ===")
+            send_discord_message(f"\nWelcome, {name} the {char_class.title()}!")
+            send_discord_message(f"Weapon: {weapon['name']}")
+            send_discord_message(f"{GameConstants.NUM_FLOORS} floors await!")
+            send_discord_message(f"\n=== TEXT ADVENTURE RPG v{GameConstants.VERSION} ===")
             
         except Exception as e:
             logging.error(f"Character creation error: {e}", exc_info=True)
@@ -2038,7 +2041,7 @@ class Game:
     def _generate_dungeon(self):
         """Generate complete dungeon with unique item tracking"""
         logger.info("Starting dungeon generation...")
-        print("\n*** Generating dungeon...")
+        send_discord_message("\n*** Generating dungeon...")
         self.floors = {}
         
         # Track unique items across entire dungeon (items that should only spawn once)
@@ -2046,7 +2049,7 @@ class Game:
         
         total_rooms = 0
         for floor_num in range(1, GameConstants.NUM_FLOORS + 1):
-            print(f"Floor {floor_num}...", end=" ")
+            send_discord_message(f"Floor {floor_num}...", end=" ")
             rooms = {}
             
             if floor_num == 1:
@@ -2103,7 +2106,7 @@ class Game:
             
             self.floors[floor_num] = rooms
             total_rooms += len(rooms)
-            print(f"{len(rooms)} rooms")
+            send_discord_message(f"{len(rooms)} rooms")
         
         for floor_num in range(1, GameConstants.NUM_FLOORS):
             stairs_id = f"floor{floor_num}_stairs"
@@ -2113,7 +2116,7 @@ class Game:
                 self.floors[floor_num + 1][next_start].exits['up'] = stairs_id
         
         logger.info(f"Dungeon generated: {GameConstants.NUM_FLOORS} floors, {total_rooms} total rooms")
-        print("*** Complete!")
+        send_discord_message("*** Complete!")
     
     def _get_unique_enemies(self, pool: List[str], count: int) -> List[str]:
         """Get unique enemies from pool"""
@@ -2174,12 +2177,12 @@ class Game:
     def show_room_summary(self):
         """Display quick summary of current room"""
         room = self.get_current_room()
-        print(f"\n--- {room.name} ---")
+        send_discord_message(f"\n--- {room.name} ---")
         
         if room.items:
-            print(f"Items: {', '.join(room.items)}")
+            send_discord_message(f"Items: {', '.join(room.items)}")
         else:
-            print("Items: None")
+            send_discord_message("Items: None")
         
         if room.exits:
             exits_list = []
@@ -2197,58 +2200,58 @@ class Game:
                     marker += "(?)"
                 
                 exits_list.append(marker)
-            print(f"Exits: {' | '.join(exits_list)}")
+            send_discord_message(f"Exits: {' | '.join(exits_list)}")
         else:
-            print("Exits: None")
+            send_discord_message("Exits: None")
     
     def show_help(self):
         """Context-aware help"""
         room = self.get_current_room()
         
-        print("\n" + "="*40)
-        print("COMMANDS")
-        print("="*40)
-        print("look | go <dir> (n/s/e/w/up/down)")
+        send_discord_message("\n" + "="*40)
+        send_discord_message("COMMANDS")
+        send_discord_message("="*40)
+        send_discord_message("look | go <dir> (n/s/e/w/up/down)")
         
         if room.enemies:
-            print("fight <enemy> | fightall")
+            send_discord_message("fight <enemy> | fightall")
         
         if room.items or self.player.inventory:
-            print("take <item> | takeall")
+            send_discord_message("take <item> | takeall")
         
-        print("inventory | stats")
+        send_discord_message("inventory | stats")
         
         if any(i in GameConstants.HEALING_ITEMS for i in self.player.inventory):
-            print("heal")
+            send_discord_message("heal")
         if any(i in GameConstants.EXPERIENCE_ITEMS for i in self.player.inventory):
-            print("exp")
+            send_discord_message("exp")
         if any(i in GameConstants.WEARABLE_ITEMS for i in self.player.inventory):
-            print("equip")
+            send_discord_message("equip")
         if any(i in GameConstants.ACTIONABLE_ITEMS for i in self.player.inventory) or self.player.special_items:
-            print("use <item>")
+            send_discord_message("use <item>")
         if self.player.inventory_weapons:
-            print("switch")
+            send_discord_message("switch")
         if self.player.inventory or self.player.special_items:
-            print("discard <item>")
+            send_discord_message("discard <item>")
         
         if self.player.current_floor == 1 and self.player.current_room == 'start':
-            print("shop - Merchant available HERE")
+            send_discord_message("shop - Merchant available HERE")
         elif self.player.current_floor > 1 and 'start' in self.player.current_room:
-            print("shop - Merchant available HERE")
+            send_discord_message("shop - Merchant available HERE")
         elif self.player.gold_coins > 0:
-            print("shop - Visit floor start for merchant")
+            send_discord_message("shop - Visit floor start for merchant")
         
         if self.player.can_upgrade_class():
-            print("upgrade")
+            send_discord_message("upgrade")
         
-        print("map | save | load | delete | quit")
+        send_discord_message("map | save | load | delete | quit")
         
         if self.player.has_map():
-            print("\n★ Map doesn't use inventory space")
+            send_discord_message("\n★ Map doesn't use inventory space")
         if room.enemies and len(room.enemies) > 1:
-            print("★ Use 'fightall' to fight all enemies")
+            send_discord_message("★ Use 'fightall' to fight all enemies")
         
-        print("="*40)
+        send_discord_message("="*40)
     
     def look_around(self):
         """Look at current room"""
@@ -2261,7 +2264,7 @@ class Game:
         room = self.get_current_room()
         
         if direction not in room.exits:
-            print("Can't go that way!")
+            send_discord_message("Can't go that way!")
             return
         
         next_id = room.exits[direction]
@@ -2270,7 +2273,7 @@ class Game:
             boss_floor = self.player.current_floor
             boss_config = BossConfig.generate(boss_floor)
             if boss_config['name'] not in self.player.bosses_defeated:
-                print(f"! Blocked! Defeat {boss_config['name']} first!")
+                send_discord_message(f"! Blocked! Defeat {boss_config['name']} first!")
                 return
         
         old_floor = self.player.current_floor
@@ -2279,7 +2282,7 @@ class Game:
             next_floor = int(next_id.split('_')[0].replace('floor', ''))
             if next_floor != self.player.current_floor:
                 self.player.current_floor = next_floor
-                print(f"→ Floor {self.player.current_floor}")
+                send_discord_message(f"→ Floor {self.player.current_floor}")
                 
                 if not self.player.has_map() and old_floor != next_floor:
                     start_room_id = f"floor{next_floor}_start"
@@ -2288,28 +2291,28 @@ class Game:
                         if 'old map' not in start_room.items:
                             start_room.items.append('old map')
                             logger.info(f"Spawned new map in floor {next_floor} start room (player left previous map behind)")
-                            print("★ You notice a map on the ground here!")
+                            send_discord_message("★ You notice a map on the ground here!")
         
         self.player.current_room = next_id
         self.player.visited_rooms.add(next_id)
-        print(f"You go {direction}.")
+        send_discord_message(f"You go {direction}.")
         self.look_around()
         self.show_room_summary()
     
     def show_inventory(self):
         """Show organized inventory"""
-        print(f"\n=== INVENTORY ({len(self.player.inventory)}/{self.player.max_inventory}) ===")
+        send_discord_message(f"\n=== INVENTORY ({len(self.player.inventory)}/{self.player.max_inventory}) ===")
         
         if self.player.weapon:
-            print(f"Equipped: {self.player.weapon['name']} ({self.player.weapon['damage']} dmg)")
+            send_discord_message(f"Equipped: {self.player.weapon['name']} ({self.player.weapon['damage']} dmg)")
         
         if self.player.special_items:
-            print("\n[Special Items - No inventory space]")
+            send_discord_message("\n[Special Items - No inventory space]")
             for item in self.player.special_items:
-                print(f"  ★ {item}")
+                send_discord_message(f"  ★ {item}")
         
         if not self.player.inventory and not self.player.special_items:
-            print("Empty")
+            send_discord_message("Empty")
             return
         
         categories = {
@@ -2327,29 +2330,29 @@ class Game:
         
         for category, items in categories.items():
             if items:
-                print(f"\n{category}:")
+                send_discord_message(f"\n{category}:")
                 for item in items:
                     display = item[8:] if item.startswith("WEAPON:") else item
-                    print(f"  - {display}")
+                    send_discord_message(f"  - {display}")
     
     def take_item(self, item_name: str):
         """Take item from room"""
         if not item_name:
-            print("Take what?")
+            send_discord_message("Take what?")
             return
         
         room = self.get_current_room()
         
         if room.enemies:
-            print("! Defeat enemies first!")
+            send_discord_message("! Defeat enemies first!")
             return
         
         if item_name not in room.items:
-            print(f"No '{item_name}' here.")
+            send_discord_message(f"No '{item_name}' here.")
             return
         
         if not self.player.can_add_item() and item_name not in GameConstants.WEARABLE_ITEMS and item_name != 'old map':
-            print("Inventory full!")
+            send_discord_message("Inventory full!")
             return
         
         room.items.remove(item_name)
@@ -2366,11 +2369,11 @@ class Game:
         room = self.get_current_room()
         
         if room.enemies:
-            print("! Defeat enemies first!")
+            send_discord_message("! Defeat enemies first!")
             return
         
         if not room.items:
-            print("No items here.")
+            send_discord_message("No items here.")
             return
         
         taken = 0
@@ -2386,25 +2389,25 @@ class Game:
                 taken += 1
         
         if taken:
-            print(f"\n+ Picked up {taken} item(s)")
+            send_discord_message(f"\n+ Picked up {taken} item(s)")
         if room.items:
-            print(f"X Inventory full! Left: {', '.join(room.items)}")
+            send_discord_message(f"X Inventory full! Left: {', '.join(room.items)}")
     
     def _handle_weapon_cache(self):
         """Handle opening a weapon cache"""
         new_weapon = WeaponSystem.generate_weapon(self.player)
         
         if new_weapon.get('special') == 'instant_kill':
-            print("\n*** LEGENDARY GOLDEN GUN! 6 INSTANT KILLS! ***")
+            send_discord_message("\n*** LEGENDARY GOLDEN GUN! 6 INSTANT KILLS! ***")
         
         comparison = WeaponComparison.compare_weapons(new_weapon, self.player.weapon, self.player)
-        print(comparison)
+        send_discord_message(comparison)
         
         if not self.player.weapon or new_weapon['damage'] > self.player.weapon['damage']:
             try:
-                if input("\nEquip this weapon? (y/n): ").strip().lower() in ['y', 'yes']:
+                if discord_input("\nEquip this weapon? (y/n): ").strip().lower() in ['y', 'yes']:
                     if self.player.weapon:
-                        print(f"Replaced {self.player.weapon['name']}")
+                        send_discord_message(f"Replaced {self.player.weapon['name']}")
                     self.player.equip_weapon(new_weapon)
                 else:
                     self.player.add_weapon_to_inventory(new_weapon)
@@ -2412,12 +2415,12 @@ class Game:
                 self.player.add_weapon_to_inventory(new_weapon)
         else:
             try:
-                if input("\nWeaker weapon. Take anyway? (y/n): ").strip().lower() in ['y', 'yes']:
+                if discord_input("\nWeaker weapon. Take anyway? (y/n): ").strip().lower() in ['y', 'yes']:
                     self.player.add_weapon_to_inventory(new_weapon)
                 else:
-                    print("Left weapon behind.")
+                    send_discord_message("Left weapon behind.")
             except KeyboardInterrupt:
-                print("Left weapon behind.")
+                send_discord_message("Left weapon behind.")
     
     def _handle_champions_prize(self):
         """Handle champion's prize - FIXED to respect level restrictions"""
@@ -2433,14 +2436,14 @@ class Game:
         
         weapon = WeaponSystem.generate_weapon(self.player, rarity)
         
-        print(f"\n*** CHAMPION'S PRIZE! ({rarity.upper()}) ***")
+        send_discord_message(f"\n*** CHAMPION'S PRIZE! ({rarity.upper()}) ***")
         comparison = WeaponComparison.compare_weapons(weapon, self.player.weapon, self.player)
-        print(comparison)
+        send_discord_message(comparison)
         
         try:
-            if input("\nEquip this weapon? (y/n): ").strip().lower() in ['y', 'yes']:
+            if discord_input("\nEquip this weapon? (y/n): ").strip().lower() in ['y', 'yes']:
                 if self.player.weapon:
-                    print(f"Replaced {self.player.weapon['name']}")
+                    send_discord_message(f"Replaced {self.player.weapon['name']}")
                 self.player.equip_weapon(weapon)
             else:
                 self.player.add_weapon_to_inventory(weapon)
@@ -2456,12 +2459,12 @@ class Game:
         if item == 'golden coin':
             coins = random.randint(3, 10)
             self.player.gold_coins += coins
-            print(f"+ {coins} gold coins!")
+            send_discord_message(f"+ {coins} gold coins!")
             return
         
         if item in GameConstants.WEARABLE_ITEMS:
             self.player.inventory.append(item)
-            print(f"+ {item} (wearable)")
+            send_discord_message(f"+ {item} (wearable)")
             return
         
         self.player.add_item(item)
@@ -2469,7 +2472,7 @@ class Game:
     def fight_enemy(self, enemy_name: str):
         """Fight enemy"""
         if not enemy_name:
-            print("Fight what?")
+            send_discord_message("Fight what?")
             return
         
         room = self.get_current_room()
@@ -2481,15 +2484,15 @@ class Game:
                 break
         
         if not matching:
-            print(f"No '{enemy_name}' here!")
+            send_discord_message(f"No '{enemy_name}' here!")
             if room.enemies:
-                print(f"Enemies: {', '.join(room.enemies)}")
+                send_discord_message(f"Enemies: {', '.join(room.enemies)}")
             return
         
         if not self.player.weapon:
-            print("! No weapon!")
+            send_discord_message("! No weapon!")
             try:
-                if input("Fight anyway? (y/n): ").strip().lower() not in ['y', 'yes']:
+                if discord_input("Fight anyway? (y/n): ").strip().lower() not in ['y', 'yes']:
                     return
             except KeyboardInterrupt:
                 return
@@ -2509,26 +2512,26 @@ class Game:
         room = self.get_current_room()
         
         if not room.enemies:
-            print("No enemies here!")
+            send_discord_message("No enemies here!")
             return
         
         if not self.player.weapon:
-            print("! No weapon!")
+            send_discord_message("! No weapon!")
             try:
-                if input("Fight anyway? (y/n): ").strip().lower() not in ['y', 'yes']:
+                if discord_input("Fight anyway? (y/n): ").strip().lower() not in ['y', 'yes']:
                     return
             except KeyboardInterrupt:
                 return
         
         bosses = [e for e in room.enemies if any(e == BossConfig.generate(f)['name'] for f in range(1, 11))]
         if bosses:
-            print(f"! Cannot use 'fightall' on bosses: {', '.join(bosses)}")
-            print("Fight bosses individually with 'fight <boss name>'")
+            send_discord_message(f"! Cannot use 'fightall' on bosses: {', '.join(bosses)}")
+            send_discord_message("Fight bosses individually with 'fight <boss name>'")
             return
         
         total_enemies = len(room.enemies)
-        print(f"\n*** Fighting all {total_enemies} enemies! ***")
-        print(f"Starting HP: {self.player.health}/{self.player.max_health}\n")
+        send_discord_message(f"\n*** Fighting all {total_enemies} enemies! ***")
+        send_discord_message(f"Starting HP: {self.player.health}/{self.player.max_health}\n")
         
         defeated = 0
         enemies_copy = room.enemies.copy()
@@ -2537,7 +2540,7 @@ class Game:
             if enemy_name not in room.enemies:
                 continue
             
-            print(f"\n--- Enemy {defeated + 1}/{total_enemies}: {enemy_name} ---")
+            send_discord_message(f"\n--- Enemy {defeated + 1}/{total_enemies}: {enemy_name} ---")
             
             enemy_stats = GameConstants.ENEMIES.get(enemy_name.lower())
             if enemy_stats:
@@ -2545,18 +2548,18 @@ class Game:
                 estimated_damage = max(1, estimated_damage)
                 
                 if self.player.health <= estimated_damage * 2:
-                    print(f"\n! WARNING: Low health ({self.player.health} HP)")
-                    print(f"! {enemy_name} deals ~{estimated_damage} damage per hit")
-                    print("! Consider:")
-                    print("  - Use 'heal' to restore health")
-                    print("  - Fight enemies one at a time")
+                    send_discord_message(f"\n! WARNING: Low health ({self.player.health} HP)")
+                    send_discord_message(f"! {enemy_name} deals ~{estimated_damage} damage per hit")
+                    send_discord_message("! Consider:")
+                    send_discord_message("  - Use 'heal' to restore health")
+                    send_discord_message("  - Fight enemies one at a time")
                     try:
-                        choice = input("Continue fighting? (y/n): ").strip().lower()
+                        choice = discord_input("Continue fighting? (y/n): ").strip().lower()
                         if choice not in ['y', 'yes']:
-                            print("Stopped fighting. Enemies remaining.")
+                            send_discord_message("Stopped fighting. Enemies remaining.")
                             return
                     except KeyboardInterrupt:
-                        print("\nStopped fighting.")
+                        send_discord_message("\nStopped fighting.")
                         return
             
             success = self.combat.fight_enemy(enemy_name, self.player, room)
@@ -2567,30 +2570,30 @@ class Game:
             
             defeated += 1
         
-        print(f"\n*** VICTORY! Defeated all {defeated} enemies! ***")
-        print(f"Final HP: {self.player.health}/{self.player.max_health}")
+        send_discord_message(f"\n*** VICTORY! Defeated all {defeated} enemies! ***")
+        send_discord_message(f"Final HP: {self.player.health}/{self.player.max_health}")
     
     def equip_wearable(self, item_name: Optional[str]):
         """Equip wearable item - FIXED"""
         if not item_name:
             wearables = [i for i in self.player.inventory if i in GameConstants.WEARABLE_ITEMS]
             if not wearables:
-                print("No wearables!")
+                send_discord_message("No wearables!")
                 return
             
-            print("Wearables:")
+            send_discord_message("Wearables:")
             for i, item in enumerate(wearables, 1):
                 effect = GameConstants.WEARABLE_ITEMS[item]
-                print(f"{i}. {item} (+{effect['bonus']} {effect['stat']})")
+                send_discord_message(f"{i}. {item} (+{effect['bonus']} {effect['stat']})")
             
             try:
-                choice = int(input("Choose: ")) - 1
+                choice = int(discord_input("Choose: ")) - 1
                 if 0 <= choice < len(wearables):
                     item_name = wearables[choice]
                 else:
                     return
             except (ValueError, KeyboardInterrupt):
-                print("Cancelled")
+                send_discord_message("Cancelled")
                 return
         
         if item_name and item_name in self.player.inventory and item_name in GameConstants.WEARABLE_ITEMS:
@@ -2598,20 +2601,20 @@ class Game:
             self.player.inventory.remove(item_name)
             self.player.stats[effect['stat']] += effect['bonus']
             self.player.wearables.append({'item': item_name, 'stat': effect['stat'], 'bonus': effect['bonus']})
-            print(f"*** Equipped {item_name}! +{effect['bonus']} {effect['stat']}")
+            send_discord_message(f"*** Equipped {item_name}! +{effect['bonus']} {effect['stat']}")
         else:
-            print(f"You don't have '{item_name}' or it's not a wearable")
+            send_discord_message(f"You don't have '{item_name}' or it's not a wearable")
     
     def discard_item(self, item_name: str):
         """Discard item"""
         if not item_name:
-            print("Discard what?")
+            send_discord_message("Discard what?")
             return
         
         for item in self.player.special_items:
             if item.lower() == item_name.lower() or item_name.lower() in item.lower():
                 if self.player.discard_special_item(item):
-                    print(f"Discarded: {item} (can find a new one on next floor)")
+                    send_discord_message(f"Discarded: {item} (can find a new one on next floor)")
                     return
         
         for item in self.player.inventory:
@@ -2623,25 +2626,25 @@ class Game:
                             self.player.inventory_weapons.pop(i)
                             break
                 self.player.inventory.remove(item)
-                print(f"Discarded: {item}")
+                send_discord_message(f"Discarded: {item}")
                 return
     def use_special_item(self, item_name: str):
         """Use special actionable items"""
         if not item_name:
-            print("Use what?")
+            send_discord_message("Use what?")
             return
         
         if item_name == 'old map' and item_name in self.player.special_items:
-            print("You study the old map...")
+            send_discord_message("You study the old map...")
             self.show_map()
             return
         
         if item_name not in self.player.inventory:
-            print(f"Don't have '{item_name}'")
+            send_discord_message(f"Don't have '{item_name}'")
             return
         
         if item_name not in GameConstants.ACTIONABLE_ITEMS:
-            print(f"Can't use '{item_name}' like that")
+            send_discord_message(f"Can't use '{item_name}' like that")
             return
         
         action_type = GameConstants.ACTIONABLE_ITEMS[item_name]
@@ -2650,8 +2653,8 @@ class Game:
         # TORCH - Open secret rooms
         if action_type == 'light' and item_name == 'torch':
             if 'Hidden Alcove' in room.name and not self.player.secret_room_unlocked:
-                print("\n*** You place the torch in the wall sconce...")
-                print("A hidden door slides open!")
+                send_discord_message("\n*** You place the torch in the wall sconce...")
+                send_discord_message("A hidden door slides open!")
                 
                 self.player.secret_room_unlocked = True
                 self.player.inventory.remove('torch')
@@ -2671,14 +2674,14 @@ class Game:
                         "Countless riches await!"
                     )
                 
-                print("\nUse 'go secret' to enter!")
+                send_discord_message("\nUse 'go secret' to enter!")
             else:
-                print("You hold up the torch. Nothing unusual here.")
+                send_discord_message("You hold up the torch. Nothing unusual here.")
         
         # RUSTY KEY - Open locked vaults
         elif action_type == 'key' and item_name == 'rusty key':
             if 'Vault' in room.name:
-                print("\n*** The key fits perfectly! The chest opens!")
+                send_discord_message("\n*** The key fits perfectly! The chest opens!")
                 self.player.inventory.remove('rusty key')
                 
                 treasures = ['weapon cache', 'weapon cache', 'legendary artifact',
@@ -2687,16 +2690,16 @@ class Game:
                     if t not in room.items:
                         room.items.append(t)
                 
-                print(f"\nTreasures: {', '.join(treasures)}")
-                print("The key crumbles to dust...")
+                send_discord_message(f"\nTreasures: {', '.join(treasures)}")
+                send_discord_message("The key crumbles to dust...")
             else:
-                print("You examine the key. It looks like it would fit a large lock...")
+                send_discord_message("You examine the key. It looks like it would fit a large lock...")
         
         # BONE KEY - Open bone crypts
         elif action_type == 'bone_key' and item_name == 'bone key':
             if 'Bone Crypt' in room.name:
-                print("\n*** The bone key dissolves into the skeletal lock!")
-                print("The bone door crumbles away, revealing hidden treasures!")
+                send_discord_message("\n*** The bone key dissolves into the skeletal lock!")
+                send_discord_message("The bone door crumbles away, revealing hidden treasures!")
                 
                 self.player.inventory.remove('bone key')
                 
@@ -2706,15 +2709,15 @@ class Game:
                     if t not in room.items:
                         room.items.append(t)
                 
-                print(f"\nTreasures: {', '.join(treasures)}")
+                send_discord_message(f"\nTreasures: {', '.join(treasures)}")
             else:
-                print("The bone key rattles ominously. This is meant for a bone door...")
+                send_discord_message("The bone key rattles ominously. This is meant for a bone door...")
         
         # DEMON SEAL - Banish demons and open demon gates
         elif action_type == 'demon_seal' and item_name == 'demon seal':
             if 'Demon Gate' in room.name:
-                print("\n*** You press the demon seal into the gate!")
-                print("The demonic chains shatter! A portal opens to the abyss!")
+                send_discord_message("\n*** You press the demon seal into the gate!")
+                send_discord_message("The demonic chains shatter! A portal opens to the abyss!")
                 
                 self.player.inventory.remove('demon seal')
                 
@@ -2728,26 +2731,26 @@ class Game:
                 demon_enemies = [e for e in room.enemies if 'demon' in e.lower()]
                 for demon in demon_enemies:
                     room.enemies.remove(demon)
-                    print(f"The {demon} is banished back to the abyss!")
+                    send_discord_message(f"The {demon} is banished back to the abyss!")
                 
-                print(f"\nTreasures from the abyss: {', '.join(treasures)}")
+                send_discord_message(f"\nTreasures from the abyss: {', '.join(treasures)}")
             elif any('demon' in e.lower() for e in room.enemies):
-                print("\n*** You activate the demon seal!")
+                send_discord_message("\n*** You activate the demon seal!")
                 demons = [e for e in room.enemies if 'demon' in e.lower()]
                 for demon in demons:
                     room.enemies.remove(demon)
                     self.player.gain_experience(GameConstants.ENEMIES[demon.lower()]['exp'])
-                    print(f"The {demon} is banished! +{GameConstants.ENEMIES[demon.lower()]['exp']} exp")
+                    send_discord_message(f"The {demon} is banished! +{GameConstants.ENEMIES[demon.lower()]['exp']} exp")
                 self.player.inventory.remove('demon seal')
-                print("The seal crumbles to ash...")
+                send_discord_message("The seal crumbles to ash...")
             else:
-                print("The demon seal pulses with dark energy. It's meant for demons...")
+                send_discord_message("The demon seal pulses with dark energy. It's meant for demons...")
         
         # CRYSTAL SHARD - Activate crystal mechanisms
         elif action_type == 'crystal' and item_name == 'crystal shard':
             if 'Crystal Chamber' in room.name:
-                print("\n*** You insert the crystal shard into the mechanism!")
-                print("The chamber floods with brilliant light!")
+                send_discord_message("\n*** You insert the crystal shard into the mechanism!")
+                send_discord_message("The chamber floods with brilliant light!")
                 
                 self.player.inventory.remove('crystal shard')
                 
@@ -2764,16 +2767,16 @@ class Game:
                     if t not in room.items:
                         room.items.append(t)
                 
-                print(f"*** Max Mana +30 ({old_max} → {self.player.max_mana})! Intelligence +5!")
-                print(f"Treasures: {', '.join(treasures)}")
+                send_discord_message(f"*** Max Mana +30 ({old_max} → {self.player.max_mana})! Intelligence +5!")
+                send_discord_message(f"Treasures: {', '.join(treasures)}")
             else:
-                print("The crystal shard glows softly. It needs a crystal mechanism...")
+                send_discord_message("The crystal shard glows softly. It needs a crystal mechanism...")
         
         # VOID ESSENCE - Stabilize void portals
         elif action_type == 'void' and item_name == 'void essence':
             if 'Void Tear' in room.name:
-                print("\n*** You channel the void essence into the portal!")
-                print("The tear stabilizes, revealing the void's secrets!")
+                send_discord_message("\n*** You channel the void essence into the portal!")
+                send_discord_message("The tear stabilizes, revealing the void's secrets!")
                 
                 self.player.inventory.remove('void essence')
                 
@@ -2788,16 +2791,16 @@ class Game:
                     if t not in room.items:
                         room.items.append(t)
                 
-                print("*** All stats +4! The void rewards you!")
-                print(f"Treasures: {', '.join(treasures)}")
+                send_discord_message("*** All stats +4! The void rewards you!")
+                send_discord_message(f"Treasures: {', '.join(treasures)}")
             else:
-                print("The void essence writhes with otherworldly power. It needs a void tear...")
+                send_discord_message("The void essence writhes with otherworldly power. It needs a void tear...")
         
         # PRIMORDIAL RUNE - Activate ancient monuments
         elif action_type == 'rune' and item_name == 'primordial rune':
             if 'Primordial Monument' in room.name:
-                print("\n*** You place the rune upon the monument!")
-                print("Ancient power flows through the ages!")
+                send_discord_message("\n*** You place the rune upon the monument!")
+                send_discord_message("Ancient power flows through the ages!")
                 
                 self.player.inventory.remove('primordial rune')
                 
@@ -2820,97 +2823,97 @@ class Game:
                     if t not in room.items:
                         room.items.append(t)
                 
-                print(f"*** Max HP +50 ({old_hp} → {self.player.max_health})!")
-                print(f"*** Max MP +40 ({old_mp} → {self.player.max_mana})!")
-                print("*** All stats +6! You are blessed by the ancients!")
-                print(f"Treasures: {', '.join(treasures)}")
+                send_discord_message(f"*** Max HP +50 ({old_hp} → {self.player.max_health})!")
+                send_discord_message(f"*** Max MP +40 ({old_mp} → {self.player.max_mana})!")
+                send_discord_message("*** All stats +6! You are blessed by the ancients!")
+                send_discord_message(f"Treasures: {', '.join(treasures)}")
             else:
-                print("The primordial rune hums with ancient power. It belongs on a monument...")
+                send_discord_message("The primordial rune hums with ancient power. It belongs on a monument...")
         
         # ANCIENT MEDALLION - Offer at shrines
         elif action_type == 'offering' and item_name == 'ancient medallion':
             if 'Shrine' in room.name:
-                print("\n*** The altar erupts with brilliant light!")
-                print("Ancient power flows through you!")
+                send_discord_message("\n*** The altar erupts with brilliant light!")
+                send_discord_message("Ancient power flows through you!")
                 
                 self.player.inventory.remove('ancient medallion')
                 
                 if self.player.character_class == 'warrior':
                     self.player.stats['strength'] += 8
                     self.player.stats['agility'] += 3
-                    print("*** Strength +8! Agility +3!")
+                    send_discord_message("*** Strength +8! Agility +3!")
                 elif self.player.character_class == 'mage':
                     self.player.stats['intelligence'] += 8
                     self.player.stats['strength'] += 3
-                    print("*** Intelligence +8! Strength +3!")
+                    send_discord_message("*** Intelligence +8! Strength +3!")
                 else:
                     self.player.stats['agility'] += 8
                     self.player.stats['intelligence'] += 3
-                    print("*** Agility +8! Intelligence +3!")
+                    send_discord_message("*** Agility +8! Intelligence +3!")
                 
                 self.player.max_health += 20
                 self.player.health = self.player.max_health
                 self.player.max_mana += 15
                 self.player.mana = self.player.max_mana
                 
-                print(f"*** Max health +20! Max mana +15! Fully healed!")
+                send_discord_message(f"*** Max health +20! Max mana +15! Fully healed!")
             else:
-                print("You hold the medallion. It should be placed on an altar...")
+                send_discord_message("You hold the medallion. It should be placed on an altar...")
         
         elif action_type == 'map':
-            print("You study the old map...")
+            send_discord_message("You study the old map...")
             self.show_map()
     
     def upgrade_class(self):
         """Upgrade class tier"""
         if not self.player.can_upgrade_class():
             if self.player.class_tier >= 3:
-                print("Already max tier!")
+                send_discord_message("Already max tier!")
             else:
                 next_level = GameConstants.CLASS_UPGRADE_LEVELS[self.player.class_tier - 1]
-                print(f"Need level {next_level}")
+                send_discord_message(f"Need level {next_level}")
             return
         
         current = self.player.get_class_title()
         next_title = GameConstants.CLASS_NAMES[self.player.class_tier + 1][self.player.character_class]
         
-        print(f"\n*** CLASS UPGRADE!")
-        print(f"Current: {current} (Tier {self.player.class_tier})")
-        print(f"Upgrade to: {next_title} (Tier {self.player.class_tier + 1})")
-        print("\nBenefits: +5 all stats, +30 HP, +25 MP, +5% loot")
+        send_discord_message(f"\n*** CLASS UPGRADE!")
+        send_discord_message(f"Current: {current} (Tier {self.player.class_tier})")
+        send_discord_message(f"Upgrade to: {next_title} (Tier {self.player.class_tier + 1})")
+        send_discord_message("\nBenefits: +5 all stats, +30 HP, +25 MP, +5% loot")
         
         try:
-            if input(f"\nUpgrade to {next_title}? (y/n): ").strip().lower() in ['y', 'yes']:
+            if discord_input(f"\nUpgrade to {next_title}? (y/n): ").strip().lower() in ['y', 'yes']:
                 if self.player.upgrade_class():
-                    print("Upgrade successful!")
+                    send_discord_message("Upgrade successful!")
         except KeyboardInterrupt:
-            print("Cancelled")
+            send_discord_message("Cancelled")
     
     def open_shop(self):
         """Open shop"""
         if self.player.current_floor > 1 and 'start' not in self.player.current_room:
-            print("! No shop here. Visit the floor's starting room to find a merchant.")
+            send_discord_message("! No shop here. Visit the floor's starting room to find a merchant.")
             return
         
         if self.player.current_floor == 1 and self.player.current_room != 'start':
-            print("! No shop here. Return to the entrance hall to find a merchant.")
+            send_discord_message("! No shop here. Return to the entrance hall to find a merchant.")
             return
         
-        print("\n" + "="*40)
-        print("*** MERCHANT ***")
-        print("="*40)
-        print(f"Gold: {self.player.gold_coins}")
+        send_discord_message("\n" + "="*40)
+        send_discord_message("*** MERCHANT ***")
+        send_discord_message("="*40)
+        send_discord_message(f"Gold: {self.player.gold_coins}")
         
         items = [(k, v) for k, v in GameConstants.SHOP_ITEMS.items()
                 if k != 'magic scroll' or self.player.character_class == 'mage']
         
-        print("\nShop:")
+        send_discord_message("\nShop:")
         for i, (item, price) in enumerate(items, 1):
-            print(f"{i}. {item} - {price}g")
-        print(f"{len(items) + 1}. Leave")
+            send_discord_message(f"{i}. {item} - {price}g")
+        send_discord_message(f"{len(items) + 1}. Leave")
         
         try:
-            choice = int(input("\nBuy: ").strip())
+            choice = int(discord_input("\nBuy: ").strip())
             if choice == len(items) + 1:
                 return
             
@@ -2923,14 +2926,14 @@ class Game:
                             self.player.inventory.append(item)
                         else:
                             self.player.add_item(item)
-                        print(f"Purchased {item} for {price}g!")
-                        print(f"Gold remaining: {self.player.gold_coins}")
+                        send_discord_message(f"Purchased {item} for {price}g!")
+                        send_discord_message(f"Gold remaining: {self.player.gold_coins}")
                     else:
-                        print("Inventory full!")
+                        send_discord_message("Inventory full!")
                 else:
-                    print(f"Not enough gold! Need {price}g, have {self.player.gold_coins}g")
+                    send_discord_message(f"Not enough gold! Need {price}g, have {self.player.gold_coins}g")
         except (ValueError, KeyboardInterrupt):
-            print("Cancelled")
+            send_discord_message("Cancelled")
     
     def show_map(self):
         """Display visual dungeon map"""
@@ -2940,7 +2943,7 @@ class Game:
             self.player.current_room,
             self.player.visited_rooms
         )
-        print(visual_map)
+        send_discord_message(visual_map)
     
     def save_game(self):
         """Save game state to selected slot"""
@@ -2950,9 +2953,9 @@ class Game:
                 os.makedirs(GameConstants.SAVE_DIRECTORY)
             
             # Show available save slots
-            print("\n" + "="*40)
-            print("SAVE GAME")
-            print("="*40)
+            send_discord_message("\n" + "="*40)
+            send_discord_message("SAVE GAME")
+            send_discord_message("="*40)
             
             # List existing saves
             for slot in range(1, GameConstants.MAX_SAVE_SLOTS + 1):
@@ -2965,24 +2968,24 @@ class Game:
                             name = player_data.get('name', 'Unknown')
                             level = player_data.get('level', 1)
                             floor = player_data.get('current_floor', 1)
-                            print(f"{slot}. {name} - Lvl {level} - Floor {floor}")
+                            send_discord_message(f"{slot}. {name} - Lvl {level} - Floor {floor}")
                     except:
-                        print(f"{slot}. [Corrupted Save]")
+                        send_discord_message(f"{slot}. [Corrupted Save]")
                 else:
-                    print(f"{slot}. [Empty Slot]")
+                    send_discord_message(f"{slot}. [Empty Slot]")
             
-            print(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
+            send_discord_message(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
             
             try:
-                choice = int(input(f"\nChoose slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
+                choice = int(discord_input(f"\nChoose slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
                 if choice == GameConstants.MAX_SAVE_SLOTS + 1:
-                    print("Cancelled.")
+                    send_discord_message("Cancelled.")
                     return
                 if choice < 1 or choice > GameConstants.MAX_SAVE_SLOTS:
-                    print("Invalid slot!")
+                    send_discord_message("Invalid slot!")
                     return
             except (ValueError, KeyboardInterrupt):
-                print("Cancelled.")
+                send_discord_message("Cancelled.")
                 return
             
             save_path = os.path.join(GameConstants.SAVE_DIRECTORY, f"save{choice}.json")
@@ -2990,12 +2993,12 @@ class Game:
             # Confirm overwrite if slot exists
             if os.path.exists(save_path):
                 try:
-                    confirm = input(f"Overwrite slot {choice}? (y/n): ").strip().lower()
+                    confirm = discord_input(f"Overwrite slot {choice}? (y/n): ").strip().lower()
                     if confirm not in ['y', 'yes']:
-                        print("Cancelled.")
+                        send_discord_message("Cancelled.")
                         return
                 except KeyboardInterrupt:
-                    print("Cancelled.")
+                    send_discord_message("Cancelled.")
                     return
             
             save_data = {
@@ -3018,10 +3021,10 @@ class Game:
                 json.dump(save_data, f, indent=2)
             
             logger.info(f"Game saved to slot {choice}: {self.player.name} (Lvl {self.player.level}, Floor {self.player.current_floor})")
-            print(f"✓ Game saved to slot {choice}!")
+            send_discord_message(f"✓ Game saved to slot {choice}!")
         except Exception as e:
             logging.error(f"Save error: {e}", exc_info=True)
-            print(f"✗ Save failed: {e}")
+            send_discord_message(f"✗ Save failed: {e}")
     
     def load_game(self) -> bool:
         """Load game state from selected slot"""
@@ -3032,9 +3035,9 @@ class Game:
                 return False
             
             # Show available save slots
-            print("\n" + "="*40)
-            print("LOAD GAME")
-            print("="*40)
+            send_discord_message("\n" + "="*40)
+            send_discord_message("LOAD GAME")
+            send_discord_message("="*40)
             
             available_saves = []
             for slot in range(1, GameConstants.MAX_SAVE_SLOTS + 1):
@@ -3048,25 +3051,25 @@ class Game:
                             level = player_data.get('level', 1)
                             char_class = player_data.get('character_class', 'warrior')
                             floor = player_data.get('current_floor', 1)
-                            print(f"{slot}. {name} - {char_class.title()} Lvl {level} - Floor {floor}")
+                            send_discord_message(f"{slot}. {name} - {char_class.title()} Lvl {level} - Floor {floor}")
                             available_saves.append(slot)
                     except:
-                        print(f"{slot}. [Corrupted Save]")
+                        send_discord_message(f"{slot}. [Corrupted Save]")
                 else:
-                    print(f"{slot}. [Empty Slot]")
+                    send_discord_message(f"{slot}. [Empty Slot]")
             
             if not available_saves:
-                print("\nNo save files found!")
+                send_discord_message("\nNo save files found!")
                 return False
             
-            print(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
+            send_discord_message(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
             
             try:
-                choice = int(input(f"\nChoose slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
+                choice = int(discord_input(f"\nChoose slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
                 if choice == GameConstants.MAX_SAVE_SLOTS + 1:
                     return False
                 if choice not in available_saves:
-                    print("Invalid or empty slot!")
+                    send_discord_message("Invalid or empty slot!")
                     return False
             except (ValueError, KeyboardInterrupt):
                 return False
@@ -3078,14 +3081,14 @@ class Game:
             
             if save_data.get('version') != GameConstants.VERSION:
                 logger.warning(f"Save version mismatch: {save_data.get('version')} vs {GameConstants.VERSION}")
-                print("! Save version mismatch - may have issues")
+                send_discord_message("! Save version mismatch - may have issues")
             
             self.player = Player.from_dict(save_data['player'])
             
             if self.player.weapon and self.player.weapon.get('special') == 'instant_kill':
                 if self.player.weapon.get('uses_remaining', 0) <= 0:
                     logger.info("Golden Gun depleted on load")
-                    print("! Your Golden Gun has depleted...")
+                    send_discord_message("! Your Golden Gun has depleted...")
                     self.player.weapon = None
             
             self.floors = {}
@@ -3119,24 +3122,24 @@ class Game:
                     self.floors[floor_num][room_id].visited = room_data['visited']
             
             logger.info(f"Game loaded from slot {choice}: {self.player.name} (Lvl {self.player.level}, Floor {self.player.current_floor})")
-            print(f"✓ Welcome back, {self.player.name} the {self.player.get_class_title()}!")
+            send_discord_message(f"✓ Welcome back, {self.player.name} the {self.player.get_class_title()}!")
             return True
             
         except Exception as e:
             logging.error(f"Load error: {e}", exc_info=True)
-            print(f"✗ Load failed: {e}")
+            send_discord_message(f"✗ Load failed: {e}")
             return False
     
     def delete_save(self):
         """Delete a save file"""
         try:
             if not os.path.exists(GameConstants.SAVE_DIRECTORY):
-                print("No save files found!")
+                send_discord_message("No save files found!")
                 return
             
-            print("\n" + "="*40)
-            print("DELETE SAVE")
-            print("="*40)
+            send_discord_message("\n" + "="*40)
+            send_discord_message("DELETE SAVE")
+            send_discord_message("="*40)
             
             available_saves = []
             for slot in range(1, GameConstants.MAX_SAVE_SLOTS + 1):
@@ -3149,69 +3152,76 @@ class Game:
                             name = player_data.get('name', 'Unknown')
                             level = player_data.get('level', 1)
                             floor = player_data.get('current_floor', 1)
-                            print(f"{slot}. {name} - Lvl {level} - Floor {floor}")
+                            send_discord_message(f"{slot}. {name} - Lvl {level} - Floor {floor}")
                             available_saves.append(slot)
                     except:
-                        print(f"{slot}. [Corrupted Save]")
+                        send_discord_message(f"{slot}. [Corrupted Save]")
                         available_saves.append(slot)
                 else:
-                    print(f"{slot}. [Empty Slot]")
+                    send_discord_message(f"{slot}. [Empty Slot]")
             
             if not available_saves:
-                print("\nNo save files to delete!")
+                send_discord_message("\nNo save files to delete!")
                 return
             
-            print(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
+            send_discord_message(f"{GameConstants.MAX_SAVE_SLOTS + 1}. Cancel")
             
             try:
-                choice = int(input(f"\nDelete slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
+                choice = int(discord_input(f"\nDelete slot (1-{GameConstants.MAX_SAVE_SLOTS}): ").strip())
                 if choice == GameConstants.MAX_SAVE_SLOTS + 1:
                     return
                 if choice not in available_saves:
-                    print("Invalid or empty slot!")
+                    send_discord_message("Invalid or empty slot!")
                     return
             except (ValueError, KeyboardInterrupt):
                 return
             
             save_path = os.path.join(GameConstants.SAVE_DIRECTORY, f"save{choice}.json")
             
-            confirm = input(f"Delete slot {choice}? This cannot be undone! (y/n): ").strip().lower()
+            confirm = discord_input(f"Delete slot {choice}? This cannot be undone! (y/n): ").strip().lower()
             if confirm in ['y', 'yes']:
                 os.remove(save_path)
-                print(f"✓ Slot {choice} deleted!")
+                send_discord_message(f"✓ Slot {choice} deleted!")
                 logger.info(f"Save file deleted: slot {choice}")
             else:
-                print("Cancelled.")
+                send_discord_message("Cancelled.")
         except Exception as e:
             logging.error(f"Delete save error: {e}", exc_info=True)
-            print(f"✗ Delete failed: {e}")
+            send_discord_message(f"✗ Delete failed: {e}")
     
     def quit_game(self):
         """Exit game"""
         try:
-            if input("\nSave before quitting? (y/n): ").strip().lower() in ['y', 'yes']:
+            if discord_input("\nSave before quitting? (y/n): ").strip().lower() in ['y', 'yes']:
                 self.save_game()
         except KeyboardInterrupt:
             pass
         
-        print(f"\nThanks for playing, {self.player.name if self.player else 'Adventurer'}!")
-        print("See you next time!")
+        send_discord_message(f"\nThanks for playing, {self.player.name if self.player else 'Adventurer'}!")
+        send_discord_message("See you next time!")
         self.running = False
 
+
+async def discord_input(user_prompt):
+    send_discord_message(user_prompt)
+    async with retrieve_discord_response() as discord_response:
+        return await discord_response
+
+
+        
 #################################################################################
 # MAIN ENTRY POINT
 #################################################################################
-def main():
-    """Main entry point"""
+async def main():
     try:
         game = Game()
         game.start_game()
     except KeyboardInterrupt:
-        print("\n\nGame interrupted. Goodbye!")
+        send_discord_message("\n\nGame interrupted. Goodbye!")
     except Exception as e:
         logging.error(f"Fatal error: {e}", exc_info=True)
-        print(f"\n\nFatal error: {e}")
-        print("Please report this bug!")
+        send_discord_message(f"\n\nFatal error: {e}")
+        send_discord_message("Please report this bug!")
 
 if __name__ == "__main__":
     main()
